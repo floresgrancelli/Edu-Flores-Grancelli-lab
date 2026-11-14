@@ -1,0 +1,19 @@
+{
+  "usda": {
+    "url": "https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_json_2018-04.zip",
+    "downloadSha256": "0fe8ae486a2c8eb42cb96413f058deb51863a46c8fb8eeb4b1fb45006dd338ef",
+    "recordCount": 53
+  },
+  "sara": {
+    "url": "https://cesni-biblioteca.org/wp-content/uploads/2022/09/tabla-composicion-quimica-alimentos-argentina_ennys2.pdf",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "rowCount": 33,
+    "b12Policy": "Withheld: printed header mg, no unverified reinterpretation as µg."
+  },
+  "files": {
+    "completion-usda.json.gz": "65f505340959cd02a18b77b084114f0522e2de465da348fcae0c30b4204638a9",
+    "completion-sara-rows.json": "90519a92754cb439e0556869c0a079f2bc32c7e212b5b1591dcc444e462aa2b8",
+    "completion-models.json": "e45b76dbe0c16d6552debc841b5e2b9ddd47e2aaed01ec637601f8940e5f0074",
+    "completion-reviewed-tables.json": "1cd75f6b50b384ec0fd6cfd8a884fdbf498212718f931c15d008035bde6df860"
+  }
+}

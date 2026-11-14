@@ -10,12 +10,23 @@
       "calcium": 15,
       "iron": 2.25,
       "magnesium": 10,
-      "zinc": 3.1
+      "zinc": 3.1,
+      "ala": 0.275,
+      "epa": 0,
+      "dha": 0
     },
     "withheld": [
-      "B12: printed unit inconsistent; requires independent verification",
-      "ALA/EPA/DHA: not transcribed or inferred"
-    ]
+      "B12: printed unit inconsistent; requires independent verification"
+    ],
+    "fattyAcidEvidence": {
+      "page": 82,
+      "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=82",
+      "sourceUnit": "g/100g",
+      "ala": 0.275,
+      "epa": 0,
+      "dha": 0,
+      "projection": "ALA remains g; EPA and DHA multiplied by 1000 to mg"
+    }
   },
   {
     "foodId": "chorizo_cooked",
@@ -28,12 +39,23 @@
       "calcium": 26,
       "iron": 1.93,
       "magnesium": 27,
-      "zinc": 2
+      "zinc": 2,
+      "ala": 0,
+      "epa": 0,
+      "dha": 0
     },
     "withheld": [
-      "B12: printed unit inconsistent; requires independent verification",
-      "ALA/EPA/DHA: not transcribed or inferred"
-    ]
+      "B12: printed unit inconsistent; requires independent verification"
+    ],
+    "fattyAcidEvidence": {
+      "page": 82,
+      "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=82",
+      "sourceUnit": "g/100g",
+      "ala": 0,
+      "epa": 0,
+      "dha": 0,
+      "projection": "ALA remains g; EPA and DHA multiplied by 1000 to mg"
+    }
   },
   {
     "foodId": "sweetbreads_beef_grilled",
@@ -46,12 +68,23 @@
       "calcium": 10,
       "iron": 1.49,
       "magnesium": 10,
-      "zinc": 2.2
+      "zinc": 2.2,
+      "ala": 0.17,
+      "epa": 0,
+      "dha": 0
     },
     "withheld": [
-      "B12: printed unit inconsistent; requires independent verification",
-      "ALA/EPA/DHA: not transcribed or inferred"
-    ]
+      "B12: printed unit inconsistent; requires independent verification"
+    ],
+    "fattyAcidEvidence": {
+      "page": 86,
+      "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=86",
+      "sourceUnit": "g/100g",
+      "ala": 0.17,
+      "epa": 0,
+      "dha": 0,
+      "projection": "ALA remains g; EPA and DHA multiplied by 1000 to mg"
+    }
   },
   {
     "foodId": "morcilla_cooked",
@@ -64,12 +97,23 @@
       "calcium": 6,
       "iron": 6.4,
       "magnesium": 8,
-      "zinc": 1.3
+      "zinc": 1.3,
+      "ala": 0.26,
+      "epa": 0,
+      "dha": 0
     },
     "withheld": [
-      "B12: printed unit inconsistent; requires independent verification",
-      "ALA/EPA/DHA: not transcribed or inferred"
-    ]
+      "B12: printed unit inconsistent; requires independent verification"
+    ],
+    "fattyAcidEvidence": {
+      "page": 86,
+      "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=86",
+      "sourceUnit": "g/100g",
+      "ala": 0.26,
+      "epa": 0,
+      "dha": 0,
+      "projection": "ALA remains g; EPA and DHA multiplied by 1000 to mg"
+    }
   },
   {
     "foodId": "kidney_beef_grilled",
@@ -82,11 +126,732 @@
       "calcium": 19,
       "iron": 5.8,
       "magnesium": 12,
-      "zinc": 2.84
+      "zinc": 2.84,
+      "ala": 0.011,
+      "epa": 0,
+      "dha": 0
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification"
+    ],
+    "fattyAcidEvidence": {
+      "page": 88,
+      "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=88",
+      "sourceUnit": "g/100g",
+      "ala": 0.011,
+      "epa": 0,
+      "dha": 0,
+      "projection": "ALA remains g; EPA and DHA multiplied by 1000 to mg"
+    }
+  },
+  {
+    "foodId": "ham_cooked",
+    "expectedName": "Jamón cocido",
+    "sourceId": "SARA2-2022-p85-ham_cooked",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=85",
+    "sourceDescription": "SARA 2 (2022), página 85: Jamón cocido; aproximación genérica, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 7,
+      "iron": 0.7,
+      "magnesium": 24,
+      "zinc": 1.8
     },
     "withheld": [
       "B12: printed unit inconsistent; requires independent verification",
-      "ALA/EPA/DHA: not transcribed or inferred"
+      "ALA/EPA/DHA: only added where separately reviewed"
+    ]
+  },
+  {
+    "foodId": "fish_hake",
+    "expectedName": "Merluza cocida",
+    "sourceId": "SARA2-2022-p98-fish_hake",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=98",
+    "sourceDescription": "SARA 2 (2022), página 98: Merluza (fila preparada, distinta de Merluza cruda; tabla 9.A p97); aproximación genérica, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 17,
+      "iron": 2.47,
+      "magnesium": 28,
+      "zinc": 0.4,
+      "ala": 0.01,
+      "epa": 130.0,
+      "dha": 345.0
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification"
+    ],
+    "fattyAcidEvidence": {
+      "page": 97,
+      "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=97",
+      "sourceUnit": "g/100g",
+      "ala": 0.01,
+      "epa": 0.13,
+      "dha": 0.345,
+      "projection": "ALA remains g; EPA and DHA multiplied by 1000 to mg"
+    }
+  },
+  {
+    "foodId": "pejerrey_cocido",
+    "expectedName": "Pejerrey cocido al horno sin aceite",
+    "sourceId": "SARA2-2022-p98-pejerrey_cocido",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=98",
+    "sourceDescription": "SARA 2 (2022), página 98: Pejerrey (fila preparada, distinta de crudo; tabla 9.A p97); aproximación genérica, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 135,
+      "iron": 0.9,
+      "magnesium": 29,
+      "zinc": 0.38,
+      "ala": 0,
+      "epa": 118.0,
+      "dha": 313.0
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification"
+    ],
+    "fattyAcidEvidence": {
+      "page": 97,
+      "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=97",
+      "sourceUnit": "g/100g",
+      "ala": 0,
+      "epa": 0.118,
+      "dha": 0.313,
+      "projection": "ALA remains g; EPA and DHA multiplied by 1000 to mg"
+    }
+  },
+  {
+    "foodId": "alfajor_chocolate",
+    "expectedName": "Alfajor con baño de chocolate",
+    "sourceId": "SARA2-2022-p107-alfajor_chocolate",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=107",
+    "sourceDescription": "SARA 2 (2022), página 107: Alfajor de chocolate; aproximación genérica, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 92,
+      "iron": 2.27,
+      "magnesium": 48,
+      "zinc": 0.9
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: only added where separately reviewed"
+    ]
+  },
+  {
+    "foodId": "alfajor_ddl",
+    "expectedName": "Alfajor de dulce de leche clásico",
+    "sourceId": "SARA2-2022-p107-alfajor_ddl",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=107",
+    "sourceDescription": "SARA 2 (2022), página 107: Alfajor de dulce de leche; aproximación genérica, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 92,
+      "iron": 1.6,
+      "magnesium": 16,
+      "zinc": 1
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: only added where separately reviewed"
+    ]
+  },
+  {
+    "foodId": "alfajor_maicena",
+    "expectedName": "Alfajor de maicena",
+    "sourceId": "SARA2-2022-p107-alfajor_maicena",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=107",
+    "sourceDescription": "SARA 2 (2022), página 107: Alfajor de maicena; aproximación genérica, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 78,
+      "iron": 1.23,
+      "magnesium": 14,
+      "zinc": 0.5
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: only added where separately reviewed"
+    ]
+  },
+  {
+    "foodId": "bread_rye",
+    "expectedName": "Pan de centeno",
+    "sourceId": "SARA2-2022-p53-bread_rye",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=53",
+    "sourceDescription": "SARA 2 (2022), página 53: Pan de Centeno; aproximación genérica, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 73,
+      "iron": 2.83,
+      "magnesium": 40,
+      "zinc": 1.14
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: only added where separately reviewed"
+    ]
+  },
+  {
+    "foodId": "pan_lactal",
+    "expectedName": "Pan lactal blanco",
+    "sourceId": "SARA2-2022-p53-pan_lactal",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=53",
+    "sourceDescription": "SARA 2 (2022), página 53: Pan blanco, tipo molde, lacteado; aproximación genérica, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 57,
+      "iron": 2.97,
+      "magnesium": 19,
+      "zinc": 0.64
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: only added where separately reviewed"
+    ]
+  },
+  {
+    "foodId": "pan_salvado",
+    "expectedName": "Pan de salvado",
+    "sourceId": "SARA2-2022-p53-pan_salvado",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=53",
+    "sourceDescription": "SARA 2 (2022), página 53: Pan de salvado; aproximación genérica, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 119,
+      "iron": 3.62,
+      "magnesium": 100,
+      "zinc": 2.4
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: only added where separately reviewed"
+    ]
+  },
+  {
+    "foodId": "pan_frances",
+    "expectedName": "Pan francés tipo flauta",
+    "sourceId": "SARA2-2022-p53-pan_frances",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=53",
+    "sourceDescription": "SARA 2 (2022), página 53: Pan francés o pan casero sin agregado de grasa o aceite; aproximación genérica, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 19,
+      "iron": 3.3,
+      "magnesium": 22,
+      "zinc": 1.04
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: only added where separately reviewed"
+    ]
+  },
+  {
+    "foodId": "pan_campo_panaderia",
+    "expectedName": "Pan de campo tradicional de panadería",
+    "sourceId": "SARA2-2022-p53-pan_campo_panaderia",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=53",
+    "sourceDescription": "SARA 2 (2022), página 53: Pan francés o pan casero sin agregado de grasa o aceite (aproximación de pan casero); aproximación genérica, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 19,
+      "iron": 3.3,
+      "magnesium": 22,
+      "zinc": 1.04
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: only added where separately reviewed"
+    ]
+  },
+  {
+    "foodId": "pan_mignon_panaderia",
+    "expectedName": "Pan miñón común de panadería",
+    "sourceId": "SARA2-2022-p53-pan_mignon_panaderia",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=53",
+    "sourceDescription": "SARA 2 (2022), página 53: Pan francés o pan casero sin agregado de grasa o aceite (aproximación de pan blanco de panadería); aproximación genérica, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 19,
+      "iron": 3.3,
+      "magnesium": 22,
+      "zinc": 1.04
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: only added where separately reviewed"
+    ]
+  },
+  {
+    "foodId": "cheese",
+    "expectedName": "Port Salut Light",
+    "sourceId": "SARA2-2022-p79-cheese",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=79",
+    "sourceDescription": "SARA 2 (2022), página 79: Queso porsalut sin sal light; aproximación genérica, sodio no se proyecta; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 782,
+      "iron": 0.22,
+      "magnesium": 23,
+      "zinc": 2.76
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "queso_cremoso",
+    "expectedName": "Queso cremoso",
+    "sourceId": "SARA2-2022-p77-queso_cremoso",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=77",
+    "sourceDescription": "SARA 2 (2022), página 77: Queso Cremoso; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 690,
+      "iron": 0.18,
+      "magnesium": 29,
+      "zinc": 3.06
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "queso_fresco_magro",
+    "expectedName": "Queso fresco magro",
+    "sourceId": "SARA2-2022-p79-queso_fresco_magro",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=79",
+    "sourceDescription": "SARA 2 (2022), página 79: Queso pasta blanda descremado; aproximación de queso fresco magro; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 736,
+      "iron": 0.22,
+      "magnesium": 23,
+      "zinc": 2.76
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "queso_sardo",
+    "expectedName": "Queso sardo",
+    "sourceId": "SARA2-2022-p79-queso_sardo",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=79",
+    "sourceDescription": "SARA 2 (2022), página 79: Queso Sardo; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 1064,
+      "iron": 0.77,
+      "magnesium": 41,
+      "zinc": 2.58
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "dulce_batata",
+    "expectedName": "Dulce de batata",
+    "sourceId": "SARA2-2022-p105-dulce_batata",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=105",
+    "sourceDescription": "SARA 2 (2022), página 105: Dulce de batata; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 24,
+      "iron": 0.65,
+      "magnesium": 25,
+      "zinc": 0.3
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "dulce_de_leche",
+    "expectedName": "Dulce de leche tradicional",
+    "sourceId": "SARA2-2022-p105-dulce_de_leche",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=105",
+    "sourceDescription": "SARA 2 (2022), página 105: Dulce de leche; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 253,
+      "iron": 0.37,
+      "magnesium": 22,
+      "zinc": 0.7
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "dulce_leche_entero",
+    "expectedName": "Dulce de leche entero tradicional",
+    "sourceId": "SARA2-2022-p105-dulce_leche_entero",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=105",
+    "sourceDescription": "SARA 2 (2022), página 105: Dulce de leche; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 253,
+      "iron": 0.37,
+      "magnesium": 22,
+      "zinc": 0.7
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "quince",
+    "expectedName": "Dulce de membrillo",
+    "sourceId": "SARA2-2022-p105-quince",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=105",
+    "sourceDescription": "SARA 2 (2022), página 105: Dulce de membrillo; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 11,
+      "iron": 0.73,
+      "magnesium": 6,
+      "zinc": 0
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "jam_regular",
+    "expectedName": "Mermelada común",
+    "sourceId": "SARA2-2022-p105-jam_regular",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=105",
+    "sourceDescription": "SARA 2 (2022), página 105: Mermelada de frutas; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 20,
+      "iron": 0.49,
+      "magnesium": 4,
+      "zinc": 0.06
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "mermelada_azucar",
+    "expectedName": "Mermelada común con azúcar",
+    "sourceId": "SARA2-2022-p105-mermelada_azucar",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=105",
+    "sourceDescription": "SARA 2 (2022), página 105: Mermelada de frutas; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 20,
+      "iron": 0.49,
+      "magnesium": 4,
+      "zinc": 0.06
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "jam_light",
+    "expectedName": "Mermelada reducida en azúcar (genérica)",
+    "sourceId": "SARA2-2022-p105-jam_light",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=105",
+    "sourceDescription": "SARA 2 (2022), página 105: Mermelada de frutas light; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 6,
+      "iron": 0,
+      "magnesium": 4,
+      "zinc": 0.05
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "zapallito_cooked",
+    "expectedName": "Zapallito cocido",
+    "sourceId": "SARA2-2022-p27-zapallito_cooked",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=27",
+    "sourceDescription": "SARA 2 (2022), página 27: Zapallito, hervido; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 24,
+      "iron": 1.51,
+      "magnesium": 18,
+      "zinc": 0.32
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "zapallito_redondo_cocido",
+    "expectedName": "Zapallito redondo hervido",
+    "sourceId": "SARA2-2022-p27-zapallito_redondo_cocido",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=27",
+    "sourceDescription": "SARA 2 (2022), página 27: Zapallito, hervido; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 24,
+      "iron": 1.51,
+      "magnesium": 18,
+      "zinc": 0.32
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "zapallo_criollo_hervido",
+    "expectedName": "Zapallo criollo hervido, sin aceite",
+    "sourceId": "SARA2-2022-p27-zapallo_criollo_hervido",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=27",
+    "sourceDescription": "SARA 2 (2022), página 27: Zapallo, hervido; promedio genérico de zapallo; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 35,
+      "iron": 0.75,
+      "magnesium": 23,
+      "zinc": 0.24
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "pumpkin",
+    "expectedName": "Calabaza cocida",
+    "sourceId": "SARA2-2022-p27-pumpkin",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=27",
+    "sourceDescription": "SARA 2 (2022), página 27: Zapallo, hervido; promedio genérico de calabaza/zapallo; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 35,
+      "iron": 0.75,
+      "magnesium": 23,
+      "zinc": 0.24
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "pure_pumpkin",
+    "expectedName": "Puré de calabaza sin aceite",
+    "sourceId": "SARA2-2022-p27-pure_pumpkin",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=27",
+    "sourceDescription": "SARA 2 (2022), página 27: Zapallo, hervido; aproximación de pulpa hervida hecha puré sin agregados; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 35,
+      "iron": 0.75,
+      "magnesium": 23,
+      "zinc": 0.24
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "pure_zapallo_simple",
+    "expectedName": "Puré de zapallo sin manteca ni aceite",
+    "sourceId": "SARA2-2022-p27-pure_zapallo_simple",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=27",
+    "sourceDescription": "SARA 2 (2022), página 27: Zapallo, hervido; aproximación de pulpa hervida hecha puré sin agregados; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 35,
+      "iron": 0.75,
+      "magnesium": 23,
+      "zinc": 0.24
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "merluza_filet_cruda",
+    "expectedName": "Filet de merluza crudo sin rebozar",
+    "sourceId": "SARA2-2022-p98-merluza_filet_cruda",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=98",
+    "sourceDescription": "SARA 2 (2022), página 98: Merluza, cruda; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 21,
+      "iron": 1.9,
+      "magnesium": 23,
+      "zinc": 0.3,
+      "ala": 0.008,
+      "epa": 100.0,
+      "dha": 266.0
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification"
+    ],
+    "fattyAcidEvidence": {
+      "page": 97,
+      "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=97",
+      "sourceUnit": "g/100g",
+      "ala": 0.008,
+      "epa": 0.1,
+      "dha": 0.266,
+      "projection": "ALA remains g; EPA and DHA multiplied by 1000 to mg"
+    }
+  },
+  {
+    "foodId": "merluza_grill",
+    "expectedName": "Merluza a la plancha sin aceite",
+    "sourceId": "SARA2-2022-p98-merluza_grill",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=98",
+    "sourceDescription": "SARA 2 (2022), página 98: Merluza preparada, aproximación sin aceite; no usar peso crudo; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 17,
+      "iron": 2.47,
+      "magnesium": 28,
+      "zinc": 0.4,
+      "ala": 0.01,
+      "epa": 130.0,
+      "dha": 345.0
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification"
+    ],
+    "fattyAcidEvidence": {
+      "page": 97,
+      "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=97",
+      "sourceUnit": "g/100g",
+      "ala": 0.01,
+      "epa": 0.13,
+      "dha": 0.345,
+      "projection": "ALA remains g; EPA and DHA multiplied by 1000 to mg"
+    }
+  },
+  {
+    "foodId": "asado_beef",
+    "expectedName": "Asado de tira vacuno cocido",
+    "sourceId": "SARA2-2022-p91-asado_beef",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=91",
+    "sourceDescription": "SARA 2 (2022), página 91: Vacuno cortes grasos PROMEDIO horno/parrilla; incluye asado en ejemplos de la fuente; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 13,
+      "iron": 2.11,
+      "magnesium": 20,
+      "zinc": 4.89
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "vacio_beef",
+    "expectedName": "Vacío vacuno asado",
+    "sourceId": "SARA2-2022-p91-vacio_beef",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=91",
+    "sourceDescription": "SARA 2 (2022), página 91: Vacuno cortes grasos PROMEDIO horno/parrilla; incluye vacío en ejemplos de la fuente; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 13,
+      "iron": 2.11,
+      "magnesium": 20,
+      "zinc": 4.89
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "matambre_beef",
+    "expectedName": "Matambre vacuno cocido",
+    "sourceId": "SARA2-2022-p91-matambre_beef",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=91",
+    "sourceDescription": "SARA 2 (2022), página 91: Vacuno cortes grasos PROMEDIO horno/parrilla; incluye matambre en ejemplos de la fuente; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 13,
+      "iron": 2.11,
+      "magnesium": 20,
+      "zinc": 4.89
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "ground_beef_regular",
+    "expectedName": "Carne picada común cocida",
+    "sourceId": "SARA2-2022-p91-ground_beef_regular",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=91",
+    "sourceDescription": "SARA 2 (2022), página 91: Vacuno cortes grasos PROMEDIO cocido; incluye picada común en ejemplos de la fuente; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 13,
+      "iron": 2.11,
+      "magnesium": 20,
+      "zinc": 4.89
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "beef",
+    "expectedName": "Carne vacuna magra cocida",
+    "sourceId": "SARA2-2022-p91-beef",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=91",
+    "sourceDescription": "SARA 2 (2022), página 91: Vacuno cortes magros PROMEDIO horno/parrilla; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 14,
+      "iron": 2.98,
+      "magnesium": 21,
+      "zinc": 6.85
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
+    ]
+  },
+  {
+    "foodId": "nalga_cooked",
+    "expectedName": "Nalga vacuna cocida magra",
+    "sourceId": "SARA2-2022-p91-nalga_cooked",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=91",
+    "sourceDescription": "SARA 2 (2022), página 91: Vacuno cortes magros PROMEDIO horno/parrilla; incluye nalga en ejemplos de la fuente; promedio genérico, no marca.",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 14,
+      "iron": 2.98,
+      "magnesium": 21,
+      "zinc": 6.85
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed for this row"
     ]
   }
 ]

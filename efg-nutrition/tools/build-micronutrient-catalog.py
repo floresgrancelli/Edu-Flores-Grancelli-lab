@@ -42,8 +42,14 @@ with zipfile.ZipFile(ROOT / 'tests/evidence/fdc-official-20261101.zip') as archi
 # Full official SR Legacy captures supplement missing nutrient identities only.
 EXTRA = 'docs/micronutrients-20261114/usda-sr-selected.json.gz'
 full_records = {str(r['fdcId']): r for r in json.loads(gzip.decompress((ROOT / EXTRA).read_bytes()))}
+full_origins = {fid:EXTRA for fid in full_records}
+API_CAPTURE = 'docs/micronutrients-20261114/usda-full-five.json.gz'
+for raw in json.loads(gzip.decompress((ROOT / API_CAPTURE).read_bytes())):
+    fid = str(raw['fdcId'])
+    if fid in full_records: raise ValueError('Duplicate full capture')
+    full_records[fid] = raw; full_origins[fid] = API_CAPTURE
 for source_id, raw in full_records.items():
-    if source_id not in records: add(raw, EXTRA)
+    if source_id not in records: add(raw, full_origins[source_id])
 mappings = {r['foodId']: r for r in json.loads((ROOT / 'docs/micronutrients-20261114/reviewed-mappings.json').read_text())}
 
 catalog = json.loads((ROOT / 'catalog/guide-catalog.json').read_text())
@@ -54,7 +60,7 @@ foods = {}
 for fid, food in sorted(catalog['foods'].items()):
     source_id = str(food.get('sourceId', ''))
     mapped = None
-    if food.get('sourceType') not in ('usda_fdc', 'usda_fdc_converted'):
+    if fid == 'egg_white' or food.get('sourceType') not in ('usda_fdc', 'usda_fdc_converted'):
         mapped = mappings.get(fid)
         if not mapped: continue
         if mapped['expectedName'] != food['name'] or mapped['expectedUnit'] != food['unit']:
@@ -71,7 +77,7 @@ for fid, food in sorted(catalog['foods'].items()):
         found = [item for item in raw['foodNutrients'] if item.get('nutrient', {}).get('id') == nutrient_id]
         if not found and source_id in full_records:
             found = [item for item in full_records[source_id]['foodNutrients'] if item.get('nutrient', {}).get('id') == nutrient_id]
-            if found: origins[key] = EXTRA
+            if found: origins[key] = full_origins[source_id]
         if not found:
             values[key] = None
             continue
@@ -84,6 +90,7 @@ for fid, food in sorted(catalog['foods'].items()):
             continue
         values[key] = round(amount * factor * scale, 10)
         derivations[key] = item.get('foodNutrientDerivation', {}).get('code') or 'not_stated'
+    if all(value is None for value in values.values()): continue
     foods[fid] = {
         'name': food['name'], 'unit': unit, 'sourceId': source_id,
         'sourceUrl': 'https://fdc.nal.usda.gov/food-details/' + source_id + '/nutrients',
@@ -95,25 +102,31 @@ for fid, food in sorted(catalog['foods'].items()):
         **({'mappingNote': mapped['note']} if mapped else {}),
         **({'gramsPerMl': DENSITY[fid]} if unit == 'ml' else {}),
     }
-# SARA 2 cooked achuras: minerals transcribed from the visually reviewed
-# tables. B12 is withheld because the printed heading says mg; no silent
+# SARA 2 explicitly reviewed local foods: minerals and named fatty acids.
+# Source values are transcribed from the reviewed table pages. B12 is withheld because the printed heading says mg; no silent
 # reinterpretation as micrograms. Fatty acids are not inferred from total fat.
 sara_path = 'docs/micronutrients-20261114/sara2-reviewed.json'
 for row in json.loads((ROOT / sara_path).read_text()):
     fid = row['foodId']; food = catalog['foods'][fid]
-    if food['name'] != row['expectedName']: raise ValueError('SARA mapping drift')
+    if food['name'] != row['expectedName'] or food['unit'] != 'g': raise ValueError('SARA mapping drift')
     values = {key: None for key in NUTRIENTS}
-    for key, amount in row['per100g'].items(): values[key] = amount / 100
+    for key, amount in row['per100g'].items():
+        if key not in NUTRIENTS or isinstance(amount,bool) or not isinstance(amount,(int,float)) or not math.isfinite(amount) or amount < 0: raise ValueError('Invalid SARA amount')
+        values[key] = amount / 100
     foods[fid] = {'name': food['name'], 'unit': 'g', 'sourceId': row['sourceId'],
         'catalogSourceId': str(food.get('sourceId', '')), 'sourceUrl': row['sourceUrl'],
         'sourceDescription': row['sourceDescription'], 'capturePath': sara_path,
         'recordSha256': hashlib.sha256(json.dumps(row,sort_keys=True,ensure_ascii=False).encode()).hexdigest(),
         'matchType': 'reviewed_generic_reference', 'perUnit': values,
-        'derivationCodes': {k: 'SARA2_compilation' for k in row['per100g']}}
+        'derivationCodes': {k: 'SARA2_compilation' for k in row['per100g']},
+        **({'fattyAcidEvidence':row['fattyAcidEvidence']} if 'fattyAcidEvidence' in row else {})}
 
 # Only mixtures already defined by mass in the existing food catalogue.
 for fid, ingredients in {'fruit_salad_basic': {'apple':.25,'banana':.25,'orange':.25,'mandarin':.25},
-                         'morcilla_vasca_estimate': {'morcilla_cooked':.85,'raisins':.10,'walnuts':.05}}.items():
+                         'morcilla_vasca_estimate': {'morcilla_cooked':.85,'raisins':.10,'walnuts':.05},
+                         'mixed_nuts':{'peanuts':.25,'walnuts':.25,'almonds':.25,'cashews':.25},
+                         'mi_mix_nueces_almendras_avellanas_caju':{'walnuts':.25,'almonds':.25,'hazelnuts':.25,'cashews':.25},
+                         'peanut_butter':{'peanuts':1}}.items():
     values = {}
     for key in NUTRIENTS:
         amounts = [foods[i]['perUnit'][key] for i in ingredients]
@@ -125,10 +138,15 @@ for fid, ingredients in {'fruit_salad_basic': {'apple':.25,'banana':.25,'orange'
         'ingredientsByMass':ingredients,'perUnit':values,
         'derivationCodes':{k:'recipe_weighted' for k,v in values.items() if v is not None}}
 
+from micronutrient_completion import complete_catalog
+internal = complete_catalog(ROOT, catalog, foods, NUTRIENTS)
+from micronutrient_enrichment import enrich_catalog
+enrich_catalog(ROOT, foods, internal, NUTRIENTS)
+
 canonical = json.dumps(foods, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
 digest = hashlib.sha256(canonical.encode()).hexdigest()
 result = {'version': 'ncc-micro-' + digest[:16], 'macroCatalogVersion': catalog['version'],
-          'basis': 'Frozen USDA exact IDs and explicitly reviewed generic food/preparation references; SARA 2 minerals',
+          'basis': 'Frozen USDA/SARA/TBCA references and explicitly documented standard recipe approximations; null means unknown',
           'foodCount': len(foods), 'foods': foods}
 output = ROOT / 'pilot/micronutrient-catalog.js'
 output.write_text('// Generated offline; missing nutrients are null, never inferred zero.\nexport const MICRONUTRIENT_CATALOG = ' +
@@ -141,5 +159,5 @@ for fid, food in sorted(catalog['foods'].items()):
     f = foods.get(fid)
     known = [key for key in NUTRIENTS if f and f['perUnit'].get(key) is not None]
     reason = None if known else ('requires_product_label' if food.get('sourceType') in ('manufacturer_web_label','etiqueta_fabricante') else 'requires_recipe_or_matching_preparation_source')
-    coverage.append({'id':fid,'name':food['name'],'known':known,'missing':[k for k in NUTRIENTS if k not in known],'status':'complete' if len(known)==8 else 'partial' if known else 'pending','blocker':reason})
+    coverage.append({'id':fid,'name':food['name'],'known':known,'missing':[k for k in NUTRIENTS if k not in known],'incomplete':f.get('incompleteNutrients',[]) if f else [],'status':'complete' if len(known)==8 and not f.get('incompleteNutrients') else 'partial' if known else 'pending','blocker':reason})
 (ROOT / 'docs/micronutrients-20261114/coverage.json').write_text(json.dumps(coverage,ensure_ascii=False,indent=2)+'\n')

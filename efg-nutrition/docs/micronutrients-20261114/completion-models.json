@@ -1,0 +1,3334 @@
+{
+  "models": {
+    "alfajor_chocolate_triple": {
+      "expectedName": "Alfajor triple de chocolate relleno",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Alfajor de chocolate",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "barrita_cereal": {
+      "expectedName": "Barrita de cereal genérica",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Barra de cereales, PROMEDIO",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "bizcocho_grasa": {
+      "expectedName": "Bizcochitos de grasa",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Bizcochitos de grasa envasados",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "budin_marmolado": {
+      "expectedName": "Budín marmolado tradicional",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Budín industrializado",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "corn_flakes": {
+      "expectedName": "Copos de maíz sin azúcar",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Cereal desayuno, copos de maíz sin azúcar, sin fortificar",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "factura_cream": {
+      "expectedName": "Factura con crema pastelera",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Facturas rellenas",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "factura_dulce": {
+      "expectedName": "Factura con dulce de leche",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Facturas rellenas",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "factura_bola_fraile": {
+      "expectedName": "Bola de fraile rellena de dulce de leche",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Facturas rellenas",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "factura_vigilante": {
+      "expectedName": "Factura vigilante azucarada",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Facturas simples",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "medialuna_fat": {
+      "expectedName": "Medialuna de grasa",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Facturas simples",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "gnocchi_potato": {
+      "expectedName": "Ñoquis de papa cocidos sin salsa",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Ñoquis de papa frescos, artesanal, hervidos",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "gomitas_acidas": {
+      "expectedName": "Gomitas ácidas azucaradas",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Gomitas de gelatina",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "gomitas_frutales": {
+      "expectedName": "Gomitas frutales con azúcar",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Gomitas de gelatina",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "mani_garrapinado": {
+      "expectedName": "Maní garrapiñado",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Garrapiñada de maní",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "mani_chocolate": {
+      "expectedName": "Maní bañado en chocolate",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Maní con chocolate",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "polenta_cooked": {
+      "expectedName": "Polenta cocida con agua",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Harina de maíz, hervida",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "quinoa_inflada_pop_granel": {
+      "expectedName": "Quinoa inflada (quinoa pop) — a granel",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Quinoa inflada",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "soy_textured_dry": {
+      "expectedName": "Soja texturizada seca",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Soja texturizada",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "tapa_empanada": {
+      "expectedName": "Tapa de empanada al horno",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Masa de tarta o empanadas",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "tapa_tarta": {
+      "expectedName": "Masa para tarta",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Masa de tarta o empanadas",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "turron_mani": {
+      "expectedName": "Turrón de maní azucarado",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Turrón de maní con oblea tipo golosina",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "crema_chantilly": {
+      "expectedName": "Crema chantilly azucarada",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Crema chantilly (lista para consumir, aerosol o industrial preparada)",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "pastillas_menta": {
+      "expectedName": "Pastillas de menta con azúcar",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Pastillas",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "chupetin_dulce": {
+      "expectedName": "Chupetín azucarado",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Caramelos duros",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "helado_agua": {
+      "expectedName": "Helado de agua",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Helado de agua (heladería)",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "helado_frutilla_agua": {
+      "expectedName": "Helado de frutilla al agua",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Helado de agua (heladería)",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "helado_limon_agua": {
+      "expectedName": "Helado de limón al agua",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Helado de agua (heladería)",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "helado_palito_agua": {
+      "expectedName": "Helado palito de agua sabor fruta",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Helado de agua (palito)",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "helado_crema": {
+      "expectedName": "Helado de crema",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Helado de crema (heladería)",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "helado_palito_crema": {
+      "expectedName": "Helado palito de crema bañado chocolate",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Bombón helado",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "milk": {
+      "expectedName": "Leche Protein descremada",
+      "expectedUnit": "ml",
+      "kind": "sara_generic",
+      "saraName": "Leche descremada fluida, con 50% más de proteínas",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación. Conversión volumétrica aproximada declarada: 1.03 g/ml.",
+      "gramsPerMl": 1.03
+    },
+    "soda_zero": {
+      "expectedName": "Gaseosa zero",
+      "expectedUnit": "ml",
+      "kind": "sara_generic",
+      "saraName": "Gaseosa light, PROMEDIO",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación. Conversión volumétrica aproximada declarada: 1.0 g/ml.",
+      "gramsPerMl": 1.0
+    },
+    "yogur_descremado_fruta": {
+      "expectedName": "Yogur descremado sabor fruta",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Yogur descremado con frutas",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "abadejo_cocido": {
+      "expectedName": "Abadejo cocido sin aceite",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 174198,
+      "note": "Eglefino (haddock) cocido en calor seco; aproximación de pescado blanco, no análisis de abadejo argentino."
+    },
+    "besugo_cocido": {
+      "expectedName": "Besugo al horno sin aceite",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 173694,
+      "note": "Promedio de sea bass cocido en calor seco como proxy de pescado blanco; especie distinta, especialmente variable en omega-3."
+    },
+    "brotola_cocida": {
+      "expectedName": "Brótola cocida al horno sin aceite",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 173694,
+      "note": "Promedio de sea bass cocido en calor seco como proxy de pescado blanco; especie distinta, especialmente variable en omega-3."
+    },
+    "corvina_cocida": {
+      "expectedName": "Corvina cocida al horno sin aceite",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 173694,
+      "note": "Promedio de sea bass cocido en calor seco como proxy de pescado blanco; especie distinta, especialmente variable en omega-3."
+    },
+    "entrania_beef": {
+      "expectedName": "Entraña vacuna asada",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 173398,
+      "note": "Entraña externa con grasa, cocida a la parrilla; referencia genérica USDA."
+    },
+    "bife_chorizo": {
+      "expectedName": "Bife de chorizo a la plancha",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 168631,
+      "note": "Bife de lomo corto/top loin con grasa, cocido a la parrilla; corte genérico comparable."
+    },
+    "bondiola_pork": {
+      "expectedName": "Bondiola de cerdo al horno",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 168259,
+      "note": "Paleta Boston butt de cerdo asada con grasa; aproximación anatómica, no fiambre."
+    },
+    "roast_beef_cooked": {
+      "expectedName": "Roast beef vacuno cocido",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 168674,
+      "note": "Roast de aguja/chuck magro cocido al horno, referencia genérica."
+    },
+    "centolla_cocida": {
+      "expectedName": "Centolla cocida, carne limpia",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 174202,
+      "note": "Carne de king crab de Alaska cocida; proxy de centolla, especie y origen distintos."
+    },
+    "arrollado_primavera": {
+      "expectedName": "Arrolladito primavera frito",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 172105,
+      "note": "Arrollado vegetal congelado preparado; receta genérica, absorción de aceite variable."
+    },
+    "barrita_cereal_choco": {
+      "expectedName": "Barrita de cereal y chocolate",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 167545,
+      "note": "Barrita de cereal con cobertura de chocolate; formulación genérica."
+    },
+    "barrita_chocolate_oblea": {
+      "expectedName": "Barrita de chocolate con oblea",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 174088,
+      "note": "Oblea bañada en chocolate genérica."
+    },
+    "bread_glutenfree": {
+      "expectedName": "Pan sin gluten genérico",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 174100,
+      "note": "Pan blanco sin gluten de arroz/maíz/tapioca. No certifica aptitud de una marca."
+    },
+    "brocoli_vapor": {
+      "expectedName": "Brócoli al vapor sin aceite",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 169967,
+      "note": "Brócoli hervido escurrido sin sal como aproximación al vapor; pérdidas por cocción variables."
+    },
+    "coliflor_vapor": {
+      "expectedName": "Coliflor al vapor sin aceite",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 170397,
+      "note": "Coliflor hervida escurrida sin sal como aproximación al vapor."
+    },
+    "brownie": {
+      "expectedName": "Brownie de chocolate",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 172713,
+      "note": "Brownie comercial genérico, no receta medida."
+    },
+    "brownie_chocolate": {
+      "expectedName": "Brownie de chocolate con manteca",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 172713,
+      "note": "Brownie comercial genérico, no receta medida."
+    },
+    "flan_caramel": {
+      "expectedName": "Flan casero con caramelo",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 167574,
+      "note": "Flan de huevo con caramelo preparado a partir de receta USDA."
+    },
+    "flan_huevo_caramelo": {
+      "expectedName": "Flan casero de huevo con caramelo",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 167574,
+      "note": "Flan de huevo con caramelo preparado a partir de receta USDA."
+    },
+    "grisines": {
+      "expectedName": "Grisines",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 174929,
+      "note": "Palitos de pan simples genéricos."
+    },
+    "mousse_chocolate": {
+      "expectedName": "Mousse de chocolate con crema",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 168777,
+      "note": "Mousse de chocolate preparada a partir de receta USDA."
+    },
+    "nuggets_pollo_fritos": {
+      "expectedName": "Nuggets de pollo fritos",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 170718,
+      "note": "Trozos de pollo rebozados y fritos genéricos."
+    },
+    "whey_powder": {
+      "expectedName": "Proteína whey en polvo (1 scoop = 30 g, genérica)",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 173180,
+      "note": "Whey genérica; composición mineral y fortificación dependen del fabricante, no es rótulo de marca."
+    },
+    "yogurt_high_protein": {
+      "expectedName": "Yogur proteico natural genérico",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 170894,
+      "note": "Yogur griego natural descremado como proxy de yogur alto en proteína; no etiqueta de producto proteico."
+    },
+    "yogur_frutilla_entero": {
+      "expectedName": "Yogur entero sabor frutilla",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 170905,
+      "note": "Yogur griego entero con fruta como proxy de yogur entero de frutilla; formulación variable."
+    },
+    "tofu_firm": {
+      "expectedName": "Tofu firme",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 172448,
+      "note": "Tofu firme con sulfato de calcio y nigari; calcio depende mucho del coagulante. No representa todo tofu firme."
+    },
+    "tofu_sedoso_generic": {
+      "expectedName": "Tofu sedoso natural",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 172449,
+      "note": "Tofu suave con sulfato de calcio y nigari como proxy de sedoso; coagulante variable."
+    },
+    "soy_yogurt_plain_generic": {
+      "expectedName": "Yogur de soja natural sin azúcar, genérico",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 167722,
+      "note": "Yogur de tofu como referencia genérica de yogur de soja; formulación y fortificación variables."
+    },
+    "zapallo_anco_hervido": {
+      "expectedName": "Zapallo anco hervido, sin aceite",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 168474,
+      "note": "Butternut congelado hervido sin sal como proxy de anco hervido."
+    },
+    "zapallo_cabutia_hervido": {
+      "expectedName": "Zapallo cabutiá hervido, sin aceite",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 169297,
+      "note": "Hubbard hervido como proxy de cabutiá; distinta variedad."
+    },
+    "zapallo_cabutia_horno": {
+      "expectedName": "Zapallo cabutiá al horno, sin aceite",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 168476,
+      "note": "Hubbard horneado como proxy de cabutiá; distinta variedad."
+    },
+    "zucchini_plancha": {
+      "expectedName": "Zucchini a la plancha sin aceite",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 169292,
+      "note": "Zucchini hervido como proxy de cocido sin aceite; humedad y minerales varían con plancha."
+    },
+    "coffee_black": {
+      "expectedName": "Café solo sin azúcar",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 171890,
+      "note": "Café filtrado sin azúcar. En opciones personalizables se calcula solo la infusión base: leche y azúcar deben registrarse aparte. Conversión volumétrica aproximada declarada: 1.0 g/ml.",
+      "gramsPerMl": 1.0
+    },
+    "coffee_cortado": {
+      "expectedName": "Café cortado (personalizable)",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 171890,
+      "note": "Café filtrado sin azúcar. En opciones personalizables se calcula solo la infusión base: leche y azúcar deben registrarse aparte. Conversión volumétrica aproximada declarada: 1.0 g/ml.",
+      "gramsPerMl": 1.0
+    },
+    "coffee_milk": {
+      "expectedName": "Café con leche (personalizable)",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 171890,
+      "note": "Café filtrado sin azúcar. En opciones personalizables se calcula solo la infusión base: leche y azúcar deben registrarse aparte. Conversión volumétrica aproximada declarada: 1.0 g/ml.",
+      "gramsPerMl": 1.0
+    },
+    "coffee_decaf": {
+      "expectedName": "Café descafeinado solo",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 171889,
+      "note": "Café descafeinado filtrado sin azúcar. Conversión volumétrica aproximada declarada: 1.0 g/ml.",
+      "gramsPerMl": 1.0
+    },
+    "tea_plain": {
+      "expectedName": "Té negro sin azúcar",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 173227,
+      "note": "Té negro preparado con agua; leche y azúcar deben registrarse aparte. Conversión volumétrica aproximada declarada: 1.0 g/ml.",
+      "gramsPerMl": 1.0
+    },
+    "tea_milk": {
+      "expectedName": "Té con leche (personalizable)",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 173227,
+      "note": "Té negro preparado con agua; leche y azúcar deben registrarse aparte. Conversión volumétrica aproximada declarada: 1.0 g/ml.",
+      "gramsPerMl": 1.0
+    },
+    "tea_green": {
+      "expectedName": "Té verde sin azúcar",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 171917,
+      "note": "Té verde preparado sin azúcar. Conversión volumétrica aproximada declarada: 1.0 g/ml.",
+      "gramsPerMl": 1.0
+    },
+    "chamomile_tea": {
+      "expectedName": "Infusión de manzanilla",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 174156,
+      "note": "Infusión de manzanilla preparada sin azúcar. Conversión volumétrica aproximada declarada: 1.0 g/ml.",
+      "gramsPerMl": 1.0
+    },
+    "herbal_tea": {
+      "expectedName": "Infusión de hierbas (manzanilla, tilo, menta, etc.)",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 173232,
+      "note": "Infusión de hierbas genérica, no análisis específico de cedrón, menta o tilo; concentración y agua varían. Conversión volumétrica aproximada declarada: 1.0 g/ml.",
+      "gramsPerMl": 1.0
+    },
+    "cedron_tea": {
+      "expectedName": "Infusión de cedrón",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 173232,
+      "note": "Infusión de hierbas genérica, no análisis específico de cedrón, menta o tilo; concentración y agua varían. Conversión volumétrica aproximada declarada: 1.0 g/ml.",
+      "gramsPerMl": 1.0
+    },
+    "mint_tea": {
+      "expectedName": "Infusión de menta",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 173232,
+      "note": "Infusión de hierbas genérica, no análisis específico de cedrón, menta o tilo; concentración y agua varían. Conversión volumétrica aproximada declarada: 1.0 g/ml.",
+      "gramsPerMl": 1.0
+    },
+    "tilo_tea": {
+      "expectedName": "Infusión de tilo",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 173232,
+      "note": "Infusión de hierbas genérica, no análisis específico de cedrón, menta o tilo; concentración y agua varían. Conversión volumétrica aproximada declarada: 1.0 g/ml.",
+      "gramsPerMl": 1.0
+    },
+    "fish_sardines": {
+      "expectedName": "Sardinas al natural escurridas",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Sardinas, enlatadas al natural",
+      "note": "Promedio local SARA 2; puede variar con marca, receta y preparación."
+    },
+    "fish_mackerel": {
+      "expectedName": "Caballa al natural escurrida",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Caballa, enlatada",
+      "note": "Caballa enlatada genérica SARA; comprobar medio de cobertura y escurrido del producto."
+    },
+    "mermelada_sugarfree": {
+      "expectedName": "Mermelada sin azúcar agregado",
+      "expectedUnit": "g",
+      "kind": "sara_generic",
+      "saraName": "Mermelada de frutas light",
+      "note": "Proxy de mermelada reducida en azúcar; no equivale a formulación sin azúcar agregado."
+    },
+    "medallon_cerdo_simple": {
+      "expectedName": "Medallón de cerdo sin rebozar, a la plancha (genérico)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo de cerdo cocido sin rebozar, sin ligantes. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pork": 100
+      }
+    },
+    "medallon_pollo_simple": {
+      "expectedName": "Medallón de pollo sin rebozar, al horno (genérico)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo de pollo cocido sin piel, sin rebozar ni ligantes. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chicken_breast_roasted": 100
+      }
+    },
+    "medallon_pescado_simple": {
+      "expectedName": "Medallón de pescado sin rebozar, al horno (genérico)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo de merluza cocida sin rebozar ni ligantes. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "fish_hake": 100
+      }
+    },
+    "medallon_salmon_simple": {
+      "expectedName": "Medallón de salmón sin rebozar, al horno (genérico)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo de salmón cocido sin rebozar ni ligantes. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "fish_salmon": 100
+      }
+    },
+    "lentils_red_cooked": {
+      "expectedName": "Lentejas rojas cocidas, sin aceite",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Lenteja cocida genérica como proxy de variedad roja. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "lentils_cooked": 100
+      }
+    },
+    "huevo_frito_fritolim": {
+      "expectedName": "Huevo frito con Fritolín / Fritolim (rocío vegetal mínimo)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Se conserva el peso ANTES de cocinar declarado por el catálogo; no se estima retención. El rocío mínimo no está incluido en micronutrientes. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "egg": 100
+      }
+    },
+    "milk_lactosefree": {
+      "expectedName": "Leche descremada sin lactosa",
+      "expectedUnit": "ml",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Leche descremada común como aproximación mineral a leche sin lactosa, sin asumir fortificación adicional. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "gramsPerMl": 1.03,
+      "ingredientQuantities": {
+        "milk_skim": 97.08737864077669
+      }
+    },
+    "chia_pudding": {
+      "expectedName": "Pudding de chía con leche descremada",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. 18 g de chía y equivalente en gramos de 82 g de leche; hidratación sin merma. Leche en ml explícitamente convertida. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chia": 18,
+        "milk_skim": 79.6116504854369
+      }
+    },
+    "soy_textured_hydrated": {
+      "expectedName": "Soja texturizada rehidratada con agua",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. 30 g de soja seca y 70 g de agua; hidratación supuesta 3,33 veces. Escurrido puede cambiar el rendimiento. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "soy_textured_dry": 30,
+        "@water": 70
+      }
+    },
+    "tofu_ahumado_generic": {
+      "expectedName": "Tofu ahumado, sin aceite añadido",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Proxy de tofu firme sin cambio de humedad por ahumado; no válido para tofu muy deshidratado. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tofu_firm": 100
+      }
+    },
+    "tofu_scramble_no_oil": {
+      "expectedName": "Revuelto de tofu con verduras, sin aceite añadido",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Componentes listos para consumir, sin aceite. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tofu_firm": 70,
+        "onion": 10,
+        "tomato": 15,
+        "spinach_cooked": 5
+      }
+    },
+    "medallon_cerdo_vegetales": {
+      "expectedName": "Medallón de cerdo con vegetales sin rebozar (genérico)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pork": 70,
+        "carrot_cooked": 15,
+        "onion": 15
+      }
+    },
+    "medallon_pollo_espinaca": {
+      "expectedName": "Medallón de pollo con espinaca sin rebozar (genérico)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chicken_breast_roasted": 75,
+        "spinach_cooked": 20,
+        "onion": 5
+      }
+    },
+    "medallon_cerdo_rebozado": {
+      "expectedName": "Medallón de cerdo rebozado, al horno (genérico)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Fracciones de alimento ya cocido; pan blanco como proxy de rebozado, aceite incluido. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pork": 72,
+        "bread_white": 20,
+        "egg_boiled": 5,
+        "oil": 3
+      }
+    },
+    "medallon_pescado_rebozado": {
+      "expectedName": "Medallón de pescado rebozado, al horno (genérico)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Fracciones de alimento ya cocido; pan blanco como proxy de rebozado, aceite incluido. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "fish_hake": 72,
+        "bread_white": 20,
+        "egg_boiled": 5,
+        "oil": 3
+      }
+    },
+    "merluza_rebozada": {
+      "expectedName": "Merluza rebozada al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Fracciones de alimento ya cocido; pan blanco como proxy de rebozado, aceite incluido. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "fish_hake": 72,
+        "bread_white": 20,
+        "egg_boiled": 5,
+        "oil": 3
+      }
+    },
+    "medallon_pollo_rebozado": {
+      "expectedName": "Medallón de pollo rebozado, al horno (genérico)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Fracciones de alimento ya cocido; pan blanco como proxy de rebozado, aceite incluido. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chicken_breast_roasted": 72,
+        "bread_white": 20,
+        "egg_boiled": 5,
+        "oil": 3
+      }
+    },
+    "milanesa_chicken_baked": {
+      "expectedName": "Milanesa de pollo al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Fracciones de alimento ya cocido; pan blanco como proxy de rebozado, aceite incluido. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chicken_breast_roasted": 72,
+        "bread_white": 20,
+        "egg_boiled": 5,
+        "oil": 3
+      }
+    },
+    "milanesa_beef_baked": {
+      "expectedName": "Milanesa de carne al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Fracciones de alimento ya cocido; pan blanco como proxy de rebozado, aceite incluido. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "beef": 72,
+        "bread_white": 20,
+        "egg_boiled": 5,
+        "oil": 3
+      }
+    },
+    "milanesa_eggplant_baked": {
+      "expectedName": "Milanesa de berenjena al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "eggplant": 70,
+        "bread_white": 20,
+        "egg_boiled": 5,
+        "oil": 5
+      }
+    },
+    "milanesa_beef_fried": {
+      "expectedName": "Milanesa de carne frita",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo con 7 g adicionales de aceite absorbido por 100 g finales, absorción real variable. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "milanesa_beef_baked": 93,
+        "oil": 7
+      }
+    },
+    "milanesa_chicken_fried": {
+      "expectedName": "Milanesa de pollo frita",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo con 7 g adicionales de aceite absorbido por 100 g finales, absorción real variable. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "milanesa_chicken_baked": 93,
+        "oil": 7
+      }
+    },
+    "milanesa_napo_beef": {
+      "expectedName": "Milanesa de carne napolitana al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "milanesa_beef_baked": 65,
+        "mozzarella": 20,
+        "tomato": 10,
+        "ham_cooked": 5
+      }
+    },
+    "milanesa_napo_chicken": {
+      "expectedName": "Milanesa de pollo napolitana al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "milanesa_chicken_baked": 65,
+        "mozzarella": 20,
+        "tomato": 10,
+        "ham_cooked": 5
+      }
+    },
+    "milanesa_soy_baked": {
+      "expectedName": "Milanesa de soja al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Ejemplo vegetal, sin huevos ni lácteos; no representa marca. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "soy_textured_hydrated": 65,
+        "bread_white": 22,
+        "chickpea_flour": 8,
+        "oil": 5
+      }
+    },
+    "beef_meatballs": {
+      "expectedName": "Albóndigas de carne caseras con salsa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "lean_ground_beef": 65,
+        "bread_white": 10,
+        "egg_boiled": 5,
+        "tomato": 15,
+        "onion": 5
+      }
+    },
+    "chicken_meatballs": {
+      "expectedName": "Albóndigas de pollo al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chicken_breast_roasted": 75,
+        "bread_white": 10,
+        "egg_boiled": 5,
+        "onion": 8,
+        "oil": 2
+      }
+    },
+    "black_bean_burger_home": {
+      "expectedName": "Hamburguesa casera de porotos negros y avena, horneada",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "beans_black": 70,
+        "oats_raw": 15,
+        "onion": 10,
+        "oil": 5
+      }
+    },
+    "lentil_burger": {
+      "expectedName": "Hamburguesa casera de lentejas",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "lentils_cooked": 70,
+        "oats_raw": 15,
+        "onion": 10,
+        "oil": 5
+      }
+    },
+    "soy_tvp_burger_home": {
+      "expectedName": "Hamburguesa casera de soja texturizada rehidratada, horneada",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "soy_textured_hydrated": 70,
+        "oats_raw": 15,
+        "onion": 10,
+        "oil": 5
+      }
+    },
+    "soy_tvp_meatballs_home": {
+      "expectedName": "Albóndigas veganas de soja texturizada, horneadas",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "soy_textured_hydrated": 70,
+        "oats_raw": 15,
+        "onion": 10,
+        "oil": 5
+      }
+    },
+    "chickpea_omelette_home": {
+      "expectedName": "Tortilla de harina de garbanzo, cocida con aceite",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo de harina/agua/aceite; peso final supuesto 100 g tras cocción. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chickpea_flour": 30,
+        "@water": 65,
+        "oil": 5
+      }
+    },
+    "faina": {
+      "expectedName": "Fainá",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo de harina/agua/aceite; peso final supuesto 100 g tras cocción. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chickpea_flour": 30,
+        "@water": 65,
+        "oil": 5
+      }
+    },
+    "faina_tradicional": {
+      "expectedName": "Fainá de harina de garbanzo",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo de harina/agua/aceite; peso final supuesto 100 g tras cocción. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chickpea_flour": 30,
+        "@water": 65,
+        "oil": 5
+      }
+    },
+    "falafel_baked": {
+      "expectedName": "Falafel al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chickpeas_cooked": 75,
+        "onion": 15,
+        "chickpea_flour": 5,
+        "oil": 5
+      }
+    },
+    "roasted_chickpeas_no_oil": {
+      "expectedName": "Garbanzos tostados al horno sin aceite añadido",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 70,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. 100 g de garbanzo cocido se modelan en 70 g finales por deshidratación al horno. Rendimiento supuesto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chickpeas_cooked": 100
+      }
+    },
+    "chickpea_pasta_dry_generic": {
+      "expectedName": "Pasta seca de garbanzos, sin salsa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Proxy de pasta seca 100 % harina de garbanzo; formulación y humedad pueden variar. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chickpea_flour": 100
+      }
+    },
+    "lentil_pasta_dry_generic": {
+      "expectedName": "Pasta seca de lentejas, sin salsa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Proxy de pasta seca de lenteja pura; formulación y humedad variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "red_lentils_dry": 100
+      }
+    },
+    "protein_pasta": {
+      "expectedName": "Fideos proteicos cocidos (estimación)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Escenario ilustrativo de pasta enriquecida, no fórmula comercial; requiere rótulo para precisión. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pasta": 70,
+        "soy_textured_hydrated": 30
+      }
+    },
+    "scrambled_eggs": {
+      "expectedName": "Huevos revueltos con poco aceite",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Huevo cocido como proxy de huevo revuelto; aceite incluido. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "egg_boiled": 97,
+        "oil": 3
+      }
+    },
+    "omelette_cheese": {
+      "expectedName": "Omelette de huevo con queso",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "egg_boiled": 70,
+        "mozzarella": 27,
+        "oil": 3
+      }
+    },
+    "tortilla_potato": {
+      "expectedName": "Tortilla de papas casera",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "potato": 60,
+        "egg_boiled": 30,
+        "onion": 5,
+        "oil": 5
+      }
+    },
+    "tortilla_spinach": {
+      "expectedName": "Tortilla de espinaca casera",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "spinach_cooked": 50,
+        "egg_boiled": 35,
+        "onion": 10,
+        "oil": 5
+      }
+    },
+    "ensalada_caprese": {
+      "expectedName": "Ensalada caprese con mozzarella",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tomato": 60,
+        "mozzarella": 37,
+        "oil": 3
+      }
+    },
+    "ensalada_verduras": {
+      "expectedName": "Ensalada mixta sin aceite",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "lettuce": 40,
+        "tomato": 40,
+        "carrot_raw": 20
+      }
+    },
+    "ensalada_mixta_aceite": {
+      "expectedName": "Ensalada mixta con aceite de oliva incluido",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "ensalada_verduras": 95,
+        "oil": 5
+      }
+    },
+    "ensalada_papa_huevo": {
+      "expectedName": "Ensalada de papa y huevo sin aceite",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "potato": 75,
+        "egg_boiled": 25
+      }
+    },
+    "ensalada_legumbres": {
+      "expectedName": "Ensalada de lentejas con verduras",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "lentils_cooked": 65,
+        "tomato": 20,
+        "carrot_cooked": 10,
+        "onion": 5
+      }
+    },
+    "ensalada_rusa": {
+      "expectedName": "Ensalada rusa con mayonesa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "potato": 50,
+        "carrot_cooked": 20,
+        "peas_cooked": 15,
+        "mayonnaise": 15
+      }
+    },
+    "ensalada_rusa_mayonesa": {
+      "expectedName": "Ensalada rusa con mayonesa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "potato": 50,
+        "carrot_cooked": 20,
+        "peas_cooked": 15,
+        "mayonnaise": 15
+      }
+    },
+    "ensalada_cesar": {
+      "expectedName": "Ensalada César con pollo y aderezo",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "lettuce": 40,
+        "chicken_breast_roasted": 30,
+        "bread_white": 10,
+        "parmesan": 10,
+        "mayonnaise": 10
+      }
+    },
+    "berenjena_escabeche": {
+      "expectedName": "Berenjenas en escabeche",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Escabeche con aceite incluido; escurrido variable. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "eggplant": 85,
+        "oil": 10,
+        "@vinegar": 5
+      }
+    },
+    "berenjenas_rellenas": {
+      "expectedName": "Berenjena rellena de carne, queso y verduras",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "eggplant": 45,
+        "lean_ground_beef": 30,
+        "mozzarella": 15,
+        "tomato": 10
+      }
+    },
+    "brocoli_gratinado": {
+      "expectedName": "Brócoli gratinado con queso",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "broccoli_cooked": 75,
+        "mozzarella": 20,
+        "butter": 5
+      }
+    },
+    "calabaza_rellena": {
+      "expectedName": "Calabaza rellena con carne magra",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pumpkin": 60,
+        "lean_ground_beef": 30,
+        "onion": 10
+      }
+    },
+    "zapallito_relleno_carne": {
+      "expectedName": "Zapallito relleno con carne y arroz, al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "zucchini": 50,
+        "lean_ground_beef": 25,
+        "rice": 20,
+        "onion": 5
+      }
+    },
+    "pure_mixed": {
+      "expectedName": "Puré mixto de papa y calabaza",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "potato": 50,
+        "pumpkin": 50
+      }
+    },
+    "pure_potato": {
+      "expectedName": "Puré de papas con leche",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Leche en ml convertida desde 12 g de leche; peso final 100 g. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "potato": 85,
+        "milk_whole": 11.650485436893204,
+        "butter": 3
+      }
+    },
+    "potato_oven_oil": {
+      "expectedName": "Papas al horno con aceite",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "potato_baked": 95,
+        "oil": 5
+      }
+    },
+    "potato_fried": {
+      "expectedName": "Papas fritas caseras",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Papa cocida como proxy de papa frita con 15 % aceite; absorción y humedad variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "potato_baked": 85,
+        "oil": 15
+      }
+    },
+    "papas_fritas": {
+      "expectedName": "Papas fritas tradicionales",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Papa cocida como proxy de papa frita con 15 % aceite; absorción y humedad variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "potato_baked": 85,
+        "oil": 15
+      }
+    },
+    "papas_bravas": {
+      "expectedName": "Papas bravas con salsa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "papas_fritas": 85,
+        "tomato": 10,
+        "mayonnaise": 5
+      }
+    },
+    "rice_vegetables": {
+      "expectedName": "Arroz con verduras casero",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 75,
+        "carrot_cooked": 10,
+        "peas_cooked": 10,
+        "onion": 3,
+        "oil": 2
+      }
+    },
+    "arroz_integral_vegetables": {
+      "expectedName": "Arroz integral con verduras",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "brownrice": 75,
+        "carrot_cooked": 10,
+        "peas_cooked": 10,
+        "onion": 3,
+        "oil": 2
+      }
+    },
+    "rice_chicken": {
+      "expectedName": "Arroz con pollo casero",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 60,
+        "chicken_breast_roasted": 25,
+        "carrot_cooked": 8,
+        "onion": 5,
+        "oil": 2
+      }
+    },
+    "risotto_hongos": {
+      "expectedName": "Risotto de hongos y queso",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 65,
+        "mushrooms": 20,
+        "parmesan": 10,
+        "butter": 5
+      }
+    },
+    "salsa_fileto": {
+      "expectedName": "Salsa fileto casera",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tomato": 85,
+        "onion": 10,
+        "oil": 5
+      }
+    },
+    "salsa_bolognesa": {
+      "expectedName": "Salsa boloñesa casera",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tomato": 50,
+        "lean_ground_beef": 35,
+        "onion": 10,
+        "oil": 5
+      }
+    },
+    "salsa_blanca": {
+      "expectedName": "Salsa blanca casera",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Leche medida en ml convertida desde gramos; rendimiento final supuesto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "milk_whole": 82.52427184466019,
+        "@flour": 8,
+        "butter": 7
+      }
+    },
+    "pasta_tomato_sauce": {
+      "expectedName": "Fideos con salsa de tomate",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pasta": 75,
+        "salsa_fileto": 25
+      }
+    },
+    "pasta_bolognese": {
+      "expectedName": "Fideos con salsa boloñesa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pasta": 70,
+        "salsa_bolognesa": 30
+      }
+    },
+    "pasta_cream": {
+      "expectedName": "Fideos con salsa crema",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pasta": 75,
+        "@cream": 25
+      }
+    },
+    "gnocchi_ricotta": {
+      "expectedName": "Ñoquis de ricota cocidos",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo por 100 g cocidos; harina incorporada y agua retenida supuestas. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "ricotta_whole": 55,
+        "@flour": 25,
+        "egg_boiled": 10,
+        "@water": 10
+      }
+    },
+    "noquis_papa_salsa": {
+      "expectedName": "Ñoquis de papa con salsa de tomate",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "gnocchi_potato": 75,
+        "salsa_fileto": 25
+      }
+    },
+    "ravioles_ricotta": {
+      "expectedName": "Ravioles de ricota cocidos sin salsa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pasta": 60,
+        "ricotta_whole": 40
+      }
+    },
+    "ravioles_verdura": {
+      "expectedName": "Ravioles de verdura cocidos sin salsa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pasta": 60,
+        "spinach_cooked": 25,
+        "ricotta_whole": 15
+      }
+    },
+    "ravioles_ricota": {
+      "expectedName": "Ravioles de ricota cocidos con salsa de tomate",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "ravioles_ricotta": 75,
+        "salsa_fileto": 25
+      }
+    },
+    "sorrentinos_ham_cheese": {
+      "expectedName": "Sorrentinos de jamón y queso cocidos",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pasta": 55,
+        "ham_cooked": 20,
+        "mozzarella": 25
+      }
+    },
+    "canelones_spinach": {
+      "expectedName": "Canelones de verdura con salsa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pasta": 35,
+        "spinach_cooked": 25,
+        "ricotta_whole": 20,
+        "salsa_fileto": 20
+      }
+    },
+    "canelones_verdura": {
+      "expectedName": "Canelones de verdura y ricota con salsa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pasta": 35,
+        "spinach_cooked": 25,
+        "ricotta_whole": 20,
+        "salsa_fileto": 20
+      }
+    },
+    "lasagna_beef": {
+      "expectedName": "Lasaña de carne casera",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pasta": 35,
+        "salsa_bolognesa": 35,
+        "salsa_blanca": 20,
+        "mozzarella": 10
+      }
+    },
+    "lasaña_bolognesa": {
+      "expectedName": "Lasaña de carne con salsa blanca y queso",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pasta": 35,
+        "salsa_bolognesa": 35,
+        "salsa_blanca": 20,
+        "mozzarella": 10
+      }
+    },
+    "pastel_papa": {
+      "expectedName": "Pastel de papas con carne",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pure_potato": 60,
+        "salsa_bolognesa": 35,
+        "egg_boiled": 5
+      }
+    },
+    "pastel_calabaza": {
+      "expectedName": "Pastel de calabaza con carne",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pumpkin": 60,
+        "salsa_bolognesa": 35,
+        "egg_boiled": 5
+      }
+    },
+    "guiso_lentils": {
+      "expectedName": "Guiso de lentejas con verduras",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "lentils_cooked": 55,
+        "carrot_cooked": 10,
+        "tomato": 10,
+        "onion": 5,
+        "@water": 18,
+        "oil": 2
+      }
+    },
+    "guiso_noodles": {
+      "expectedName": "Guiso de fideos con carne",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pasta": 40,
+        "beef": 20,
+        "tomato": 15,
+        "carrot_cooked": 8,
+        "onion": 5,
+        "@water": 10,
+        "oil": 2
+      }
+    },
+    "guiso_rice": {
+      "expectedName": "Guiso de arroz con carne",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 40,
+        "beef": 20,
+        "tomato": 15,
+        "carrot_cooked": 8,
+        "onion": 5,
+        "@water": 10,
+        "oil": 2
+      }
+    },
+    "carbonada": {
+      "expectedName": "Carbonada criolla",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "beef": 25,
+        "pumpkin": 20,
+        "potato": 20,
+        "corn_cooked": 10,
+        "tomato": 10,
+        "onion": 5,
+        "@water": 8,
+        "oil": 2
+      }
+    },
+    "locro": {
+      "expectedName": "Locro criollo",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "beans_white": 25,
+        "corn_cooked": 25,
+        "pumpkin": 20,
+        "pork": 10,
+        "chorizo_cooked": 5,
+        "onion": 5,
+        "@water": 8,
+        "oil": 2
+      }
+    },
+    "puchero": {
+      "expectedName": "Puchero de carne y verduras",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "beef": 30,
+        "potato": 20,
+        "pumpkin": 15,
+        "carrot_cooked": 10,
+        "corn_cooked": 10,
+        "@water": 15
+      }
+    },
+    "mondongo": {
+      "expectedName": "Guiso de mondongo",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@tripe": 40,
+        "tomato": 20,
+        "carrot_cooked": 10,
+        "beans_white": 15,
+        "onion": 5,
+        "@water": 8,
+        "oil": 2
+      }
+    },
+    "pollo_estofado": {
+      "expectedName": "Pollo estofado con verduras",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chicken_breast_roasted": 50,
+        "tomato": 20,
+        "carrot_cooked": 10,
+        "onion": 10,
+        "@water": 8,
+        "oil": 2
+      }
+    },
+    "pollo_wok": {
+      "expectedName": "Pollo al wok con vegetales",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chicken_breast_roasted": 55,
+        "carrot_cooked": 15,
+        "onion": 15,
+        "zucchini": 12,
+        "oil": 3
+      }
+    },
+    "vegetable_wok": {
+      "expectedName": "Vegetales al wok con poco aceite",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "carrot_cooked": 30,
+        "zucchini": 30,
+        "broccoli_cooked": 20,
+        "onion": 17,
+        "oil": 3
+      }
+    },
+    "sopa_pumpkin": {
+      "expectedName": "Sopa de calabaza sin crema",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pumpkin": 55,
+        "onion": 5,
+        "@water": 38,
+        "oil": 2
+      }
+    },
+    "sopa_vegetables": {
+      "expectedName": "Sopa casera de verduras",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "carrot_cooked": 15,
+        "pumpkin": 15,
+        "potato": 15,
+        "zucchini": 10,
+        "onion": 5,
+        "@water": 40
+      }
+    },
+    "vegetable_cream_soup": {
+      "expectedName": "Sopa crema de verduras con leche",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Leche convertida desde 25 g; sin crema añadida. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "sopa_vegetables": 75,
+        "milk_whole": 24.271844660194173
+      }
+    },
+    "tarta_atun_horno": {
+      "expectedName": "Tarta de atún con huevo, cebolla y masa, al horno",
+      "expectedUnit": "g",
+      "kind": "existing_catalog_recipe",
+      "yieldGrams": 960,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo YA DECLARADO en el catálogo: Dos tapas de masa (peso orientativo), atún al natural escurrido, cebolla, huevo duro y aceite. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 380,
+        "tuna": 320,
+        "onion": 200,
+        "egg_boiled": 100,
+        "oil": 20
+      }
+    },
+    "tarta_atun_light": {
+      "expectedName": "Tarta de atún sin tapa superior, al horno",
+      "expectedUnit": "g",
+      "kind": "existing_catalog_recipe",
+      "yieldGrams": 930,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo YA DECLARADO en el catálogo: Una sola tapa inferior; sin tapa superior. Atún escurrido, cebolla, huevo y aceite. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 220,
+        "tuna": 420,
+        "onion": 180,
+        "egg_boiled": 100,
+        "oil": 10
+      }
+    },
+    "tarta_verdura_espinaca": {
+      "expectedName": "Tarta de espinaca, ricota y queso, con masa",
+      "expectedUnit": "g",
+      "kind": "existing_catalog_recipe",
+      "yieldGrams": 960,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo YA DECLARADO en el catálogo: Espinaca cocida y escurrida, ricota, mozzarella, huevo, masa y aceite. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 350,
+        "spinach_cooked": 300,
+        "ricotta_light": 180,
+        "mozzarella": 90,
+        "egg_boiled": 100,
+        "oil": 15
+      }
+    },
+    "tarta_jamon_queso": {
+      "expectedName": "Tarta de jamón y queso, con masa",
+      "expectedUnit": "g",
+      "kind": "existing_catalog_recipe",
+      "yieldGrams": 990,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo YA DECLARADO en el catálogo: Jamón cocido, mozzarella, huevo, masa y aceite. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 370,
+        "ham_cooked": 260,
+        "mozzarella": 260,
+        "egg_boiled": 110,
+        "oil": 12
+      }
+    },
+    "pizza_margarita": {
+      "expectedName": "Pizza margarita, queso y tomate",
+      "expectedUnit": "g",
+      "kind": "existing_catalog_recipe",
+      "yieldGrams": 880,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo YA DECLARADO en el catálogo: Pizza margarita con base común, mozzarella, tomate y aceite; sin contar otro aceite. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@pizza_base": 480,
+        "mozzarella": 240,
+        "tomato": 140,
+        "oil": 20
+      }
+    },
+    "pizza_jamon": {
+      "expectedName": "Pizza de jamón y muzzarella",
+      "expectedUnit": "g",
+      "kind": "existing_catalog_recipe",
+      "yieldGrams": 1000,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo YA DECLARADO en el catálogo: Pizza de jamón y mozzarella; no incluye salsa extra ni aderezos. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@pizza_base": 500,
+        "mozzarella": 230,
+        "ham_cooked": 180,
+        "tomato": 70,
+        "oil": 20
+      }
+    },
+    "pizza_fugazza": {
+      "expectedName": "Fugazza de cebolla sin queso",
+      "expectedUnit": "g",
+      "kind": "existing_catalog_recipe",
+      "yieldGrams": 880,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo YA DECLARADO en el catálogo: Fugazza sin queso; cebolla y aceite ya contados. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@pizza_base": 510,
+        "onion": 335,
+        "oil": 35
+      }
+    },
+    "pizza_vegana": {
+      "expectedName": "Pizza de vegetales sin queso",
+      "expectedUnit": "g",
+      "kind": "existing_catalog_recipe",
+      "yieldGrams": 920,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo YA DECLARADO en el catálogo: Pizza sin queso con cebolla, morrón, tomate y aceite incluido. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@pizza_base": 520,
+        "onion": 120,
+        "bellpepper": 100,
+        "tomato": 150,
+        "oil": 30
+      }
+    },
+    "sushi_maki_salmon": {
+      "expectedName": "Sushi maki de salmón y arroz",
+      "expectedUnit": "g",
+      "kind": "existing_catalog_recipe",
+      "yieldGrams": 224,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo YA DECLARADO en el catálogo: Ocho piezas de maki con arroz COCIDO, salmón orientativo, nori y aliño. No incluye soja, wasabi ni salsas. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 150,
+        "sushi_sashimi_salmon": 60,
+        "@nori": 3,
+        "sugar": 5,
+        "@vinegar": 6
+      }
+    },
+    "sushi_maki_atun": {
+      "expectedName": "Sushi maki de atún y arroz",
+      "expectedUnit": "g",
+      "kind": "existing_catalog_recipe",
+      "yieldGrams": 224,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo YA DECLARADO en el catálogo: Ocho maki con arroz cocido, atún orientativo, nori y aliño. No incluye salsa de soja. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 150,
+        "sushi_sashimi_atun": 60,
+        "@nori": 3,
+        "sugar": 5,
+        "@vinegar": 6
+      }
+    },
+    "sushi_philadelphia": {
+      "expectedName": "Sushi Philadelphia roll, salmón y queso crema",
+      "expectedUnit": "g",
+      "kind": "existing_catalog_recipe",
+      "yieldGrams": 256,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo YA DECLARADO en el catálogo: Ocho piezas con queso untable tradicional genérico; marcas y contenido real varían. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 150,
+        "sushi_sashimi_salmon": 55,
+        "cream_cheese_regular": 38,
+        "@nori": 3,
+        "sugar": 4,
+        "@vinegar": 6
+      }
+    },
+    "sushi_nigiri_salmon": {
+      "expectedName": "Nigiri de salmón con arroz",
+      "expectedUnit": "g",
+      "kind": "existing_catalog_recipe",
+      "yieldGrams": 280,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo YA DECLARADO en el catálogo: Ocho nigiri salmón sobre arroz cocido condimentado. No incluye salsa de soja. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 190,
+        "sushi_sashimi_salmon": 80,
+        "sugar": 4,
+        "@vinegar": 6
+      }
+    },
+    "sushi_uramaki_palta": {
+      "expectedName": "Uramaki de salmón y palta",
+      "expectedUnit": "g",
+      "kind": "existing_catalog_recipe",
+      "yieldGrams": 264,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo YA DECLARADO en el catálogo: Ocho uramaki salmón y palta; sin mayonesa ni salsas. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 160,
+        "sushi_sashimi_salmon": 48,
+        "avocado": 48,
+        "@nori": 3,
+        "sugar": 2,
+        "@vinegar": 3
+      }
+    },
+    "empanada_beef_baked": {
+      "expectedName": "Empanada de carne al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo por 100 g de empanada al horno; masa y relleno variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_empanada": 35,
+        "lean_ground_beef": 40,
+        "onion": 20,
+        "egg_boiled": 5
+      }
+    },
+    "empanada_carne_horno_extra": {
+      "expectedName": "Empanada de carne al horno, tamaño grande",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo por 100 g de empanada al horno; masa y relleno variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_empanada": 35,
+        "lean_ground_beef": 40,
+        "onion": 20,
+        "egg_boiled": 5
+      }
+    },
+    "empanada_chicken_baked": {
+      "expectedName": "Empanada de pollo al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo por 100 g de empanada al horno; masa y relleno variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_empanada": 35,
+        "chicken_breast_roasted": 40,
+        "onion": 20,
+        "tomato": 5
+      }
+    },
+    "empanada_atun_horno": {
+      "expectedName": "Empanada de atún al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo por 100 g de empanada al horno; masa y relleno variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_empanada": 35,
+        "tuna": 40,
+        "onion": 20,
+        "tomato": 5
+      }
+    },
+    "empanada_tuna": {
+      "expectedName": "Empanada de atún al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo por 100 g de empanada al horno; masa y relleno variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_empanada": 35,
+        "tuna": 40,
+        "onion": 20,
+        "tomato": 5
+      }
+    },
+    "empanada_ham_cheese": {
+      "expectedName": "Empanada de jamón y queso al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo por 100 g de empanada al horno; masa y relleno variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_empanada": 35,
+        "ham_cooked": 30,
+        "mozzarella": 35
+      }
+    },
+    "empanada_jamon_queso_horno": {
+      "expectedName": "Empanada de jamón y queso al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo por 100 g de empanada al horno; masa y relleno variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_empanada": 35,
+        "ham_cooked": 30,
+        "mozzarella": 35
+      }
+    },
+    "empanada_caprese": {
+      "expectedName": "Empanada caprese al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo por 100 g de empanada al horno; masa y relleno variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_empanada": 35,
+        "mozzarella": 40,
+        "tomato": 25
+      }
+    },
+    "empanada_corn": {
+      "expectedName": "Empanada de humita al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo por 100 g de empanada al horno; masa y relleno variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_empanada": 35,
+        "corn_cooked": 40,
+        "salsa_blanca": 25
+      }
+    },
+    "empanada_humita_horno": {
+      "expectedName": "Empanada de humita al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo por 100 g de empanada al horno; masa y relleno variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_empanada": 35,
+        "corn_cooked": 40,
+        "salsa_blanca": 25
+      }
+    },
+    "empanada_vegetable": {
+      "expectedName": "Empanada de verdura al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo por 100 g de empanada al horno; masa y relleno variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_empanada": 35,
+        "spinach_cooked": 40,
+        "mozzarella": 25
+      }
+    },
+    "empanada_verdura_horno": {
+      "expectedName": "Empanada de espinaca y queso al horno",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo por 100 g de empanada al horno; masa y relleno variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_empanada": 35,
+        "spinach_cooked": 40,
+        "mozzarella": 25
+      }
+    },
+    "empanada_beef_fried": {
+      "expectedName": "Empanada de carne frita",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. 6 % de aceite absorbido supuesto en el producto final. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "empanada_beef_baked": 94,
+        "oil": 6
+      }
+    },
+    "tarta_brocoli": {
+      "expectedName": "Tarta de brócoli y ricota, con masa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Componentes supuestos por 100 g de tarta terminada. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 35,
+        "broccoli_cooked": 35,
+        "ricotta_whole": 20,
+        "egg_boiled": 10
+      }
+    },
+    "tarta_calabaza": {
+      "expectedName": "Tarta de calabaza y queso, con masa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Componentes supuestos por 100 g de tarta terminada. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 35,
+        "pumpkin": 45,
+        "mozzarella": 15,
+        "egg_boiled": 5
+      }
+    },
+    "tarta_pumpkin": {
+      "expectedName": "Tarta de calabaza",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Componentes supuestos por 100 g de tarta terminada. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 35,
+        "pumpkin": 45,
+        "mozzarella": 15,
+        "egg_boiled": 5
+      }
+    },
+    "tarta_chicken": {
+      "expectedName": "Tarta de pollo casera",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Componentes supuestos por 100 g de tarta terminada. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 35,
+        "chicken_breast_roasted": 35,
+        "onion": 20,
+        "egg_boiled": 10
+      }
+    },
+    "tarta_pollo": {
+      "expectedName": "Tarta de pollo y verduras, con masa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Componentes supuestos por 100 g de tarta terminada. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 35,
+        "chicken_breast_roasted": 35,
+        "onion": 20,
+        "egg_boiled": 10
+      }
+    },
+    "tarta_choclo": {
+      "expectedName": "Tarta de choclo y queso, con masa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Componentes supuestos por 100 g de tarta terminada. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 35,
+        "corn_cooked": 40,
+        "mozzarella": 15,
+        "egg_boiled": 10
+      }
+    },
+    "tarta_puerro": {
+      "expectedName": "Tarta de puerro y queso, con masa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Componentes supuestos por 100 g de tarta terminada. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 35,
+        "leek": 40,
+        "mozzarella": 15,
+        "egg_boiled": 10
+      }
+    },
+    "tarta_spinach": {
+      "expectedName": "Tarta de acelga o espinaca",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Componentes supuestos por 100 g de tarta terminada. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 35,
+        "spinach_cooked": 40,
+        "mozzarella": 15,
+        "egg_boiled": 10
+      }
+    },
+    "tarta_verdura_acelga": {
+      "expectedName": "Tarta de acelga, huevo y queso, con masa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Componentes supuestos por 100 g de tarta terminada. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 35,
+        "spinach_cooked": 40,
+        "mozzarella": 15,
+        "egg_boiled": 10
+      }
+    },
+    "tarta_zapallito": {
+      "expectedName": "Tarta de zapallito con queso y masa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Componentes supuestos por 100 g de tarta terminada. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 35,
+        "zucchini": 40,
+        "mozzarella": 15,
+        "egg_boiled": 10
+      }
+    },
+    "tarta_zucchini": {
+      "expectedName": "Tarta de zapallitos",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Componentes supuestos por 100 g de tarta terminada. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 35,
+        "zucchini": 40,
+        "mozzarella": 15,
+        "egg_boiled": 10
+      }
+    },
+    "tarta_vegetable": {
+      "expectedName": "Tarta de verduras mixta",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Componentes supuestos por 100 g de tarta terminada. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 35,
+        "carrot_cooked": 20,
+        "zucchini": 20,
+        "spinach_cooked": 10,
+        "mozzarella": 10,
+        "egg_boiled": 5
+      }
+    },
+    "tarta_ham_cheese": {
+      "expectedName": "Tarta de jamón y queso",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Equivalencia con el modelo de tarta de jamón y queso existente. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tarta_jamon_queso": 100
+      }
+    },
+    "tarta_tuna": {
+      "expectedName": "Tarta de atún",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Equivalencia con el modelo de tarta de atún existente. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tarta_atun_horno": 100
+      }
+    },
+    "pizza_muzzarella": {
+      "expectedName": "Pizza de muzzarella",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Proxy de pizza de mozzarella y tomate existente. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pizza_margarita": 100
+      }
+    },
+    "pizza_napolitana": {
+      "expectedName": "Pizza napolitana",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Proxy de pizza de mozzarella y tomate existente. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pizza_margarita": 100
+      }
+    },
+    "pizza_fugazzeta": {
+      "expectedName": "Pizza fugazzeta",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@pizza_base": 50,
+        "onion": 20,
+        "mozzarella": 27,
+        "oil": 3
+      }
+    },
+    "pizza_calabresa": {
+      "expectedName": "Pizza con calabresa y muzzarella",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pizza_margarita": 85,
+        "@salami": 15
+      }
+    },
+    "pizza_cuatro_quesos": {
+      "expectedName": "Pizza cuatro quesos",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@pizza_base": 50,
+        "mozzarella": 20,
+        "parmesan": 10,
+        "queso_cremoso": 10,
+        "@blue_cheese": 10
+      }
+    },
+    "pizza_roquefort": {
+      "expectedName": "Pizza de roquefort y muzzarella",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pizza_margarita": 85,
+        "@blue_cheese": 15
+      }
+    },
+    "pizza_hawaiana": {
+      "expectedName": "Pizza con jamón y ananá",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pizza_jamon": 85,
+        "pineapple": 15
+      }
+    },
+    "pizza_jamon_morron": {
+      "expectedName": "Pizza de jamón y morrones",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pizza_jamon": 90,
+        "bellpepper": 10
+      }
+    },
+    "pizza_jamon_morrones": {
+      "expectedName": "Pizza de jamón, morrones y queso",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pizza_jamon": 90,
+        "bellpepper": 10
+      }
+    },
+    "pizza_rucula_jamon": {
+      "expectedName": "Pizza de rúcula y jamón crudo",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "pizza_margarita": 80,
+        "@ham_raw": 15,
+        "rocket": 5
+      }
+    },
+    "pizza_integral_veggie": {
+      "expectedName": "Pizza integral de verduras",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Pan integral horneado como proxy de base integral de pizza. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread": 55,
+        "mozzarella": 20,
+        "tomato": 10,
+        "zucchini": 10,
+        "oil": 5
+      }
+    },
+    "calzone_jamon_queso": {
+      "expectedName": "Calzone de jamón y queso",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@pizza_base": 50,
+        "ham_cooked": 25,
+        "mozzarella": 25
+      }
+    },
+    "sushi_california": {
+      "expectedName": "Sushi California roll, arroz y kanikama",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Arroz cocido. No incluye salsa de soja; nori sin composición verificada queda identificado como ingrediente incompleto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 65,
+        "@surimi": 20,
+        "avocado": 10,
+        "@nori": 1,
+        "sugar": 2,
+        "@vinegar": 2
+      }
+    },
+    "sushi_ebi": {
+      "expectedName": "Sushi ebi roll de langostino",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Arroz cocido. No incluye salsa de soja; nori sin composición verificada queda identificado como ingrediente incompleto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 65,
+        "fish_shrimp": 25,
+        "avocado": 6,
+        "@nori": 1,
+        "sugar": 1,
+        "@vinegar": 2
+      }
+    },
+    "sushi_maki_vegetal": {
+      "expectedName": "Sushi maki vegetariano con arroz",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Arroz cocido. No incluye salsa de soja; nori sin composición verificada queda identificado como ingrediente incompleto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 65,
+        "avocado": 15,
+        "cucumber": 15,
+        "@nori": 1,
+        "sugar": 2,
+        "@vinegar": 2
+      }
+    },
+    "sushi_nigiri_atun": {
+      "expectedName": "Nigiri de atún con arroz",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Arroz cocido. No incluye salsa de soja; nori sin composición verificada queda identificado como ingrediente incompleto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 67,
+        "sushi_sashimi_atun": 30,
+        "sugar": 1,
+        "@vinegar": 2
+      }
+    },
+    "sushi_nigiri_langostino": {
+      "expectedName": "Nigiri de langostino con arroz",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Arroz cocido. No incluye salsa de soja; nori sin composición verificada queda identificado como ingrediente incompleto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 67,
+        "fish_shrimp": 30,
+        "sugar": 1,
+        "@vinegar": 2
+      }
+    },
+    "sushi_spicy_tuna": {
+      "expectedName": "Sushi spicy tuna roll con mayonesa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Arroz cocido. No incluye salsa de soja; nori sin composición verificada queda identificado como ingrediente incompleto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 60,
+        "sushi_sashimi_atun": 27,
+        "mayonnaise": 8,
+        "@nori": 1,
+        "sugar": 2,
+        "@vinegar": 2
+      }
+    },
+    "sushi_gunkan": {
+      "expectedName": "Gunkan de atún picante, arroz y alga",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Arroz cocido. No incluye salsa de soja; nori sin composición verificada queda identificado como ingrediente incompleto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 60,
+        "sushi_sashimi_atun": 27,
+        "mayonnaise": 8,
+        "@nori": 1,
+        "sugar": 2,
+        "@vinegar": 2
+      }
+    },
+    "sushi_temaki_salmon": {
+      "expectedName": "Temaki de salmón, arroz y palta",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Arroz cocido. No incluye salsa de soja; nori sin composición verificada queda identificado como ingrediente incompleto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "rice": 55,
+        "sushi_sashimi_salmon": 25,
+        "avocado": 15,
+        "@nori": 2,
+        "sugar": 1,
+        "@vinegar": 2
+      }
+    },
+    "sushi_hot_roll": {
+      "expectedName": "Sushi hot roll rebozado y frito",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Arroz cocido. No incluye salsa de soja; nori sin composición verificada queda identificado como ingrediente incompleto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "sushi_philadelphia": 80,
+        "bread_white": 10,
+        "oil": 10
+      }
+    },
+    "burger_bread_cheese": {
+      "expectedName": "Hamburguesa con pan y queso",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 35,
+        "lean_ground_beef": 45,
+        "mozzarella": 20
+      }
+    },
+    "hamburguesa_completa": {
+      "expectedName": "Hamburguesa completa con pan, queso y vegetales",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 30,
+        "lean_ground_beef": 40,
+        "mozzarella": 15,
+        "tomato": 8,
+        "lettuce": 7
+      }
+    },
+    "hamburguesa_doble": {
+      "expectedName": "Hamburguesa doble carne, pan y queso",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 25,
+        "lean_ground_beef": 60,
+        "mozzarella": 15
+      }
+    },
+    "choripan": {
+      "expectedName": "Choripán con pan francés",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 45,
+        "chorizo_cooked": 55
+      }
+    },
+    "hotdog": {
+      "expectedName": "Pancho con salchicha",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 50,
+        "@sausage": 50
+      }
+    },
+    "pancho_completo": {
+      "expectedName": "Pancho con pan, salchicha y aderezos",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "hotdog": 90,
+        "mayonnaise": 5,
+        "@ketchup": 5
+      }
+    },
+    "lomito_sandwich": {
+      "expectedName": "Lomito completo en sándwich",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 35,
+        "beef_tenderloin": 35,
+        "ham_cooked": 10,
+        "mozzarella": 10,
+        "tomato": 5,
+        "lettuce": 5
+      }
+    },
+    "sandwich_chicken": {
+      "expectedName": "Sándwich de pollo casero",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 40,
+        "chicken_breast_roasted": 40,
+        "tomato": 10,
+        "lettuce": 5,
+        "mayonnaise": 5
+      }
+    },
+    "sandwich_tuna": {
+      "expectedName": "Sándwich de atún casero",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 40,
+        "tuna": 40,
+        "tomato": 10,
+        "lettuce": 5,
+        "mayonnaise": 5
+      }
+    },
+    "sandwich_miga_ham_cheese": {
+      "expectedName": "Sándwich de miga de jamón y queso",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Sin manteca ni aderezo extra. Tostado sin ajuste por pérdida de humedad. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 50,
+        "ham_cooked": 25,
+        "mozzarella": 25
+      }
+    },
+    "tostado_ham_cheese": {
+      "expectedName": "Tostado de jamón y queso",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Sin manteca ni aderezo extra. Tostado sin ajuste por pérdida de humedad. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 50,
+        "ham_cooked": 25,
+        "mozzarella": 25
+      }
+    },
+    "tostado_jamon_queso": {
+      "expectedName": "Tostado de jamón y queso con pan de miga",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Sin manteca ni aderezo extra. Tostado sin ajuste por pérdida de humedad. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 50,
+        "ham_cooked": 25,
+        "mozzarella": 25
+      }
+    },
+    "sandwich_mila_beef": {
+      "expectedName": "Sándwich de milanesa de carne",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 35,
+        "milanesa_beef_baked": 50,
+        "tomato": 10,
+        "lettuce": 5
+      }
+    },
+    "sandwich_milanesa": {
+      "expectedName": "Sándwich de milanesa con lechuga y tomate",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 35,
+        "milanesa_beef_baked": 50,
+        "tomato": 10,
+        "lettuce": 5
+      }
+    },
+    "sandwich_mila_chicken": {
+      "expectedName": "Sándwich de milanesa de pollo",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 35,
+        "milanesa_chicken_baked": 50,
+        "tomato": 10,
+        "lettuce": 5
+      }
+    },
+    "wrap_chicken": {
+      "expectedName": "Wrap de pollo y verduras",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tortilla_wheat": 35,
+        "chicken_breast_roasted": 40,
+        "tomato": 15,
+        "lettuce": 10
+      }
+    },
+    "bombon_chocolate": {
+      "expectedName": "Bombón de chocolate surtido",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo de bombón relleno; el surtido real varía. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chocolate_leche": 80,
+        "peanut_butter": 20
+      }
+    },
+    "chocolate_relleno_ddl": {
+      "expectedName": "Chocolate relleno de dulce de leche",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chocolate_leche": 70,
+        "dulce_de_leche": 30
+      }
+    },
+    "budin_pan": {
+      "expectedName": "Budín de pan con caramelo",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 30,
+        "milk_whole": 38.83495145631068,
+        "egg_boiled": 20,
+        "sugar": 10
+      }
+    },
+    "cheesecake_frutos": {
+      "expectedName": "Cheesecake de frutos rojos",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "cream_cheese_regular": 45,
+        "bread_white": 15,
+        "butter": 5,
+        "sugar": 15,
+        "strawberry": 20
+      }
+    },
+    "chocotorta": {
+      "expectedName": "Chocotorta con queso crema y dulce de leche",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@cocoa_cookie": 35,
+        "cream_cheese_regular": 35,
+        "dulce_de_leche": 30
+      }
+    },
+    "flan_dulce_leche": {
+      "expectedName": "Flan con dulce de leche",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "flan_caramel": 80,
+        "dulce_de_leche": 20
+      }
+    },
+    "factura_churro_relleno": {
+      "expectedName": "Churro relleno de dulce de leche",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@churros": 80,
+        "dulce_de_leche": 20
+      }
+    },
+    "helado_dulce_leche": {
+      "expectedName": "Helado de dulce de leche",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "helado_crema": 75,
+        "dulce_de_leche": 25
+      }
+    },
+    "helado_granizado": {
+      "expectedName": "Helado granizado con chips de chocolate",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "helado_crema": 90,
+        "chocolate_dark": 10
+      }
+    },
+    "helado_banana_split": {
+      "expectedName": "Helado banana split con salsa y crema",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "helado_crema": 70,
+        "banana": 15,
+        "dulce_de_leche": 10,
+        "chocolate_dark": 5
+      }
+    },
+    "helado_mascarpone_frutos": {
+      "expectedName": "Helado de mascarpone y frutos rojos",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "helado_crema": 70,
+        "cream_cheese_regular": 15,
+        "strawberry": 15
+      }
+    },
+    "helado_pistacho": {
+      "expectedName": "Helado de pistacho",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "helado_crema": 90,
+        "pistachios": 10
+      }
+    },
+    "helado_tramontana": {
+      "expectedName": "Helado tramontana con dulce de leche y chocolate",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "helado_crema": 70,
+        "dulce_de_leche": 20,
+        "chocolate_dark": 10
+      }
+    },
+    "pancakes_oat": {
+      "expectedName": "Panqueques de avena caseros",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "oat_flour": 30,
+        "egg_boiled": 30,
+        "milk_whole": 33.980582524271846,
+        "oil": 5
+      }
+    },
+    "panqueque_dulce": {
+      "expectedName": "Panqueques con dulce de leche",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@flour": 20,
+        "egg_boiled": 20,
+        "milk_whole": 29.126213592233007,
+        "dulce_de_leche": 25,
+        "butter": 5
+      }
+    },
+    "pastafrola_membrillo": {
+      "expectedName": "Pastafrola de dulce de membrillo",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 45,
+        "quince": 45,
+        "sugar": 5,
+        "butter": 5
+      }
+    },
+    "torta_manzana": {
+      "expectedName": "Torta de manzana casera",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@flour": 25,
+        "apple": 40,
+        "egg_boiled": 10,
+        "sugar": 15,
+        "butter": 10
+      }
+    },
+    "torta_ricota": {
+      "expectedName": "Torta de ricota tradicional",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA.  Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "tapa_tarta": 30,
+        "ricotta_whole": 45,
+        "sugar": 15,
+        "egg_boiled": 10
+      }
+    },
+    "tiramisu": {
+      "expectedName": "Tiramisú clásico",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Queso crema como proxy de mascarpone y pan como proxy de vainillas, aproximación de baja confianza. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "cream_cheese_regular": 35,
+        "bread_white": 25,
+        "sugar": 15,
+        "@coffee": 15,
+        "egg_boiled": 5,
+        "@cocoa": 5
+      }
+    },
+    "naranja_azucarada_cascara_confitada_granel": {
+      "expectedName": "Naranja azucarada — cáscara de naranja confitada en tiras (a granel)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Cáscara de naranja como proxy sin corrección por confitado. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@orange_peel": 40,
+        "sugar": 60
+      }
+    },
+    "chipa": {
+      "expectedName": "Chipá tradicional",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Sin ajustar retención ni humedad; peso final supuesto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@tapioca": 45,
+        "mozzarella": 30,
+        "egg_boiled": 15,
+        "butter": 10
+      }
+    },
+    "arcor_chocolate_aguila_familiar": {
+      "expectedName": "Chocolate familiar Águila — tableta",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. ESTIMACIÓN GENÉRICA DE FAMILIA, NO RÓTULO DE LA MARCA. No presupone fortificación ni composición específica del producto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chocolate_dark": 100
+      }
+    },
+    "arcor_chocolate_blanco_porcion": {
+      "expectedName": "Chocolate blanco Arcor — porción justa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. ESTIMACIÓN GENÉRICA DE FAMILIA, NO RÓTULO DE LA MARCA. No presupone fortificación ni composición específica del producto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chocolate_blanco": 100
+      }
+    },
+    "arcor_chocolate_leche_porcion": {
+      "expectedName": "Chocolate con leche Arcor — porción justa",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. ESTIMACIÓN GENÉRICA DE FAMILIA, NO RÓTULO DE LA MARCA. No presupone fortificación ni composición específica del producto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chocolate_leche": 100
+      }
+    },
+    "colonial_chocolate_organico_80_cacao": {
+      "expectedName": "Chocolate Colonial orgánico 80% cacao — tableta",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. ESTIMACIÓN GENÉRICA DE FAMILIA, NO RÓTULO DE LA MARCA. No presupone fortificación ni composición específica del producto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chocolate_amargo_70": 100
+      }
+    },
+    "arcor_mini_alfajor_aguila_chocolate": {
+      "expectedName": "Mini alfajor Águila chocolate",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. ESTIMACIÓN GENÉRICA DE FAMILIA, NO RÓTULO DE LA MARCA. No presupone fortificación ni composición específica del producto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "alfajor_chocolate": 100
+      }
+    },
+    "arcor_saladix_jamon": {
+      "expectedName": "Saladix Jamón — galletitas saladas",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. ESTIMACIÓN GENÉRICA DE FAMILIA, NO RÓTULO DE LA MARCA. No presupone fortificación ni composición específica del producto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "galleta_agua": 100
+      }
+    },
+    "milanesa_soy_gobinda": {
+      "expectedName": "Milanesa de soja Gobinda - simple (marca sugerida)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. ESTIMACIÓN GENÉRICA DE FAMILIA, NO RÓTULO DE LA MARCA. No presupone fortificación ni composición específica del producto. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "milanesa_soy_baked": 100
+      }
+    },
+    "arcor_bon_o_bon_blanco": {
+      "expectedName": "Bon o Bon blanco — bombón",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. MODELO GENÉRICO de bombón blanco con maní y oblea; no es fórmula ni rótulo Bon o Bon. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "chocolate_blanco": 50,
+        "peanut_butter": 35,
+        "@flour": 15
+      }
+    },
+    "kefir": {
+      "expectedName": "Kéfir natural",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 170904,
+      "note": "Kéfir natural descremado de referencia USDA; marca, leche y fermentación variables, no análisis del producto registrado.",
+      "gramsPerMl": 1.0
+    },
+    "milk_almond_unsweet": {
+      "expectedName": "Bebida de almendras sin azúcar",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 174832,
+      "note": "Bebida de almendras sin azúcar de referencia USDA; incluye la fortificación de esta referencia y puede diferir mucho del producto. Revisar etiqueta para calcio y B12.",
+      "gramsPerMl": 1.0
+    },
+    "milk_soy_unsweet": {
+      "expectedName": "Bebida de soja sin azúcar",
+      "expectedUnit": "ml",
+      "kind": "usda_generic",
+      "fdcId": 175215,
+      "note": "Bebida de soja sin azúcar fortificada de referencia USDA; calcio y vitaminas son específicos de la referencia. No representa bebidas caseras o sin fortificar.",
+      "gramsPerMl": 1.0
+    },
+    "milk_oat_unsweet": {
+      "expectedName": "Bebida de avena sin azúcar",
+      "expectedUnit": "ml",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo casero SIN FORTIFICAR y sin colado: 10% avena, 89% agua, 1% aceite. Si se cuela o está fortificado requiere etiqueta/receta propia. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "oats_raw": 10,
+        "@water": 89,
+        "oil": 1
+      },
+      "gramsPerMl": 1.0
+    },
+    "milk_coconut_unsweet": {
+      "expectedName": "Bebida de coco sin azúcar",
+      "expectedUnit": "ml",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Modelo casero SIN FORTIFICAR, sin colado, 2,5% coco seco y agua; no representa la fortificación comercial. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@coconut": 2.5,
+        "@water": 97.5
+      },
+      "gramsPerMl": 1.0
+    },
+    "protein_bar_generic": {
+      "expectedName": "Barra proteica genérica",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Barra modelo de whey, avena, maní, miel y chocolate. No fórmula comercial ni rótulo; fortificación no supuesta. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "whey_powder": 30,
+        "oats_raw": 25,
+        "peanut_butter": 20,
+        "honey": 15,
+        "chocolate_leche": 10
+      }
+    },
+    "seitan_cooked": {
+      "expectedName": "Seitán cocido",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 100,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Gluten vital hidratado, rendimiento supuesto 100 g finales, sin caldo añadido; no incluye pérdidas por cocción. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "@gluten": 32,
+        "@water": 68
+      }
+    },
+    "squid_cooked": {
+      "expectedName": "Calamar cocido sin rebozar",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 90,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Calamar crudo como base y rendimiento supuesto 90 g cocidos; sin rebozado. No aplica factores de retención. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "squid_raw": 100
+      }
+    },
+    "rabas_rebozadas_fritas": {
+      "expectedName": "Rabas de calamar rebozadas fritas (genérico)",
+      "expectedUnit": "g",
+      "kind": "usda_generic",
+      "fdcId": 171982,
+      "note": "Calamar frito USDA como aproximación a rabas fritas; proporción de rebozado y aceite variables."
+    },
+    "toast_glutenfree": {
+      "expectedName": "Tostadas sin gluten genéricas",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 85,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Pan sin gluten tostado: rendimiento supuesto 85 g; no certifica una marca ni aptitud celíaca. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_glutenfree": 100
+      }
+    },
+    "tostada_pan_miga": {
+      "expectedName": "Tostada de pan de miga",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 85,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Pan blanco tostado: rendimiento supuesto 85 g; tipo y humedad del pan de miga variables. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "bread_white": 100
+      }
+    },
+    "cake": {
+      "expectedName": "Budín proteico casero Edu",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 412.5,
+      "note": "MODELO ORIENTATIVO SUPUESTO, NO RECETA PESADA. Receta comunicada por Edu: 1 manzana (supuesto 180 g), 3 huevos (150 g comestibles), 100 g avena, 30 g pasas, scoop whey 30 g. Rendimiento supuesto 412,5 g (5 porciones de 82,5 g). Vainilla, canela y polvo de hornear sin cantidad: aporte desconocido, no cero. Peso final no medido. Los gramos se refieren a ingredientes en el estado declarado; no se aplican factores de retención por cocción. No representa una receta personal ni una marca.",
+      "ingredientQuantities": {
+        "apple": 180,
+        "egg": 150,
+        "oats_raw": 100,
+        "raisins": 30,
+        "whey_powder": 30
+      },
+      "unknownComponents": [
+        "Canela, vainilla y polvo de hornear sin cantidades comunicadas"
+      ]
+    },
+    "mate_plain": {
+      "expectedName": "Mate cebado sin azúcar",
+      "expectedUnit": "ml",
+      "kind": "reviewed_table",
+      "tableId": "mate-infusion-113H",
+      "gramsPerMl": 1.0,
+      "note": "TBCA 113H, chimarrão: 70 g de materia seca por litro. Aproximación de infusión de yerba mate; extracción y dilución varían mucho. Densidad aproximada declarada 1 g/ml."
+    },
+    "mate_cocido": {
+      "expectedName": "Mate cocido sin azúcar",
+      "expectedUnit": "ml",
+      "kind": "reviewed_table",
+      "tableId": "mate-infusion-113H",
+      "gramsPerMl": 1.0,
+      "note": "TBCA 113H, chimarrão: 70 g de materia seca por litro. Aproximación de infusión de yerba mate; extracción y dilución varían mucho. Mate cocido representado por esta infusión como proxy, no por un análisis de saquito. Densidad aproximada declarada 1 g/ml."
+    },
+    "mate_cocido_milk": {
+      "expectedName": "Mate cocido con leche (personalizable)",
+      "expectedUnit": "ml",
+      "kind": "reviewed_table",
+      "tableId": "mate-infusion-113H",
+      "gramsPerMl": 1.0,
+      "note": "TBCA 113H, chimarrão: 70 g de materia seca por litro. Aproximación de infusión de yerba mate; extracción y dilución varían mucho. Mate cocido representado por esta infusión como proxy, no por un análisis de saquito. Solo infusión base: registrar leche aparte. Densidad aproximada declarada 1 g/ml."
+    }
+  },
+  "ingredients": {
+    "@water": {
+      "fdcId": 173647
+    },
+    "@vinegar": {
+      "fdcId": 172237
+    },
+    "@flour": {
+      "fdcId": 169761
+    },
+    "@cream": {
+      "fdcId": 170859
+    },
+    "@tripe": {
+      "fdcId": 174769
+    },
+    "@coffee": {
+      "fdcId": 171890
+    },
+    "@cocoa_cookie": {
+      "fdcId": 172714
+    },
+    "@cocoa": {
+      "fdcId": 169593
+    },
+    "@orange_peel": {
+      "fdcId": 169103
+    },
+    "@tapioca": {
+      "fdcId": 169717
+    },
+    "@gluten": {
+      "fdcId": 168147
+    },
+    "@blue_cheese": {
+      "fdcId": 172175
+    },
+    "@ketchup": {
+      "fdcId": 168556
+    },
+    "@salami": {
+      "fdcId": 172938
+    },
+    "@sausage": {
+      "fdcId": 171633
+    },
+    "@surimi": {
+      "fdcId": 174203
+    },
+    "@pizza_base": {
+      "saraName": "Masa de prepizza de panadería o envasada"
+    },
+    "@churros": {
+      "saraName": "Churros"
+    },
+    "@ham_raw": {
+      "saraName": "Jamón crudo"
+    },
+    "@coconut": {
+      "saraName": "Coco rallado"
+    },
+    "@nori": {
+      "unknownReason": "Nori seco: sin fuente validada para el estado deshidratado; no sustituir por alga cruda."
+    }
+  },
+  "schemaVersion": 1,
+  "date": "2026-11-14",
+  "policy": "Standard recipe approximations authorized by user. Original macro catalog and 319 micronutrient profiles unchanged. Null is unknown, never zero. Recipes may carry known partial contributions. Ingredient quantities in native g or ml, yield in grams. Generic brand proxies are not manufacturer labels."
+}

@@ -1,0 +1,37 @@
+{
+  "baseCommit": "2b08fca6d20c4c6906d0471a930306e98f7cdc74",
+  "usdaAdditions": {
+    "bread": 172688,
+    "pan_lactal_integral": 172688,
+    "toast_whole": 172689,
+    "pan_arabe": 172816,
+    "mayonnaise": 171009,
+    "mustard": 172234,
+    "queso_port_salut": 170849,
+    "chocolate_dark": 170273,
+    "rice_cakes": 170250
+  },
+  "saraAdditions": [
+    "ham_cooked",
+    "fish_hake",
+    "pejerrey_cocido",
+    "alfajor_chocolate",
+    "alfajor_ddl",
+    "alfajor_maicena",
+    "bread_rye",
+    "pan_lactal",
+    "pan_salvado",
+    "pan_frances",
+    "pan_campo_panaderia",
+    "pan_mignon_panaderia"
+  ],
+  "fattyAcidAdditions": [
+    "chinchulines_grilled",
+    "chorizo_cooked",
+    "sweetbreads_beef_grilled",
+    "morcilla_cooked",
+    "kidney_beef_grilled",
+    "fish_hake",
+    "pejerrey_cocido"
+  ]
+}

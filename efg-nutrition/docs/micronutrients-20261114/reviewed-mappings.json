@@ -1339,5 +1339,302 @@
     "sourceDescription": "Chickpea flour (besan)",
     "matchType": "reviewed_generic_reference",
     "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "bread",
+    "fdcId": "172688",
+    "expectedName": "Pan integral",
+    "expectedUnit": "g",
+    "sourceDescription": "Bread, whole-wheat, commercially prepared",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca. La formulación y fortificación del pan pueden diferir del producto local."
+  },
+  {
+    "foodId": "pan_lactal_integral",
+    "fdcId": "172688",
+    "expectedName": "Pan lactal integral",
+    "expectedUnit": "g",
+    "sourceDescription": "Bread, whole-wheat, commercially prepared",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca. La formulación y fortificación del pan pueden diferir del producto local."
+  },
+  {
+    "foodId": "toast_whole",
+    "fdcId": "172689",
+    "expectedName": "Tostadas integrales",
+    "expectedUnit": "g",
+    "sourceDescription": "Bread, whole-wheat, commercially prepared, toasted",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca. La formulación y fortificación del pan pueden diferir del producto local."
+  },
+  {
+    "foodId": "pan_arabe",
+    "fdcId": "172816",
+    "expectedName": "Pan árabe",
+    "expectedUnit": "g",
+    "sourceDescription": "Bread, pita, white, unenriched",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca. La formulación y fortificación del pan pueden diferir del producto local."
+  },
+  {
+    "foodId": "mayonnaise",
+    "fdcId": "171009",
+    "expectedName": "Mayonesa común",
+    "expectedUnit": "g",
+    "sourceDescription": "Salad dressing, mayonnaise, regular",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca."
+  },
+  {
+    "foodId": "mustard",
+    "fdcId": "172234",
+    "expectedName": "Mostaza",
+    "expectedUnit": "g",
+    "sourceDescription": "Mustard, prepared, yellow",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca."
+  },
+  {
+    "foodId": "queso_port_salut",
+    "fdcId": "170849",
+    "expectedName": "Queso Port Salut tradicional",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, port de salut",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca."
+  },
+  {
+    "foodId": "chocolate_dark",
+    "fdcId": "170273",
+    "expectedName": "Chocolate amargo 70%",
+    "expectedUnit": "g",
+    "sourceDescription": "Chocolate, dark, 70-85% cacao solids",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca. Referencia de chocolate 70–85 % cacao para la entrada genérica 70 %; el porcentaje y la marca modifican la composición."
+  },
+  {
+    "foodId": "rice_cakes",
+    "fdcId": "170250",
+    "expectedName": "Galletas de arroz sin sal",
+    "expectedUnit": "g",
+    "sourceDescription": "Snacks, rice cakes, brown rice, plain, unsalted",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca. Referencia de galletas de arroz integral simples, sin sal."
+  },
+  {
+    "foodId": "mero_cocido",
+    "fdcId": "171963",
+    "expectedName": "Mero cocido sin aceite",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, grouper, mixed species, cooked, dry heat",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica para esta preparación; la especie, receta y porción pueden variar. No es etiqueta de una marca."
+  },
+  {
+    "foodId": "tuna_fresh",
+    "fdcId": "173707",
+    "expectedName": "Atún fresco cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, tuna, fresh, bluefin, cooked, dry heat",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica para esta preparación; la especie, receta y porción pueden variar. No es etiqueta de una marca. Atún de aleta azul, calor seco, como aproximación de atún fresco cocido."
+  },
+  {
+    "foodId": "hummus",
+    "fdcId": "172454",
+    "expectedName": "Hummus clásico",
+    "expectedUnit": "g",
+    "sourceDescription": "Hummus, home prepared",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica para esta preparación; la especie, receta y porción pueden variar. No es etiqueta de una marca."
+  },
+  {
+    "foodId": "pork_ribs",
+    "fdcId": "169178",
+    "expectedName": "Costillas de cerdo asadas",
+    "expectedUnit": "g",
+    "sourceDescription": "Pork, fresh, spareribs, separable lean and fat, cooked, roasted",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica para esta preparación; la especie, receta y porción pueden variar. No es etiqueta de una marca."
+  },
+  {
+    "foodId": "egg_white",
+    "fdcId": "172183",
+    "expectedName": "Clara de huevo",
+    "expectedUnit": "g",
+    "sourceDescription": "Egg, white, raw, fresh",
+    "matchType": "reviewed_generic_reference",
+    "note": "Clara cruda fresca genérica SR Legacy. La identidad Foundation 747997 no informa los ocho nutrientes buscados; se usa esta referencia alternativa explícita solo para micronutrientes. No equivale a un análisis del mismo registro ni a clara cocida."
+  },
+  {
+    "foodId": "oat_flour",
+    "fdcId": "169741",
+    "expectedName": "Harina de avena",
+    "expectedUnit": "g",
+    "sourceDescription": "Oat flour, partially debranned",
+    "matchType": "reviewed_generic_reference",
+    "note": "Harina de avena parcialmente desprovista de salvado; referencia genérica. El grado de extracción puede cambiar los minerales; no representa toda harina integral ni una marca."
+  },
+  {
+    "foodId": "yamani_rice_cooked",
+    "fdcId": "168875",
+    "expectedName": "Arroz yamaní cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Rice, brown, medium-grain, cooked (Includes foods for USDA's Food Distribution Program)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Arroz integral de grano medio cocido como aproximación genérica al yamaní; no es un análisis de cultivar yamaní ni arroz seco."
+  },
+  {
+    "foodId": "bread_white",
+    "fdcId": "174924",
+    "expectedName": "Pan blanco",
+    "expectedUnit": "g",
+    "sourceDescription": "Bread, white, commercially prepared (includes soft bread crumbs)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Pan blanco comercial genérico estadounidense; fortificación y formulación pueden diferir del pan argentino. No es etiqueta de marca."
+  },
+  {
+    "foodId": "veal_cutlet_cooked",
+    "fdcId": "174880",
+    "expectedName": "Bife de ternera magro cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Veal, leg, top round, cap off, cutlet, boneless, cooked, grilled",
+    "matchType": "reviewed_generic_reference",
+    "note": "Bife de ternera de nalga deshuesado cocido a la parrilla, referencia genérica para bife magro cocido; no crudo ni empanado."
+  },
+  {
+    "foodId": "gelatina_azucar",
+    "fdcId": "169596",
+    "expectedName": "Gelatina de sabor preparada con azúcar",
+    "expectedUnit": "g",
+    "sourceDescription": "Gelatin desserts, dry mix, prepared with water",
+    "matchType": "reviewed_generic_reference",
+    "note": "Postre de gelatina preparado con agua y azúcar; referencia genérica, no polvo seco. La dilución y formulación del producto pueden variar."
+  },
+  {
+    "foodId": "gelatin_sugarfree",
+    "fdcId": "169598",
+    "expectedName": "Gelatina sin azúcar preparada",
+    "expectedUnit": "g",
+    "sourceDescription": "Gelatin desserts, dry mix, reduced calorie, with aspartame, prepared with water",
+    "matchType": "reviewed_generic_reference",
+    "note": "Postre de gelatina reducido en calorías, con aspartamo, preparado con agua. Aproximación genérica; verificar formulación y dilución, no trasladar al polvo seco."
+  },
+  {
+    "foodId": "granola",
+    "fdcId": "171646",
+    "expectedName": "Granola genérica",
+    "expectedUnit": "g",
+    "sourceDescription": "Cereals ready-to-eat, granola, homemade",
+    "matchType": "reviewed_generic_reference",
+    "note": "Granola casera genérica de USDA; ingredientes y proporciones varían. No equivale a una etiqueta comercial ni a granola específica."
+  },
+  {
+    "foodId": "sushi_sashimi_salmon",
+    "fdcId": "175167",
+    "expectedName": "Sashimi de salmón, sin arroz",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, salmon, Atlantic, farmed, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Salmón atlántico de cultivo crudo como referencia genérica para sashimi sin arroz ni salsa; especie y cría modifican especialmente los ácidos grasos. No usar salmón cocido."
+  },
+  {
+    "foodId": "sushi_sashimi_atun",
+    "fdcId": "175159",
+    "expectedName": "Sashimi de atún, sin arroz",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, tuna, fresh, yellowfin, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Atún aleta amarilla crudo como referencia genérica para sashimi sin arroz ni salsa. La especie y el corte modifican grasas y micronutrientes; no es atún enlatado ni cocido."
+  },
+  {
+    "foodId": "medialuna_butter",
+    "fdcId": "174987",
+    "expectedName": "Medialuna de manteca",
+    "expectedUnit": "g",
+    "sourceDescription": "Croissants, butter",
+    "matchType": "reviewed_generic_reference",
+    "note": "Croissant de manteca genérico como aproximación a medialuna de manteca. Almíbar, tamaño, enriquecimiento de harina y receta local pueden cambiar la composición; no es análisis de panadería argentina."
+  },
+  {
+    "foodId": "factura_medialuna_manteca",
+    "fdcId": "174987",
+    "expectedName": "Medialuna de manteca",
+    "expectedUnit": "g",
+    "sourceDescription": "Croissants, butter",
+    "matchType": "reviewed_generic_reference",
+    "note": "Misma referencia genérica de croissant de manteca que medialuna_butter; equivalencia aproximada, no análisis de receta argentina ni de marca."
+  },
+  {
+    "foodId": "galleta_agua",
+    "fdcId": "172746",
+    "expectedName": "Galletitas de agua",
+    "expectedUnit": "g",
+    "sourceDescription": "Crackers, saltines (includes oyster, soda, soup)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Galleta salada tipo saltine/soda genérica. Fortificación estadounidense, formulación y sal pueden diferir de galletitas de agua argentinas; no es etiqueta de marca."
+  },
+  {
+    "foodId": "galletitas_agua",
+    "fdcId": "172746",
+    "expectedName": "Galletitas de agua saladas",
+    "expectedUnit": "g",
+    "sourceDescription": "Crackers, saltines (includes oyster, soda, soup)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Galleta salada tipo saltine/soda genérica. Fortificación y formulación pueden diferir; mismo perfil genérico que galleta_agua."
+  },
+  {
+    "foodId": "galleta_integral",
+    "fdcId": "172749",
+    "expectedName": "Galletitas integrales",
+    "expectedUnit": "g",
+    "sourceDescription": "Crackers, whole-wheat",
+    "matchType": "reviewed_generic_reference",
+    "note": "Galletita integral de trigo genérica. Proporción integral, grasa y fortificación varían; no es etiqueta de marca."
+  },
+  {
+    "foodId": "palomitas_dulces",
+    "fdcId": "167552",
+    "expectedName": "Pochoclo dulce acaramelado",
+    "expectedUnit": "g",
+    "sourceDescription": "Snacks, popcorn, caramel-coated, without peanuts",
+    "matchType": "reviewed_generic_reference",
+    "note": "Pochoclo cubierto de caramelo sin maní, referencia genérica; el caramelo y la grasa añadida varían según receta."
+  },
+  {
+    "foodId": "pochoclos_dulces_acaramelados_genericos",
+    "fdcId": "167552",
+    "expectedName": "Pochoclos dulces / acaramelados (estimación genérica)",
+    "expectedUnit": "g",
+    "sourceDescription": "Snacks, popcorn, caramel-coated, without peanuts",
+    "matchType": "reviewed_generic_reference",
+    "note": "Pochoclo acaramelado sin maní, misma referencia genérica que palomitas_dulces; no se infiere composición de un fabricante."
+  },
+  {
+    "foodId": "arroz_con_leche",
+    "fdcId": "168063",
+    "expectedName": "Arroz con leche tradicional azucarado",
+    "expectedUnit": "g",
+    "sourceDescription": "Restaurant, Latino, arroz con leche (rice pudding)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Arroz con leche preparado, referencia genérica de restaurante latino USDA. Proporción de arroz, leche, azúcar y evaporación varían; no es receta casera medida."
+  },
+  {
+    "foodId": "arroz_leche",
+    "fdcId": "168063",
+    "expectedName": "Arroz con leche tradicional",
+    "expectedUnit": "g",
+    "sourceDescription": "Restaurant, Latino, arroz con leche (rice pudding)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Arroz con leche preparado, misma referencia genérica que arroz_con_leche. Varían ingredientes y rendimiento; no es arroz seco ni una mezcla calculada sin receta."
+  },
+  {
+    "foodId": "tortilla_wheat",
+    "fdcId": "175037",
+    "expectedName": "Tortilla de trigo tipo rapidita",
+    "expectedUnit": "g",
+    "sourceDescription": "Tortillas, ready-to-bake or -fry, flour, refrigerated",
+    "matchType": "reviewed_generic_reference",
+    "note": "Tortilla de harina de trigo refrigerada lista para calentar, referencia genérica USDA; no representa una marca Rapiditas. Fortificación, calcio añadido y receta pueden diferir."
   }
 ]

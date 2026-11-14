@@ -17,8 +17,8 @@ const server=createServer((req,res)=>{try{const path=decodeURIComponent(new URL(
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const origin='http://127.0.0.1:'+server.address().port;
 const engines=await import(process.env.NCC_PLAYWRIGHT_MODULE||'playwright'),evidence=[];
-try{for(const engine of ['chromium','webkit']){
- const browser=await engines[engine].launch({headless:true});
+try{for(const engine of (process.env.NCC_TEST_ENGINES||'chromium,webkit').split(',')){
+ const browser=await engines[engine].launch({headless:true,...(engine==='chromium'&&process.env.NCC_CHROMIUM_EXECUTABLE?{executablePath:process.env.NCC_CHROMIUM_EXECUTABLE}:{})});
  try{for(const width of [390,320]){
  const context=await browser.newContext({viewport:{width,height:1000},serviceWorkers:'block',isMobile:true,hasTouch:true});
  await context.route('**/*',r=>new URL(r.request().url()).origin===origin?r.continue():r.abort());
@@ -29,17 +29,35 @@ try{for(const engine of ['chromium','webkit']){
   const {MICRONUTRIENT_CATALOG:c}=await import('./micronutrient-catalog.js');
   const entry=(id,qty)=>({id,name:c.foods[id].name,qty,unit:c.foods[id].unit,k:qty*1.1,p:qty*.06,c:qty*.12,f:qty*.03,fi:qty*.01,sourceId:c.foods[id].catalogSourceId??c.foods[id].sourceId});
   s.diary.meals.desayuno=[entry('milk_skim',250),entry('oats_raw',50),entry('apple',150)];
-  s.diary.meals.almuerzo=[entry('beef_tenderloin',150),entry('kidney_beef_grilled',100),entry('spinach_raw',80),{id:'recipe-demo',name:'Plato casero · datos incompletos',qty:120,unit:'g',k:300,p:20,c:30,f:10,fi:4}];
+  s.diary.meals.almuerzo=[entry('beef_tenderloin',150),entry('kidney_beef_grilled',100),entry('spinach_raw',80),entry('fish_hake',150),entry('ham_cooked',50),entry('egg',60),entry('chicken_breast_roasted',100),entry('rice',100),entry('mixed_nuts',25),entry('egg_white',100),entry('oat_flour',50),entry('sushi_sashimi_salmon',100),entry('sushi_sashimi_atun',100),{id:'recipe-demo',name:'Plato casero · datos incompletos',qty:120,unit:'g',k:300,p:20,c:30,f:10,fi:4}];
   s.profile.role='admin';s.selfManagementOwn={owner:s.session.user.id,epoch:s.authContextEpoch||0,fields:{age_years:41,sex_for_equation:'male',dietary_pattern:'omnivore',pregnantOrBreastfeeding:false,clinicalCareRequired:false,eatingDisorderHistory:false,restrictionDeclaration:'none_declared',health_flags:[]}};
   await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;
  });
  const card=page.locator('.ncc-micronutrients').first();await card.waitFor();
  assert.equal(await card.locator('[data-micronutrient]').count(),7);assert.equal(await card.locator('.ncc-micro-expand').getAttribute('open'),null);
  const colors=await card.locator('[data-micronutrient]').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).getPropertyValue('--micro-color').trim()));assert.equal(new Set(colors).size,7);
- const bar=()=>page.locator('[data-micronutrient=magnesium] .ncc-micro-food').first();const old=await bar().evaluate(e=>e.style.width);
- await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.diary.meals.desayuno[0].qty=500;await v.render();});assert.notEqual(await bar().evaluate(e=>e.style.width),old);
+ const bar=()=>page.locator('[data-micronutrient=magnesium] .ncc-micro-food').first();
+ const displayed=()=>page.locator('[data-micronutrient=magnesium] .ncc-micro-value').first().textContent();
+ const oldAmount=await displayed();
+ await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.diary.meals.desayuno[0].qty=500;await v.render();});
+ assert.notEqual(await displayed(),oldAmount,'amount must update even when the bar is capped at 100%');
+ const fullDiary=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
+ await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;for(const meal of Object.values(v.state.diary.meals))for(const food of meal)food.qty/=10;await v.render();});
+ const under=await bar().evaluate(e=>parseFloat(e.style.width));assert.ok(under>0&&under<100);
+ await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.diary.meals.desayuno[0].qty*=2;await v.render();});
+ assert.ok(await bar().evaluate(e=>parseFloat(e.style.width))>under,'below target the bar must grow');
+ await page.evaluate(async diary=>{const v=window.__NCC_R4_FULLAPP__;v.state.diary=JSON.parse(diary);await v.render();},fullDiary);
  await page.locator('.ncc-micronutrients').first().screenshot({path:resolve(out,engine+'-'+width+'-barras-con-referencia.png')});
  const saved=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
+ // Detail lists only the top four contributors. Test small contributors alone,
+ // instead of requiring every food in a long mixed diary to appear in that list.
+ for(const [id,nutrient,label]of [['egg_white','calcium','Clara de huevo'],['sushi_sashimi_salmon','epa_dha','Sashimi de salmón'],['sushi_sashimi_atun','epa_dha','Sashimi de atún']]){
+  await page.evaluate(async id=>{const v=window.__NCC_R4_FULLAPP__,s=v.state;const food=s.diary.meals.almuerzo.find(f=>f.id===id);for(const meal of Object.keys(s.diary.meals))s.diary.meals[meal]=[];s.diary.meals.almuerzo=[food];await v.render();},id);
+  const single=page.locator('.ncc-micronutrients').first();await single.locator('.ncc-micro-expand > summary').click();
+  assert.ok((await single.locator('[data-micro-detail='+nutrient+']').textContent()).includes(label));
+  await page.evaluate(async diary=>{const v=window.__NCC_R4_FULLAPP__;v.state.diary=JSON.parse(diary);await v.render();},saved);
+ }
+
  for(const role of ['student','coach','admin']){
   await page.evaluate(async role=>{const v=window.__NCC_R4_FULLAPP__;v.state.profile.role=role;v.state.selfManagementOwn=null;await v.render();},role);
   const block=page.locator('.ncc-micronutrients').first();assert.equal(await block.locator('[data-micronutrient]').count(),7);assert.equal(await block.locator('.ncc-micro-rows [data-scale=reference]').count(),7);
@@ -47,12 +65,29 @@ try{for(const engine of ['chromium','webkit']){
   assert.equal(await block.locator('.ncc-micro-rows [data-scale=unscaled]').count(),0);
   await block.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-referencia-general.png')});
   await block.locator('.ncc-micro-expand > summary').click();assert.equal(await block.locator('[data-micro-detail]').count(),7);
-  assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Lomo vacuno cocido/);
-  assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Riñón/);
+  assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Lomo vacuno cocido/);assert.match(await block.locator('[data-micro-detail=epa_dha]').textContent(),/Sashimi de salmón/);
+  assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Riñón/);assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Merluza cocida/);assert.match(await block.locator('[data-micronutrient=epa_dha] .ncc-micro-value').textContent(),/250 mg/);
   await block.locator('[data-micro-detail=iron] .ncc-micro-sources > summary').click();
   await block.locator('[data-micro-detail=iron]').screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-hierro-lomo.png')});
   await block.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-detalle.png')});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),saved);
+ }
+ // Newly completed catalog: volume conversion, standard recipe, brand proxy and unknown ingredient.
+ for(const [id,nutrient,partial]of [['flaxseed','ala',false],['beef','b12',false],['milk_lactosefree','calcium',false],['chia_pudding','calcium',false],['arcor_chocolate_blanco_porcion','calcium',false],['cake','iron',true]]){
+  await page.evaluate(async id=>{const v=window.__NCC_R4_FULLAPP__,s=v.state;const {MICRONUTRIENT_CATALOG:c}=await import('./micronutrient-catalog.js');const f=c.foods[id];for(const key of Object.keys(s.diary.meals))s.diary.meals[key]=[];s.diary.meals.almuerzo=[{id,name:f.name,qty:100,unit:f.unit,k:200,p:10,c:20,f:8,fi:2,sourceId:f.catalogSourceId}];await v.render();},id);
+  const block=page.locator('.ncc-micronutrients').first();
+  assert.doesNotMatch(await block.locator('[data-micronutrient='+nutrient+'] .ncc-micro-value').textContent(),/Sin datos/);
+  if(partial)assert.match(await block.locator('[data-micronutrient='+nutrient+'] .ncc-micro-progress').textContent(),/parcial/);
+  const outer=block.locator('.ncc-micro-expand');
+  if(await outer.getAttribute('open')===null)await outer.locator(':scope > summary').click();
+  const detail=block.locator('[data-micro-detail='+nutrient+']');
+  const sources=detail.locator('.ncc-micro-sources');
+  if(await sources.getAttribute('open')===null)await sources.locator(':scope > summary').click();
+  const provenance=sources.locator('details').first();
+  if(await provenance.getAttribute('open')===null)await provenance.locator(':scope > summary').click();
+  if(id.startsWith('arcor'))assert.match(await detail.textContent(),/NO RÓTULO/);
+  await detail.screenshot({path:resolve(out,engine+'-'+width+'-full-'+id+'.png')});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  }
  assert.deepEqual(errors,[]);evidence.push({engine,width,allSevenVisible:true,sevenColors:true,referenceFillRecalculates:true,generalReferencesWithoutProfile:true,threeRoles:true,detailsPreserved:true,readOnly:true});await context.close();
  }}finally{await browser.close();}

@@ -1,0 +1,15 @@
+{
+  "mate-infusion-113H": {
+    "sourceId": "TBCA-113H",
+    "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_estatistica2.php?cod_produto=113H",
+    "sourceDescription": "TBCA 113H: chimarrão, infusion of 70 g dry yerba mate per litre; Heinrichs & Malavolta, Ciência Rural 2001;31(5):781–785",
+    "per100g": {
+      "calcium": 4.4,
+      "iron": 0.03,
+      "magnesium": 18.8,
+      "zinc": 0.23
+    },
+    "retrieved": "2026-11-14",
+    "missingPolicy": "No B12 or named fatty acids reported; null. Model is specific extraction concentration, not analysis of each serving."
+  }
+}

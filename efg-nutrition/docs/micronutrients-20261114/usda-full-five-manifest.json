@@ -1,0 +1,36 @@
+{
+  "captureDate": "2026-11-14",
+  "archiveSha256": "d24c8d61a28af43ba37e6d876280a3200adf3748fe41f43c6c0b0dffc0b89afa",
+  "records": [
+    {
+      "fdcId": 748967,
+      "description": "Eggs, Grade A, Large, egg whole",
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/748967",
+      "recordSha256": "5480093dc270795fa830fc89ee01c32665279885f6305aa224ecf49c861aff4f"
+    },
+    {
+      "fdcId": 747997,
+      "description": "Eggs, Grade A, Large, egg white",
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/747997",
+      "recordSha256": "dee5be37000014811b436fc40eb4dee0893c850ded2c3736a1f192d509f5badb"
+    },
+    {
+      "fdcId": 2705956,
+      "description": "Chicken breast, baked, broiled, or roasted, skin not eaten, from raw",
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/2705956",
+      "recordSha256": "17bfe319ea2ecf41d68bc8c48b2af5c96f37066d3f84763094a5e5e3cd50b4d1"
+    },
+    {
+      "fdcId": 2708408,
+      "description": "Rice, white, cooked, no added fat",
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/2708408",
+      "recordSha256": "634cf6fabbcc9ccb76f513ef274a9dcc3d92f495c78792cf8221170d98a102cc"
+    },
+    {
+      "fdcId": 2647437,
+      "description": "Yogurt, plain, nonfat",
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/2647437",
+      "recordSha256": "4cc86b7eca000a70406fb49d9d9d8e369bc07889f899af4d6d5488ec1aef31ec"
+    }
+  ]
+}

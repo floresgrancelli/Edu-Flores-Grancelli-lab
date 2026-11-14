@@ -1,0 +1,32 @@
+{
+  "baseCommit": "9e013d9a63b6f069fab0b9c6fe9b929d2a9147d8",
+  "baselineCount": 307,
+  "usdaAdditions": {
+    "sushi_sashimi_salmon": 175167,
+    "sushi_sashimi_atun": 175159,
+    "medialuna_butter": 174987,
+    "factura_medialuna_manteca": 174987,
+    "galleta_agua": 172746,
+    "galletitas_agua": 172746,
+    "galleta_integral": 172749,
+    "palomitas_dulces": 167552,
+    "pochoclos_dulces_acaramelados_genericos": 167552,
+    "arroz_con_leche": 168063,
+    "arroz_leche": 168063,
+    "tortilla_wheat": 175037
+  },
+  "notes": {
+    "sushi_sashimi_salmon": "Salmón atlántico de cultivo crudo como referencia genérica para sashimi sin arroz ni salsa; especie y cría modifican especialmente los ácidos grasos. No usar salmón cocido.",
+    "sushi_sashimi_atun": "Atún aleta amarilla crudo como referencia genérica para sashimi sin arroz ni salsa. La especie y el corte modifican grasas y micronutrientes; no es atún enlatado ni cocido.",
+    "medialuna_butter": "Croissant de manteca genérico como aproximación a medialuna de manteca. Almíbar, tamaño, enriquecimiento de harina y receta local pueden cambiar la composición; no es análisis de panadería argentina.",
+    "factura_medialuna_manteca": "Misma referencia genérica de croissant de manteca que medialuna_butter; equivalencia aproximada, no análisis de receta argentina ni de marca.",
+    "galleta_agua": "Galleta salada tipo saltine/soda genérica. Fortificación estadounidense, formulación y sal pueden diferir de galletitas de agua argentinas; no es etiqueta de marca.",
+    "galletitas_agua": "Galleta salada tipo saltine/soda genérica. Fortificación y formulación pueden diferir; mismo perfil genérico que galleta_agua.",
+    "galleta_integral": "Galletita integral de trigo genérica. Proporción integral, grasa y fortificación varían; no es etiqueta de marca.",
+    "palomitas_dulces": "Pochoclo cubierto de caramelo sin maní, referencia genérica; el caramelo y la grasa añadida varían según receta.",
+    "pochoclos_dulces_acaramelados_genericos": "Pochoclo acaramelado sin maní, misma referencia genérica que palomitas_dulces; no se infiere composición de un fabricante.",
+    "arroz_con_leche": "Arroz con leche preparado, referencia genérica de restaurante latino USDA. Proporción de arroz, leche, azúcar y evaporación varían; no es receta casera medida.",
+    "arroz_leche": "Arroz con leche preparado, misma referencia genérica que arroz_con_leche. Varían ingredientes y rendimiento; no es arroz seco ni una mezcla calculada sin receta.",
+    "tortilla_wheat": "Tortilla de harina de trigo refrigerada lista para calentar, referencia genérica USDA; no representa una marca Rapiditas. Fortificación, calcio añadido y receta pueden diferir."
+  }
+}

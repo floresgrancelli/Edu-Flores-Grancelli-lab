@@ -1,0 +1,60 @@
+{
+  "baseCommit": "8728e37f89eaf2bded888653f401080fed0f2233",
+  "saraAdditions": [
+    "cheese",
+    "queso_cremoso",
+    "queso_fresco_magro",
+    "queso_sardo",
+    "dulce_batata",
+    "dulce_de_leche",
+    "dulce_leche_entero",
+    "quince",
+    "jam_regular",
+    "mermelada_azucar",
+    "jam_light",
+    "zapallito_cooked",
+    "zapallito_redondo_cocido",
+    "zapallo_criollo_hervido",
+    "pumpkin",
+    "pure_pumpkin",
+    "pure_zapallo_simple",
+    "merluza_filet_cruda",
+    "merluza_grill",
+    "asado_beef",
+    "vacio_beef",
+    "matambre_beef",
+    "ground_beef_regular",
+    "beef",
+    "nalga_cooked"
+  ],
+  "usdaAdditions": {
+    "mero_cocido": 171963,
+    "tuna_fresh": 173707,
+    "hummus": 172454,
+    "pork_ribs": 169178
+  },
+  "exactApiRecords": [
+    748967,
+    747997,
+    2705956,
+    2708408,
+    2647437
+  ],
+  "existingRecipeModels": {
+    "mixed_nuts": {
+      "peanuts": 0.25,
+      "walnuts": 0.25,
+      "almonds": 0.25,
+      "cashews": 0.25
+    },
+    "mi_mix_nueces_almendras_avellanas_caju": {
+      "walnuts": 0.25,
+      "almonds": 0.25,
+      "hazelnuts": 0.25,
+      "cashews": 0.25
+    },
+    "peanut_butter": {
+      "peanuts": 1
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-14",
+  "saraPdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+  "saraUrl": "https://iah.msal.gov.ar/doc/720.pdf",
+  "usdaUrl": "https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_json_2018-04.zip",
+  "policy": "Fill only null direct values. SARA B12 nonzero is never interpreted as µg. Explicit printed zero may be carried as reported zero (unit-invariant), not inferred from a blank. Generic B12 references are separately identified. Recompute incomplete recipe sums after enriching components. No 18:3 undifferentiated conversion.",
+  "files": {
+    "enrichment-mappings.json": "6f544f89696b3ec08fec7ad5348dd39660448125f23bf681ba0b71722574224b",
+    "enrichment-sara-rows.json": "5bd70f5f3af882afa2e8297c7afc6e4f54cbe82231b15a3c266de15ac2e59fc6",
+    "enrichment-usda.json.gz": "3ba943d4ab933c9612d05545acb697527d41a2a412b9c7a6860b2e05df910c1f"
+  }
+}

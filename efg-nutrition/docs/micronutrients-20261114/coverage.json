@@ -439,19 +439,20 @@
   {
     "id": "asado_beef",
     "name": "Asado de tira vacuno cocido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "asparagus",
@@ -686,19 +687,20 @@
   {
     "id": "beef",
     "name": "Carne vacuna magra cocida",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "beef_liver",
@@ -1031,8 +1033,7 @@
   {
     "id": "bread_white",
     "name": "Pan blanco",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -1042,8 +1043,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "broccoli_cooked",
@@ -1674,19 +1676,20 @@
   {
     "id": "cheese",
     "name": "Port Salut Light",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "cheesecake_frutos",
@@ -1796,19 +1799,20 @@
   {
     "id": "chicken_breast_roasted",
     "name": "Pechuga de pollo cocida al horno sin piel",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "chicken_liver_cooked",
@@ -2616,53 +2620,56 @@
   {
     "id": "dulce_batata",
     "name": "Dulce de batata",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "dulce_de_leche",
     "name": "Dulce de leche tradicional",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "dulce_leche_entero",
     "name": "Dulce de leche entero tradicional",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "edamame",
@@ -2684,19 +2691,20 @@
   {
     "id": "egg",
     "name": "Huevo entero sin cáscara (referencia crudo)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
+      "b12"
+    ],
+    "missing": [
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "egg_boiled",
@@ -2737,19 +2745,20 @@
   {
     "id": "egg_white",
     "name": "Clara de huevo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "eggplant",
@@ -3703,36 +3712,38 @@
   {
     "id": "gelatin_sugarfree",
     "name": "Gelatina sin azúcar preparada",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "gelatina_azucar",
     "name": "Gelatina de sabor preparada con azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "gnocchi_potato",
@@ -3805,19 +3816,20 @@
   {
     "id": "granola",
     "name": "Granola genérica",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "grapefruit",
@@ -3928,19 +3940,20 @@
   {
     "id": "ground_beef_regular",
     "name": "Carne picada común cocida",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "guava_raw",
@@ -4447,53 +4460,56 @@
   {
     "id": "hummus",
     "name": "Hummus clásico",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "jam_light",
     "name": "Mermelada reducida en azúcar (genérica)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "jam_regular",
     "name": "Mermelada común",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "kale",
@@ -4973,19 +4989,20 @@
   {
     "id": "matambre_beef",
     "name": "Matambre vacuno cocido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mate_cocido",
@@ -5281,36 +5298,38 @@
   {
     "id": "merluza_filet_cruda",
     "name": "Filet de merluza crudo sin rebozar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "merluza_grill",
     "name": "Merluza a la plancha sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "merluza_rebozada",
@@ -5332,19 +5351,20 @@
   {
     "id": "mermelada_azucar",
     "name": "Mermelada común con azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mermelada_sugarfree",
@@ -5366,36 +5386,38 @@
   {
     "id": "mero_cocido",
     "name": "Mero cocido sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mi_mix_nueces_almendras_avellanas_caju",
     "name": "Mi mix de frutos secos — nueces, almendras, avellanas y castañas de cajú",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milanesa_beef_baked",
@@ -5834,19 +5856,20 @@
   {
     "id": "mixed_nuts",
     "name": "Mezcla de frutos secos (sin sal)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mondongo",
@@ -6010,19 +6033,20 @@
   {
     "id": "nalga_cooked",
     "name": "Nalga vacuna cocida magra",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "naranja_azucarada_cascara_confitada_granel",
@@ -6149,19 +6173,20 @@
   {
     "id": "oat_flour",
     "name": "Harina de avena",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "oatmeal_cooked",
@@ -6831,8 +6856,7 @@
   {
     "id": "peanut_butter",
     "name": "Pasta de maní 100%",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -6842,8 +6866,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "peanuts",
@@ -7455,8 +7480,7 @@
   {
     "id": "pork_ribs",
     "name": "Costillas de cerdo asadas",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7466,8 +7490,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "pork_tenderloin_lean_raw",
@@ -7682,19 +7707,20 @@
   {
     "id": "pumpkin",
     "name": "Calabaza cocida",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pumpkin_seeds",
@@ -7750,70 +7776,74 @@
   {
     "id": "pure_pumpkin",
     "name": "Puré de calabaza sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pure_zapallo_simple",
     "name": "Puré de zapallo sin manteca ni aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "queso_cremoso",
     "name": "Queso cremoso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "queso_fresco_magro",
     "name": "Queso fresco magro",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "queso_port_salut",
@@ -7836,36 +7866,38 @@
   {
     "id": "queso_sardo",
     "name": "Queso sardo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "quince",
     "name": "Dulce de membrillo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "quinoa_cooked",
@@ -8169,19 +8201,20 @@
   {
     "id": "rice",
     "name": "Arroz blanco cocido sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "rice_cakes",
@@ -10100,19 +10133,20 @@
   {
     "id": "tuna_fresh",
     "name": "Atún fresco cocido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tuna_oil_drained",
@@ -10204,36 +10238,38 @@
   {
     "id": "vacio_beef",
     "name": "Vacío vacuno asado",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "veal_cutlet_cooked",
     "name": "Bife de ternera magro cocido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "vegetable_cream_soup",
@@ -10378,19 +10414,20 @@
   {
     "id": "yamani_rice_cooked",
     "name": "Arroz yamaní cocido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
+      "b12"
+    ],
+    "missing": [
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "yogur_descremado_fruta",
@@ -10534,36 +10571,38 @@
   {
     "id": "zapallito_cooked",
     "name": "Zapallito cocido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "zapallito_redondo_cocido",
     "name": "Zapallito redondo hervido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "zapallito_relleno_carne",
@@ -10654,19 +10693,20 @@
   {
     "id": "zapallo_criollo_hervido",
     "name": "Zapallo criollo hervido, sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "zucchini",

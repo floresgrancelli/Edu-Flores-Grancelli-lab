@@ -1,0 +1,23 @@
+{
+  "baselineCount": 299,
+  "usdaAdditions": {
+    "egg_white": 172183,
+    "oat_flour": 169741,
+    "yamani_rice_cooked": 168875,
+    "bread_white": 174924,
+    "veal_cutlet_cooked": 174880,
+    "gelatina_azucar": 169596,
+    "gelatin_sugarfree": 169598,
+    "granola": 171646
+  },
+  "notes": {
+    "egg_white": "Clara cruda fresca genérica SR Legacy. La identidad Foundation 747997 no informa los ocho nutrientes buscados; se usa esta referencia alternativa explícita solo para micronutrientes. No equivale a un análisis del mismo registro ni a clara cocida.",
+    "oat_flour": "Harina de avena parcialmente desprovista de salvado; referencia genérica. El grado de extracción puede cambiar los minerales; no representa toda harina integral ni una marca.",
+    "yamani_rice_cooked": "Arroz integral de grano medio cocido como aproximación genérica al yamaní; no es un análisis de cultivar yamaní ni arroz seco.",
+    "bread_white": "Pan blanco comercial genérico estadounidense; fortificación y formulación pueden diferir del pan argentino. No es etiqueta de marca.",
+    "veal_cutlet_cooked": "Bife de ternera de nalga deshuesado cocido a la parrilla, referencia genérica para bife magro cocido; no crudo ni empanado.",
+    "gelatina_azucar": "Postre de gelatina preparado con agua y azúcar; referencia genérica, no polvo seco. La dilución y formulación del producto pueden variar.",
+    "gelatin_sugarfree": "Postre de gelatina reducido en calorías, con aspartamo, preparado con agua. Aproximación genérica; verificar formulación y dilución, no trasladar al polvo seco.",
+    "granola": "Granola casera genérica de USDA; ingredientes y proporciones varían. No equivale a una etiqueta comercial ni a granola específica."
+  }
+}

@@ -17,7 +17,7 @@ const totals=items=>estimate({diary:day(items),catalog:c}).nutrients;
 test('every prior known value is preserved; all 617 IDs have a coverage decision',()=>{
  for(const [id,f]of Object.entries(old.foods))for(const [n,v]of Object.entries(f.perUnit))if(v!==null)assert.equal(c.foods[id].perUnit[n],v,id+':'+n);
  const inventory=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/coverage.json',import.meta.url)));
- assert.equal(inventory.length,617);assert.equal(new Set(inventory.map(f=>f.id)).size,617);assert.equal(c.foodCount,264);
+ assert.equal(inventory.length,617);assert.equal(new Set(inventory.map(f=>f.id)).size,617);assert.equal(c.foodCount,307);
  for(const f of inventory)assert.equal(f.known.length+f.missing.length,8);
 });
 test('frozen official extract has exact manifest hash and reviewed source descriptions',()=>{
@@ -87,4 +87,48 @@ test('third batch preserves every published known value and verifies SARA scalin
   assert.equal(c.foods[id].sourceId,String(fdc));
   for(const [key,n]of Object.entries({iron:1089,zinc:1095,magnesium:1090,calcium:1087}))assert.ok(Math.abs(c.foods[id].perUnit[key]-records[fdc].foodNutrients.find(x=>x.nutrient.id===n).amount/100)<1e-9);
  }
+});
+
+test('fourth batch preserves 264 known profiles and adds exact USDA captures and declared mixtures',()=>{
+ const priorText=execFileSync('git',['show','8728e37f89eaf2bded888653f401080fed0f2233:efg-nutrition/pilot/micronutrient-catalog.js'],{cwd:root,encoding:'utf8'});
+ const baseline=JSON.parse(priorText.slice(priorText.indexOf('= ')+2).replace(/;\s*$/,''));
+ for(const [id,f]of Object.entries(baseline.foods))for(const [key,value]of Object.entries(f.perUnit))if(value!==null)assert.equal(c.foods[id].perUnit[key],value,id+':'+key);
+ const apiBytes=readFileSync(new URL('../docs/micronutrients-20261114/usda-full-five.json.gz',import.meta.url));
+ const apiManifest=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/usda-full-five-manifest.json',import.meta.url)));
+ assert.equal(createHash('sha256').update(apiBytes).digest('hex'),apiManifest.archiveSha256);
+ const apiRecords=Object.fromEntries(JSON.parse(gunzipSync(apiBytes)).map(r=>[r.fdcId,r]));
+ for(const [id,fdc]of Object.entries({egg:748967,chicken_breast_roasted:2705956,rice:2708408})){
+  assert.equal(c.foods[id].sourceId,String(fdc));
+  for(const [key,n]of Object.entries({iron:1089,zinc:1095,magnesium:1090,calcium:1087,b12:1178})){
+   const original=apiRecords[fdc].foodNutrients.find(x=>x.nutrient.id===n).amount;
+   assert.ok(Math.abs(c.foods[id].perUnit[key]-original/100)<1e-9);
+   assert.ok(Math.abs(totals([entry(id,125)]).find(x=>x.id===key).food-original*1.25)<1e-9);
+  }
+ }
+ assert.equal(c.foods.egg_white.sourceId,'172183');assert.equal(c.foods.egg_white.catalogSourceId,'747997');assert.equal(c.foods.egg_white.matchType,'reviewed_generic_reference');
+ const batch=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/batch-four.json',import.meta.url)));
+ for(const [id,parts]of Object.entries(batch.existingRecipeModels))for(const key of Object.keys(c.foods[id].perUnit)){
+  const incomplete=Object.keys(parts).some(k=>c.foods[k].perUnit[key]===null);
+  if(incomplete)assert.equal(c.foods[id].perUnit[key],null);
+  else assert.ok(Math.abs(c.foods[id].perUnit[key]-Object.entries(parts).reduce((sum,[k,w])=>sum+c.foods[k].perUnit[key]*w,0))<1e-9);
+ }
+ assert.equal(c.foods.merluza_filet_cruda.perUnit.iron,.019);assert.ok(Math.abs(c.foods.merluza_grill.perUnit.iron-.0247)<1e-10);
+});
+
+
+test('fifth batch checks every nutrient against frozen sources and preserves diary source identity',()=>{
+ const batch=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/batch-five.json',import.meta.url)));
+ const ids={magnesium:[1090,1],calcium:[1087,1],iron:[1089,1],zinc:[1095,1],b12:[1178,1],ala:[1404,1],epa:[1278,1000],dha:[1272,1000]};
+ for(const [id,fdc] of Object.entries(batch.usdaAdditions)){
+  const f=c.foods[id];assert.equal(f.sourceId,String(fdc));
+  for(const [key,[nutrient,scale]] of Object.entries(ids)){
+   const source=records[fdc].foodNutrients.find(n=>n.nutrient.id===nutrient);
+   if(!source){assert.equal(f.perUnit[key],null);continue;}
+   assert.ok(Math.abs(f.perUnit[key]-source.amount*scale/100)<1e-9,id+':'+key);
+  }
+  const e=entry(id,175),before=JSON.stringify(e);
+  assert.ok(Math.abs(totals([e]).find(n=>n.id==='calcium').food-f.perUnit.calcium*175)<1e-9);
+  assert.equal(JSON.stringify(e),before);
+ }
+ assert.equal(totals([{...entry('egg_white',100),sourceId:'wrong'}]).find(n=>n.id==='calcium').total,null);
 });

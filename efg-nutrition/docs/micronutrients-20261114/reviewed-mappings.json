@@ -1420,5 +1420,113 @@
     "sourceDescription": "Snacks, rice cakes, brown rice, plain, unsalted",
     "matchType": "reviewed_generic_reference",
     "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca. Referencia de galletas de arroz integral simples, sin sal."
+  },
+  {
+    "foodId": "mero_cocido",
+    "fdcId": "171963",
+    "expectedName": "Mero cocido sin aceite",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, grouper, mixed species, cooked, dry heat",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica para esta preparación; la especie, receta y porción pueden variar. No es etiqueta de una marca."
+  },
+  {
+    "foodId": "tuna_fresh",
+    "fdcId": "173707",
+    "expectedName": "Atún fresco cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, tuna, fresh, bluefin, cooked, dry heat",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica para esta preparación; la especie, receta y porción pueden variar. No es etiqueta de una marca. Atún de aleta azul, calor seco, como aproximación de atún fresco cocido."
+  },
+  {
+    "foodId": "hummus",
+    "fdcId": "172454",
+    "expectedName": "Hummus clásico",
+    "expectedUnit": "g",
+    "sourceDescription": "Hummus, home prepared",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica para esta preparación; la especie, receta y porción pueden variar. No es etiqueta de una marca."
+  },
+  {
+    "foodId": "pork_ribs",
+    "fdcId": "169178",
+    "expectedName": "Costillas de cerdo asadas",
+    "expectedUnit": "g",
+    "sourceDescription": "Pork, fresh, spareribs, separable lean and fat, cooked, roasted",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica para esta preparación; la especie, receta y porción pueden variar. No es etiqueta de una marca."
+  },
+  {
+    "foodId": "egg_white",
+    "fdcId": "172183",
+    "expectedName": "Clara de huevo",
+    "expectedUnit": "g",
+    "sourceDescription": "Egg, white, raw, fresh",
+    "matchType": "reviewed_generic_reference",
+    "note": "Clara cruda fresca genérica SR Legacy. La identidad Foundation 747997 no informa los ocho nutrientes buscados; se usa esta referencia alternativa explícita solo para micronutrientes. No equivale a un análisis del mismo registro ni a clara cocida."
+  },
+  {
+    "foodId": "oat_flour",
+    "fdcId": "169741",
+    "expectedName": "Harina de avena",
+    "expectedUnit": "g",
+    "sourceDescription": "Oat flour, partially debranned",
+    "matchType": "reviewed_generic_reference",
+    "note": "Harina de avena parcialmente desprovista de salvado; referencia genérica. El grado de extracción puede cambiar los minerales; no representa toda harina integral ni una marca."
+  },
+  {
+    "foodId": "yamani_rice_cooked",
+    "fdcId": "168875",
+    "expectedName": "Arroz yamaní cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Rice, brown, medium-grain, cooked (Includes foods for USDA's Food Distribution Program)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Arroz integral de grano medio cocido como aproximación genérica al yamaní; no es un análisis de cultivar yamaní ni arroz seco."
+  },
+  {
+    "foodId": "bread_white",
+    "fdcId": "174924",
+    "expectedName": "Pan blanco",
+    "expectedUnit": "g",
+    "sourceDescription": "Bread, white, commercially prepared (includes soft bread crumbs)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Pan blanco comercial genérico estadounidense; fortificación y formulación pueden diferir del pan argentino. No es etiqueta de marca."
+  },
+  {
+    "foodId": "veal_cutlet_cooked",
+    "fdcId": "174880",
+    "expectedName": "Bife de ternera magro cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Veal, leg, top round, cap off, cutlet, boneless, cooked, grilled",
+    "matchType": "reviewed_generic_reference",
+    "note": "Bife de ternera de nalga deshuesado cocido a la parrilla, referencia genérica para bife magro cocido; no crudo ni empanado."
+  },
+  {
+    "foodId": "gelatina_azucar",
+    "fdcId": "169596",
+    "expectedName": "Gelatina de sabor preparada con azúcar",
+    "expectedUnit": "g",
+    "sourceDescription": "Gelatin desserts, dry mix, prepared with water",
+    "matchType": "reviewed_generic_reference",
+    "note": "Postre de gelatina preparado con agua y azúcar; referencia genérica, no polvo seco. La dilución y formulación del producto pueden variar."
+  },
+  {
+    "foodId": "gelatin_sugarfree",
+    "fdcId": "169598",
+    "expectedName": "Gelatina sin azúcar preparada",
+    "expectedUnit": "g",
+    "sourceDescription": "Gelatin desserts, dry mix, reduced calorie, with aspartame, prepared with water",
+    "matchType": "reviewed_generic_reference",
+    "note": "Postre de gelatina reducido en calorías, con aspartamo, preparado con agua. Aproximación genérica; verificar formulación y dilución, no trasladar al polvo seco."
+  },
+  {
+    "foodId": "granola",
+    "fdcId": "171646",
+    "expectedName": "Granola genérica",
+    "expectedUnit": "g",
+    "sourceDescription": "Cereals ready-to-eat, granola, homemade",
+    "matchType": "reviewed_generic_reference",
+    "note": "Granola casera genérica de USDA; ingredientes y proporciones varían. No equivale a una etiqueta comercial ni a granola específica."
   }
 ]

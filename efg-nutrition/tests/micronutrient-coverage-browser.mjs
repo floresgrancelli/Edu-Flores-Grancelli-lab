@@ -49,6 +49,15 @@ try{for(const engine of (process.env.NCC_TEST_ENGINES||'chromium,webkit').split(
  await page.evaluate(async diary=>{const v=window.__NCC_R4_FULLAPP__;v.state.diary=JSON.parse(diary);await v.render();},fullDiary);
  await page.locator('.ncc-micronutrients').first().screenshot({path:resolve(out,engine+'-'+width+'-barras-con-referencia.png')});
  const saved=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
+ // Detail lists only the top four contributors. Test small contributors alone,
+ // instead of requiring every food in a long mixed diary to appear in that list.
+ for(const [id,nutrient,label]of [['egg_white','calcium','Clara de huevo'],['sushi_sashimi_salmon','epa_dha','Sashimi de salmón'],['sushi_sashimi_atun','epa_dha','Sashimi de atún']]){
+  await page.evaluate(async id=>{const v=window.__NCC_R4_FULLAPP__,s=v.state;const food=s.diary.meals.almuerzo.find(f=>f.id===id);for(const meal of Object.keys(s.diary.meals))s.diary.meals[meal]=[];s.diary.meals.almuerzo=[food];await v.render();},id);
+  const single=page.locator('.ncc-micronutrients').first();await single.locator('.ncc-micro-expand > summary').click();
+  assert.ok((await single.locator('[data-micro-detail='+nutrient+']').textContent()).includes(label));
+  await page.evaluate(async diary=>{const v=window.__NCC_R4_FULLAPP__;v.state.diary=JSON.parse(diary);await v.render();},saved);
+ }
+
  for(const role of ['student','coach','admin']){
   await page.evaluate(async role=>{const v=window.__NCC_R4_FULLAPP__;v.state.profile.role=role;v.state.selfManagementOwn=null;await v.render();},role);
   const block=page.locator('.ncc-micronutrients').first();assert.equal(await block.locator('[data-micronutrient]').count(),7);assert.equal(await block.locator('.ncc-micro-rows [data-scale=reference]').count(),7);
@@ -56,7 +65,7 @@ try{for(const engine of (process.env.NCC_TEST_ENGINES||'chromium,webkit').split(
   assert.equal(await block.locator('.ncc-micro-rows [data-scale=unscaled]').count(),0);
   await block.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-referencia-general.png')});
   await block.locator('.ncc-micro-expand > summary').click();assert.equal(await block.locator('[data-micro-detail]').count(),7);
-  assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Lomo vacuno cocido/);assert.match(await block.locator('[data-micro-detail=calcium]').textContent(),/Clara de huevo/);assert.match(await block.locator('[data-micro-detail=epa_dha]').textContent(),/Sashimi de salmón/);
+  assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Lomo vacuno cocido/);assert.match(await block.locator('[data-micro-detail=epa_dha]').textContent(),/Sashimi de salmón/);
   assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Riñón/);assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Merluza cocida/);assert.match(await block.locator('[data-micronutrient=epa_dha] .ncc-micro-value').textContent(),/250 mg/);
   await block.locator('[data-micro-detail=iron] .ncc-micro-sources > summary').click();
   await block.locator('[data-micro-detail=iron]').screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-hierro-lomo.png')});

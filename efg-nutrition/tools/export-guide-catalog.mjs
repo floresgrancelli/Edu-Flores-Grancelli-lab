@@ -11,7 +11,7 @@ export function exportGuideCatalog(){
  const app=readFileSync(new URL('pilot/pilot.js',root),'utf8');
  const match=app.match(/const foods=\[([\s\S]*?)\]\.concat\(EXTRA_FOODS\)/);
  if(!match)throw Error('The mounted PWA food catalog moved; do not guess a replacement.');
- const foods=JSON.parse(JSON.stringify(runInNewContext('['+match[1]+']'))).concat(structuredClone(EXTRA_FOODS));
+ const foods=JSON.parse(JSON.stringify(runInNewContext('['+match[1]+']'))).concat(structuredClone(EXTRA_FOODS.filter(f=>!f.diaryOnly)));
  applyRecipeModels(foods);applyRegionalCompositeModels(foods);
  const rows={};
  for(const food of foods){

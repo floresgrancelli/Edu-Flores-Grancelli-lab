@@ -1,6 +1,6 @@
 import {resolveIndependentEntry} from './self-management-entry.js?v=ncc-self-entry-r1-20261113';
 import {createOperationNotices,showSavingFeedback} from './operation-notices.js?v=ncc-save-feedback-r1-20261112';
-import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-quinoa-r1-20261114';
+import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-restaurants-r1-20261114';
 import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-self-entry-r1-20261113';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
 import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
@@ -8,7 +8,7 @@ const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='
 const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css?v=ncc-food-entry-batch-r1-20261112';document.head.append(mealEntryStyles);
 const recipeLibraryStyles=document.createElement('link');recipeLibraryStyles.rel='stylesheet';recipeLibraryStyles.href='./recipes-library-r1.css?v=ncc-recipes-search-r1-20261112';document.head.append(recipeLibraryStyles);
 import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-half-units-r1-20261114';
-import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-quinoa-r1-20261114';
+import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-restaurants-r1-20261114';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
 import {PROFESSIONAL_RECONCILIATION_ENABLED,createProfessionalMutationJournal,createIndexedDBJournalDriver} from './professional-mutation-journal.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createProfessionalContextualTransport} from './professional-screens-transport.mjs?v=ncc-professional-reconciliation-r1-20261107';
@@ -17,7 +17,7 @@ import {createDualWorkspaceFrame,isDualWorkspaceField} from './dual-workspace-fr
 import {reportCoachName} from './coach-report-models.js?v=ncc-color-system-r1-20261112';
 import {withReportFoodFrequency} from './report-food-frequency.js?v=ncc-weekly-preview-r11-20261106';
 import {resolveCoachGuideWindow,coachGuideWindowControl,guideWindowLabel,validGuideWindow,assertGuideWindowApplied} from "./coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-quinoa-r1-20261114";
+import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-restaurants-r1-20261114";
 import {loadCoachCatalogGuide as loadPilotReviewedGuide} from "./coach-catalog-guide.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-weekly-preview-r11-20261106";
 import {loadReportTrendGoals as loadPeriodReportGoals} from "./report-trend-goals.js?v=ncc-weekly-preview-r11-20261106";
@@ -33,19 +33,19 @@ import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sou
 import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {sameRecipeIngredients} from "./recipe-ingredients-equal.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
-import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-quinoa-r1-20261114';
-import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-quinoa-r1-20261114';
-import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-quinoa-r1-20261114';
-import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-quinoa-r1-20261114';
-import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-quinoa-r1-20261114";
-import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-quinoa-r1-20261114";
+import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-restaurants-r1-20261114';
+import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-restaurants-r1-20261114';
+import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-restaurants-r1-20261114';
+import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-restaurants-r1-20261114';
+import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-restaurants-r1-20261114";
+import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-restaurants-r1-20261114";
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {studentDayWelcome,studentDayDashboard,compactDaySummary} from "./student-day-presentation-3770ec2f7790.js?v=ncc-color-system-r1-20261112";
 import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-quinoa-r1-20261114";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-restaurants-r1-20261114";
 import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -63,7 +63,7 @@ import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a
 import {recordedProgress,progressDashboard} from "./progress-charts.js?v=ncc-progress-r1-20261112";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-quinoa-r1-20261114";
+import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-restaurants-r1-20261114";
 import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -72,19 +72,19 @@ import {motivationOfTheDay} from "./daily-motivation.js?v=ncc-pilot-3a40474052be
 import {nutritionTipDisclosureHTML} from "./nutrition-daily-tip.js?v=ncc-daily-tips-compact-r2-20261112";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-quinoa-r1-20261114";
-import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-quinoa-r1-20261114";
-import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-quinoa-r1-20261114";
+import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-restaurants-r1-20261114";
+import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-restaurants-r1-20261114";
+import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-restaurants-r1-20261114";
 import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createNotificationInbox,notificationDestination} from "./notifications-ui.js?v=ncc-notify-read-all-r1-20261114";
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createMessagesCenter} from "./messages-ui.js?v=ncc-notifications-r1-20261112";
-import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-quinoa-r1-20261114";
+import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-restaurants-r1-20261114";
 import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-quinoa-r1-20261114";
+import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-restaurants-r1-20261114";
 import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-quinoa-r1-20261114";
+import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-restaurants-r1-20261114";
 import {createPullToRefresh} from "./pull-refresh.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createVersionNotice} from "./version-notice.js?v=ncc-team-update-r1-20261114";
 import {signOutCurrentDevice} from "./logout-session.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -1981,7 +1981,7 @@ function plannerPreferencesNote(){
  return notes.length?'<aside class="ncc-suggestion-preferences">'+notes.map(([label,v])=>'<p><b>'+label+':</b> '+escapeHTML(v)+'</p>').join('')+'<small>Usá estas preferencias al elegir; el texto libre no permite inferir ingredientes ni restricciones.</small></aside>':'';
 }
 function plannerSuggestionFoods(){
- return selectableFoods().filter(food=>plannerFoodSignal(food).color!=='red');
+ return selectableFoods().filter(food=>!food.alcohol&&!food.diaryOnly&&plannerFoodSignal(food).color!=='red');
 }
 function plannerCard(){
  const goal=activeGoal(),d=activeDiary(),tot=dailyTotals(d),mode=state.plannerMode;
@@ -2432,7 +2432,7 @@ function mealRecentQuantity(foodId){
  // Drinks and recipes require their existing ingredient/portion review.
  if(!f||!item||BEVERAGE_IDS.has(f.id)||f.privateRecipe||f.unit==='porción')return null;
  const portion=FOOD_UNIT_PORTIONS[f.id],units=Number(item.displayQty),grams=Number(item.qty);
- if(portion&&Number.isInteger(units*2)&&units>=0.5&&units<=100)return {mode:'units',qty:units,label:num(units,1)+' un. ('+portion.label+')'};
+ if(portion&&item.unit===f.unit&&(!["almonds","walnuts","cashews","pistachios","hazelnuts","pecans","brazil_nuts","macadamia_nuts","peanuts"].includes(f.id)||Math.abs(grams-units*portion.grams)<0.01)&&Number.isInteger(units*2)&&units>=0.5&&units<=100)return {mode:'units',qty:units,label:num(units,1)+' un. ('+portion.label+')'};
  if(item.unit===f.unit&&Number.isFinite(grams)&&grams>0&&grams<=5000)return {mode:'weight',qty:grams,label:num(grams,1)+' '+f.unit};
  return null;
 }
@@ -2586,9 +2586,9 @@ function updateMealDialogHint(){
   return;
  }
  if(BEVERAGE_IDS.has(f.id)){try{const result=calculateBeverage(f,grams);hint.textContent=result.summary+" · "+result.source;}catch(err){hint.textContent=err.message;}return;}
- hint.innerHTML='<strong>'+escapeHTML((useUnits?num(qty,1)+" "+portion.label+(qty===1?"":"s")+" ≈ "+num(grams,1)+" g. ":"")+
+ hint.innerHTML='<strong>'+escapeHTML((useUnits?num(qty,1)+" "+portion.label+((f.alcohol||f.restaurant)?"":qty===1?"":"s")+" ≈ "+num(grams,1)+" "+f.unit+". ":"")+
  num(f.k*grams)+" kcal y "+num(f.p*grams,1)+" g de proteína")+'</strong><br><small>HC '+num(f.c*grams,1)+' g · Grasas '+num(f.f*grams,1)+' g</small><details><summary>Porción y referencia nutricional</summary>'+escapeHTML(foodProvenance(f)+". "+f.source+
- (useUnits?(f.oilIncluded?". Porción estimada: el aceite de esta preparación ya está contemplado; no lo registres dos veces.":". Porción estimada: puede variar por tamaño. Si agregaste aceite no incluido en el alimento, registralo aparte."):""))+'</details>';
+ (useUnits?((f.alcohol||f.restaurant)?". Porción estimada: cambia según la marca, la receta y el tamaño del vaso.":f.oilIncluded?". Porción estimada: el aceite de esta preparación ya está contemplado; no lo registres dos veces.":". Porción estimada: puede variar por tamaño. Si agregaste aceite no incluido en el alimento, registralo aparte."):""))+'</details>';
 }
 async function saveSelectedMeal(continueGuided=false){
  const slot=state.activeMeal;
@@ -3307,7 +3307,7 @@ function currentCoachRecipeScope(){
 function coachGuidePickerFoods(){
  const scoped=COACH_ATOMIC_PLAN_UI_ENABLED&&COACH_SHARED_STUDENT_RECIPES_UI_ENABLED&&
   coachRecipeScopeMatches(currentCoachRecipeScope(),state.coachSharedRecipeScope);
- return foods.concat(recipeCatalogEntries({foods,fitRecipes:FIT_RECIPES,
+ return foods.filter(f=>!f.diaryOnly).concat(recipeCatalogEntries({foods,fitRecipes:FIT_RECIPES,
   personalRecipes:scoped?state.coachSharedRecipes:[],
   userId:scoped?state.selectedStudent:null}));
 }

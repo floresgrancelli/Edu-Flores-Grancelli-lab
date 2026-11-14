@@ -1,0 +1,1799 @@
+[
+  {
+    "brand": "Mostaza",
+    "key": "mostaza_cuarto",
+    "name": "Mega Cuarto XL (sin papas ni bebida)",
+    "parts": {
+      "homemade_burger": 125,
+      "bread_white": 75,
+      "cheddar": 30,
+      "tomato": 12,
+      "sugar": 3,
+      "mustard": 5,
+      "onion": 10
+    },
+    "unit": "g",
+    "portion": 260,
+    "kind": "burger",
+    "note": "",
+    "menuUrl": "https://www.mostazaweb.com.ar/menues/"
+  },
+  {
+    "brand": "Mostaza",
+    "key": "mostaza_doble",
+    "name": "Mega Cuarto Doble (sin papas ni bebida)",
+    "parts": {
+      "homemade_burger": 200,
+      "bread_white": 75,
+      "cheddar": 40,
+      "tomato": 12,
+      "sugar": 3,
+      "mustard": 5,
+      "onion": 10
+    },
+    "unit": "g",
+    "portion": 345,
+    "kind": "burger",
+    "note": "",
+    "menuUrl": "https://www.mostazaweb.com.ar/menues/"
+  },
+  {
+    "brand": "Mostaza",
+    "key": "mostaza_dibu",
+    "name": "Mega Dibu (sin papas ni bebida)",
+    "parts": {
+      "homemade_burger": 200,
+      "bread_white": 75,
+      "cheddar": 40,
+      "mayonnaise": 15,
+      "tomato": 20,
+      "lettuce": 10,
+      "bacon": 30
+    },
+    "unit": "g",
+    "portion": 390,
+    "kind": "burger",
+    "note": "",
+    "menuUrl": "https://www.mostazaweb.com.ar/menues/"
+  },
+  {
+    "brand": "Mostaza",
+    "key": "mostaza_fries_chicas",
+    "name": "Papas fritas chicas",
+    "parts": {
+      "papas_fritas": 80
+    },
+    "unit": "g",
+    "portion": 80,
+    "kind": "fries",
+    "note": "",
+    "menuUrl": "https://www.mostazaweb.com.ar/menues/"
+  },
+  {
+    "brand": "Mostaza",
+    "key": "mostaza_fries_medianas",
+    "name": "Papas fritas medianas",
+    "parts": {
+      "papas_fritas": 120
+    },
+    "unit": "g",
+    "portion": 120,
+    "kind": "fries",
+    "note": "",
+    "menuUrl": "https://www.mostazaweb.com.ar/menues/"
+  },
+  {
+    "brand": "Mostaza",
+    "key": "mostaza_fries_grandes",
+    "name": "Papas fritas grandes",
+    "parts": {
+      "papas_fritas": 160
+    },
+    "unit": "g",
+    "portion": 160,
+    "kind": "fries",
+    "note": "",
+    "menuUrl": "https://www.mostazaweb.com.ar/menues/"
+  },
+  {
+    "brand": "Burger King",
+    "key": "bk_whopper",
+    "name": "Whopper (sin papas ni bebida)",
+    "parts": {
+      "homemade_burger": 110,
+      "bread_white": 75,
+      "cheddar": 0,
+      "mayonnaise": 15,
+      "tomato": 20,
+      "lettuce": 10
+    },
+    "unit": "g",
+    "portion": 230,
+    "kind": "burger",
+    "note": "",
+    "menuUrl": "https://bk-latam-prod.s3.amazonaws.com/sites/burgerking.com.ar/files/documents/NutritionInfo_Argentina_PDF.pdf"
+  },
+  {
+    "brand": "Burger King",
+    "key": "bk_whopper_cheese",
+    "name": "Whopper con queso (sin papas ni bebida)",
+    "parts": {
+      "homemade_burger": 110,
+      "bread_white": 75,
+      "cheddar": 25,
+      "mayonnaise": 15,
+      "tomato": 20,
+      "lettuce": 10
+    },
+    "unit": "g",
+    "portion": 255,
+    "kind": "burger",
+    "note": "",
+    "menuUrl": "https://bk-latam-prod.s3.amazonaws.com/sites/burgerking.com.ar/files/documents/NutritionInfo_Argentina_PDF.pdf"
+  },
+  {
+    "brand": "Burger King",
+    "key": "bk_whopper_double",
+    "name": "Whopper doble (sin papas ni bebida)",
+    "parts": {
+      "homemade_burger": 220,
+      "bread_white": 75,
+      "cheddar": 0,
+      "mayonnaise": 15,
+      "tomato": 20,
+      "lettuce": 10
+    },
+    "unit": "g",
+    "portion": 340,
+    "kind": "burger",
+    "note": "",
+    "menuUrl": "https://bk-latam-prod.s3.amazonaws.com/sites/burgerking.com.ar/files/documents/NutritionInfo_Argentina_PDF.pdf"
+  },
+  {
+    "brand": "Burger King",
+    "key": "bk_stacker_double",
+    "name": "Stacker doble (sin papas ni bebida)",
+    "parts": {
+      "homemade_burger": 180,
+      "bread_white": 75,
+      "cheddar": 40,
+      "mayonnaise": 15,
+      "tomato": 20,
+      "lettuce": 10,
+      "bacon": 25
+    },
+    "unit": "g",
+    "portion": 365,
+    "kind": "burger",
+    "note": "",
+    "menuUrl": "https://bk-latam-prod.s3.amazonaws.com/sites/burgerking.com.ar/files/documents/NutritionInfo_Argentina_PDF.pdf"
+  },
+  {
+    "brand": "Burger King",
+    "key": "bk_stacker_triple",
+    "name": "Stacker triple (sin papas ni bebida)",
+    "parts": {
+      "homemade_burger": 270,
+      "bread_white": 75,
+      "cheddar": 60,
+      "mayonnaise": 15,
+      "tomato": 20,
+      "lettuce": 10,
+      "bacon": 35
+    },
+    "unit": "g",
+    "portion": 485,
+    "kind": "burger",
+    "note": "",
+    "menuUrl": "https://bk-latam-prod.s3.amazonaws.com/sites/burgerking.com.ar/files/documents/NutritionInfo_Argentina_PDF.pdf"
+  },
+  {
+    "brand": "Burger King",
+    "key": "bk_fries_chicas",
+    "name": "Papas fritas chicas",
+    "parts": {
+      "papas_fritas": 80
+    },
+    "unit": "g",
+    "portion": 80,
+    "kind": "fries",
+    "note": "",
+    "menuUrl": "https://bk-latam-prod.s3.amazonaws.com/sites/burgerking.com.ar/files/documents/NutritionInfo_Argentina_PDF.pdf"
+  },
+  {
+    "brand": "Burger King",
+    "key": "bk_fries_medianas",
+    "name": "Papas fritas medianas",
+    "parts": {
+      "papas_fritas": 120
+    },
+    "unit": "g",
+    "portion": 120,
+    "kind": "fries",
+    "note": "",
+    "menuUrl": "https://bk-latam-prod.s3.amazonaws.com/sites/burgerking.com.ar/files/documents/NutritionInfo_Argentina_PDF.pdf"
+  },
+  {
+    "brand": "Burger King",
+    "key": "bk_fries_grandes",
+    "name": "Papas fritas grandes",
+    "parts": {
+      "papas_fritas": 160
+    },
+    "unit": "g",
+    "portion": 160,
+    "kind": "fries",
+    "note": "",
+    "menuUrl": "https://bk-latam-prod.s3.amazonaws.com/sites/burgerking.com.ar/files/documents/NutritionInfo_Argentina_PDF.pdf"
+  },
+  {
+    "brand": "Burger King",
+    "key": "bk_king_pollo",
+    "name": "King de Pollo (sin papas ni bebida)",
+    "parts": {
+      "milanesa_chicken_fried": 120,
+      "bread_white": 80,
+      "mayonnaise": 20,
+      "lettuce": 15
+    },
+    "unit": "g",
+    "portion": 235,
+    "kind": "burger",
+    "note": "",
+    "menuUrl": "https://bk-latam-prod.s3.amazonaws.com/sites/burgerking.com.ar/files/documents/NutritionInfo_Argentina_PDF.pdf"
+  },
+  {
+    "brand": "Wendy’s",
+    "key": "wendys_baconator",
+    "name": "Baconator doble (sin papas ni bebida)",
+    "parts": {
+      "homemade_burger": 220,
+      "bread_white": 80,
+      "cheddar": 40,
+      "mayonnaise": 15,
+      "tomato": 20,
+      "lettuce": 10,
+      "bacon": 30
+    },
+    "unit": "g",
+    "portion": 415,
+    "kind": "burger",
+    "note": "",
+    "menuUrl": "https://www.wendys.com.ar/nosotros"
+  },
+  {
+    "brand": "Wendy’s",
+    "key": "wendys_potato",
+    "name": "Papa al horno con cheddar y bacon",
+    "parts": {
+      "potato_baked": 250,
+      "cheddar": 40,
+      "bacon": 25
+    },
+    "unit": "g",
+    "portion": 315,
+    "kind": "dish",
+    "note": "",
+    "menuUrl": "https://www.wendys.com.ar/nosotros"
+  },
+  {
+    "brand": "Wendy’s",
+    "key": "wendys_chili",
+    "name": "Chili",
+    "parts": {
+      "lean_ground_beef": 70,
+      "beans_red": 100,
+      "tomato": 90,
+      "onion": 30,
+      "sunflower_oil": 5
+    },
+    "unit": "g",
+    "portion": 295,
+    "kind": "dish",
+    "note": "",
+    "menuUrl": "https://www.wendys.com.ar/nosotros"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_ribs",
+    "name": "Houston’s Barbecue Ribs con papas y coleslaw",
+    "parts": {
+      "pork_ribs": 300,
+      "papas_fritas": 150,
+      "cabbage": 80,
+      "mayonnaise": 20,
+      "honey": 15,
+      "tomato": 30
+    },
+    "unit": "g",
+    "portion": 595,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_ribeye",
+    "name": "Rib Eye Steak con papas fritas",
+    "parts": {
+      "sirloin_cooked": 300,
+      "papas_fritas": 150,
+      "butter": 10
+    },
+    "unit": "g",
+    "portion": 460,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_filet",
+    "name": "Filet Mignon con papa rellena",
+    "parts": {
+      "beef_tenderloin": 250,
+      "potato_baked": 230,
+      "cheddar": 30,
+      "cream_cheese_regular": 25,
+      "bacon": 20,
+      "butter": 10
+    },
+    "unit": "g",
+    "portion": 565,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_newyork",
+    "name": "New York Strip con papa rellena",
+    "parts": {
+      "sirloin_cooked": 300,
+      "potato_baked": 230,
+      "cheddar": 30,
+      "cream_cheese_regular": 25,
+      "bacon": 20,
+      "butter": 10
+    },
+    "unit": "g",
+    "portion": 615,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_hawaiian",
+    "name": "Hawaiian Steak con puré",
+    "parts": {
+      "sirloin_cooked": 300,
+      "potato_baked": 200,
+      "milk_whole": 40,
+      "butter": 15,
+      "pineapple": 40,
+      "honey": 10
+    },
+    "unit": "g",
+    "portion": 605,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_salmon",
+    "name": "Fresh Grilled Salmon con papas",
+    "parts": {
+      "fish_salmon": 250,
+      "papas_fritas": 150,
+      "butter": 10
+    },
+    "unit": "g",
+    "portion": 410,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_chicken",
+    "name": "Grilled Chicken Breast con brócoli",
+    "parts": {
+      "chicken_breast_roasted": 250,
+      "broccoli_cooked": 180,
+      "sunflower_oil": 10
+    },
+    "unit": "g",
+    "portion": 440,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_bbq_chicken",
+    "name": "Barbecue Chicken con papas",
+    "parts": {
+      "chicken_breast_roasted": 250,
+      "papas_fritas": 150,
+      "honey": 15,
+      "tomato": 35,
+      "sunflower_oil": 5
+    },
+    "unit": "g",
+    "portion": 455,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_kansas_chicken",
+    "name": "Kansas Chicken con papas",
+    "parts": {
+      "chicken_breast_roasted": 250,
+      "cheddar": 40,
+      "tomato": 60,
+      "papas_fritas": 150,
+      "sunflower_oil": 5
+    },
+    "unit": "g",
+    "portion": 505,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_caesar",
+    "name": "Chicken Caesar Salad con pollo grillado",
+    "parts": {
+      "chicken_breast_roasted": 160,
+      "lettuce": 120,
+      "bread_white": 40,
+      "parmesan": 25,
+      "mayonnaise": 30
+    },
+    "unit": "g",
+    "portion": 375,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_mediterranean",
+    "name": "Mediterranean Salad",
+    "parts": {
+      "chicken_breast_roasted": 150,
+      "lettuce": 120,
+      "olives": 30,
+      "tortilla_wheat": 30,
+      "sunflower_oil": 15,
+      "mozzarella": 40
+    },
+    "unit": "g",
+    "portion": 385,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado. Queso feta aproximado mediante mozzarella genérica.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_club",
+    "name": "Club Sandwich con papas",
+    "parts": {
+      "bread_white": 100,
+      "chicken_breast_roasted": 90,
+      "ham_cooked": 40,
+      "cheddar": 30,
+      "bacon": 25,
+      "tomato": 40,
+      "lettuce": 20,
+      "mayonnaise": 20,
+      "papas_fritas": 150
+    },
+    "unit": "g",
+    "portion": 515,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_spinach_dip",
+    "name": "Chicago Style Spinach Dip con chips",
+    "parts": {
+      "spinach_cooked": 120,
+      "milk_whole": 60,
+      "cream_cheese_regular": 60,
+      "cheddar": 40,
+      "tortilla_wheat": 80,
+      "sunflower_oil": 15
+    },
+    "unit": "g",
+    "portion": 375,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_brownie",
+    "name": "Five Nut Brownie con helado",
+    "parts": {
+      "brownie": 130,
+      "mixed_nuts": 25,
+      "helado_crema_americana": 100
+    },
+    "unit": "g",
+    "portion": 255,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_cheesecake",
+    "name": "Kansas Cheesecake",
+    "parts": {
+      "cheesecake_frutos": 180,
+      "cream_cheese_regular": 20
+    },
+    "unit": "g",
+    "portion": 200,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_fries",
+    "name": "French Fries (guarnición)",
+    "parts": {
+      "papas_fritas": 150
+    },
+    "unit": "g",
+    "portion": 150,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_mash",
+    "name": "Mashed Potato (guarnición)",
+    "parts": {
+      "potato_baked": 200,
+      "milk_whole": 40,
+      "butter": 15
+    },
+    "unit": "g",
+    "portion": 255,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Kansas",
+    "key": "kansas_loaded",
+    "name": "Loaded Baked Potato (guarnición)",
+    "parts": {
+      "potato_baked": 230,
+      "cheddar": 30,
+      "cream_cheese_regular": 25,
+      "bacon": 20,
+      "butter": 10
+    },
+    "unit": "g",
+    "portion": 315,
+    "kind": "dish",
+    "note": "Modelo de plato completo: incluye solo los acompañamientos del nombre. Carne en peso comestible cocido supuesto, sin huesos; el corte equivalente es aproximado.",
+    "menuUrl": "https://www.kansasgrillandbar.com.ar/menu/Menu_Kansas.pdf"
+  },
+  {
+    "brand": "Starbucks",
+    "key": "starbucks_espresso",
+    "name": "Espresso sin azúcar",
+    "parts": {
+      "coffee_black": 30
+    },
+    "unit": "ml",
+    "portion": 30,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://www.rappi.com.ar/restaurantes/226465-starbucks"
+  },
+  {
+    "brand": "Starbucks",
+    "key": "starbucks_latte",
+    "name": "Latte / café con leche sin azúcar",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 210
+    },
+    "unit": "ml",
+    "portion": 240,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://www.rappi.com.ar/restaurantes/226465-starbucks"
+  },
+  {
+    "brand": "Starbucks",
+    "key": "starbucks_cappuccino",
+    "name": "Cappuccino sin azúcar",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 150
+    },
+    "unit": "ml",
+    "portion": 240,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://www.rappi.com.ar/restaurantes/226465-starbucks"
+  },
+  {
+    "brand": "Starbucks",
+    "key": "starbucks_vanilla",
+    "name": "Vainilla Latte (vaso de referencia 355 ml)",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 280,
+      "sugar": 20
+    },
+    "unit": "ml",
+    "portion": 355,
+    "kind": "coffee",
+    "note": "Modelo orientativo de vaso Alto; leche entera. Salsas y crema aproximadas, no receta oficial.",
+    "menuUrl": "https://www.rappi.com.ar/restaurantes/226465-starbucks"
+  },
+  {
+    "brand": "Starbucks",
+    "key": "starbucks_caramel",
+    "name": "Caramel Macchiato (vaso de referencia 355 ml)",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 270,
+      "sugar": 20,
+      "dulce_de_leche": 15
+    },
+    "unit": "ml",
+    "portion": 355,
+    "kind": "coffee",
+    "note": "Modelo orientativo de vaso Alto; leche entera. Salsas y crema aproximadas, no receta oficial.",
+    "menuUrl": "https://www.rappi.com.ar/restaurantes/226465-starbucks"
+  },
+  {
+    "brand": "Starbucks",
+    "key": "starbucks_mocha",
+    "name": "Mocha (vaso de referencia 355 ml)",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 270,
+      "chocolate_dark": 25,
+      "sugar": 15
+    },
+    "unit": "ml",
+    "portion": 355,
+    "kind": "coffee",
+    "note": "Modelo orientativo de vaso Alto; leche entera. Salsas y crema aproximadas, no receta oficial.",
+    "menuUrl": "https://www.rappi.com.ar/restaurantes/226465-starbucks"
+  },
+  {
+    "brand": "Starbucks",
+    "key": "starbucks_ddl",
+    "name": "Dulce de Leche Latte (vaso de referencia 355 ml)",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 250,
+      "dulce_de_leche": 45,
+      "crema_chantilly": 15
+    },
+    "unit": "ml",
+    "portion": 355,
+    "kind": "coffee",
+    "note": "Modelo orientativo de vaso Alto; leche entera. Salsas y crema aproximadas, no receta oficial.",
+    "menuUrl": "https://www.rappi.com.ar/restaurantes/226465-starbucks"
+  },
+  {
+    "brand": "Café Martínez",
+    "key": "martinez_espresso",
+    "name": "Espresso sin azúcar",
+    "parts": {
+      "coffee_black": 30
+    },
+    "unit": "ml",
+    "portion": 30,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://cafemartinez.vteximg.com.br/arquivos/MENUSINPRECIO.pdf"
+  },
+  {
+    "brand": "Café Martínez",
+    "key": "martinez_latte",
+    "name": "Latte / café con leche sin azúcar",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 210
+    },
+    "unit": "ml",
+    "portion": 240,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://cafemartinez.vteximg.com.br/arquivos/MENUSINPRECIO.pdf"
+  },
+  {
+    "brand": "Café Martínez",
+    "key": "martinez_cappuccino",
+    "name": "Cappuccino sin azúcar",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 150
+    },
+    "unit": "ml",
+    "portion": 240,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://cafemartinez.vteximg.com.br/arquivos/MENUSINPRECIO.pdf"
+  },
+  {
+    "brand": "Café Martínez",
+    "key": "martinez_medialuna",
+    "name": "Medialuna de manteca",
+    "parts": {
+      "medialuna_butter": 40
+    },
+    "unit": "g",
+    "portion": 40,
+    "kind": "pastry",
+    "note": "",
+    "menuUrl": "https://cafemartinez.vteximg.com.br/arquivos/MENUSINPRECIO.pdf"
+  },
+  {
+    "brand": "Café Martínez",
+    "key": "martinez_tostado",
+    "name": "Tostado de jamón y queso",
+    "parts": {
+      "tostado_jamon_queso": 150
+    },
+    "unit": "g",
+    "portion": 150,
+    "kind": "sandwich",
+    "note": "",
+    "menuUrl": "https://cafemartinez.vteximg.com.br/arquivos/MENUSINPRECIO.pdf"
+  },
+  {
+    "brand": "Café Martínez",
+    "key": "martinez_avocado",
+    "name": "Avocado Toast",
+    "parts": {
+      "bread_white": 70,
+      "avocado": 80,
+      "egg_boiled": 50,
+      "sunflower_oil": 5
+    },
+    "unit": "g",
+    "portion": 205,
+    "kind": "sandwich",
+    "note": "Modelo con huevo; ajustar si la presentación no lo incluye.",
+    "menuUrl": "https://cafemartinez.vteximg.com.br/arquivos/MENUSINPRECIO.pdf"
+  },
+  {
+    "brand": "Café Martínez",
+    "key": "martinez_yogurt",
+    "name": "Yogur con fruta y granola",
+    "parts": {
+      "yogurt_whole": 170,
+      "strawberry": 60,
+      "granola": 30
+    },
+    "unit": "g",
+    "portion": 260,
+    "kind": "dessert",
+    "note": "",
+    "menuUrl": "https://cafemartinez.vteximg.com.br/arquivos/MENUSINPRECIO.pdf"
+  },
+  {
+    "brand": "Café Martínez",
+    "key": "martinez_brownie",
+    "name": "Brownie",
+    "parts": {
+      "brownie": 100
+    },
+    "unit": "g",
+    "portion": 100,
+    "kind": "pastry",
+    "note": "",
+    "menuUrl": "https://cafemartinez.vteximg.com.br/arquivos/MENUSINPRECIO.pdf"
+  },
+  {
+    "brand": "Tienda de Café",
+    "key": "tienda_espresso",
+    "name": "Espresso sin azúcar",
+    "parts": {
+      "coffee_black": 30
+    },
+    "unit": "ml",
+    "portion": 30,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://tiendadecafe.com.ar/wp-content/uploads/2021/04/menu.pdf"
+  },
+  {
+    "brand": "Tienda de Café",
+    "key": "tienda_latte",
+    "name": "Latte / café con leche sin azúcar",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 210
+    },
+    "unit": "ml",
+    "portion": 240,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://tiendadecafe.com.ar/wp-content/uploads/2021/04/menu.pdf"
+  },
+  {
+    "brand": "Tienda de Café",
+    "key": "tienda_cappuccino",
+    "name": "Cappuccino sin azúcar",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 150
+    },
+    "unit": "ml",
+    "portion": 240,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://tiendadecafe.com.ar/wp-content/uploads/2021/04/menu.pdf"
+  },
+  {
+    "brand": "Tienda de Café",
+    "key": "tienda_medialuna",
+    "name": "Medialuna de manteca",
+    "parts": {
+      "medialuna_butter": 40
+    },
+    "unit": "g",
+    "portion": 40,
+    "kind": "pastry",
+    "note": "",
+    "menuUrl": "https://tiendadecafe.com.ar/wp-content/uploads/2021/04/menu.pdf"
+  },
+  {
+    "brand": "Tienda de Café",
+    "key": "tienda_tostado",
+    "name": "Tostado de jamón y queso",
+    "parts": {
+      "tostado_jamon_queso": 150
+    },
+    "unit": "g",
+    "portion": 150,
+    "kind": "sandwich",
+    "note": "",
+    "menuUrl": "https://tiendadecafe.com.ar/wp-content/uploads/2021/04/menu.pdf"
+  },
+  {
+    "brand": "Tienda de Café",
+    "key": "tienda_avocado",
+    "name": "Avocado Toast",
+    "parts": {
+      "bread_white": 70,
+      "avocado": 80,
+      "egg_boiled": 50,
+      "sunflower_oil": 5
+    },
+    "unit": "g",
+    "portion": 205,
+    "kind": "sandwich",
+    "note": "Modelo con huevo; ajustar si la presentación no lo incluye.",
+    "menuUrl": "https://tiendadecafe.com.ar/wp-content/uploads/2021/04/menu.pdf"
+  },
+  {
+    "brand": "Tienda de Café",
+    "key": "tienda_yogurt",
+    "name": "Yogur con fruta y granola",
+    "parts": {
+      "yogurt_whole": 170,
+      "strawberry": 60,
+      "granola": 30
+    },
+    "unit": "g",
+    "portion": 260,
+    "kind": "dessert",
+    "note": "",
+    "menuUrl": "https://tiendadecafe.com.ar/wp-content/uploads/2021/04/menu.pdf"
+  },
+  {
+    "brand": "Tienda de Café",
+    "key": "tienda_brownie",
+    "name": "Brownie",
+    "parts": {
+      "brownie": 100
+    },
+    "unit": "g",
+    "portion": 100,
+    "kind": "pastry",
+    "note": "",
+    "menuUrl": "https://tiendadecafe.com.ar/wp-content/uploads/2021/04/menu.pdf"
+  },
+  {
+    "brand": "Havanna",
+    "key": "havanna_espresso",
+    "name": "Espresso sin azúcar",
+    "parts": {
+      "coffee_black": 30
+    },
+    "unit": "ml",
+    "portion": 30,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://www.havanna.com.ar/data/upload/bares/Completos_locales.pdf"
+  },
+  {
+    "brand": "Havanna",
+    "key": "havanna_latte",
+    "name": "Latte / café con leche sin azúcar",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 210
+    },
+    "unit": "ml",
+    "portion": 240,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://www.havanna.com.ar/data/upload/bares/Completos_locales.pdf"
+  },
+  {
+    "brand": "Havanna",
+    "key": "havanna_cappuccino",
+    "name": "Cappuccino sin azúcar",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 150
+    },
+    "unit": "ml",
+    "portion": 240,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://www.havanna.com.ar/data/upload/bares/Completos_locales.pdf"
+  },
+  {
+    "brand": "Havanna",
+    "key": "havanna_medialuna",
+    "name": "Medialuna de manteca",
+    "parts": {
+      "medialuna_butter": 40
+    },
+    "unit": "g",
+    "portion": 40,
+    "kind": "pastry",
+    "note": "",
+    "menuUrl": "https://www.havanna.com.ar/data/upload/bares/Completos_locales.pdf"
+  },
+  {
+    "brand": "Havanna",
+    "key": "havanna_alfajor",
+    "name": "Alfajor de chocolate",
+    "parts": {
+      "alfajor_chocolate": 55
+    },
+    "unit": "g",
+    "portion": 55,
+    "kind": "pastry",
+    "note": "",
+    "menuUrl": "https://www.havanna.com.ar/data/upload/bares/Completos_locales.pdf"
+  },
+  {
+    "brand": "Havanna",
+    "key": "havanna_cafe",
+    "name": "Café Havanna con leche condensada",
+    "parts": {
+      "coffee_black": 60,
+      "milk_condensed_sweetened": 30
+    },
+    "unit": "ml",
+    "portion": 90,
+    "kind": "coffee",
+    "note": "",
+    "menuUrl": "https://www.havanna.com.ar/data/upload/bares/Completos_locales.pdf"
+  },
+  {
+    "brand": "Bonafide",
+    "key": "bonafide_espresso",
+    "name": "Espresso sin azúcar",
+    "parts": {
+      "coffee_black": 30
+    },
+    "unit": "ml",
+    "portion": 30,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://s3.amazonaws.com/orion-eat-app-files/buckets-prod%2FT33E4ztZ9GFDzHao8-BNF_CARTA%20GRAL%20QR_FEB2024.pdf"
+  },
+  {
+    "brand": "Bonafide",
+    "key": "bonafide_latte",
+    "name": "Latte / café con leche sin azúcar",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 210
+    },
+    "unit": "ml",
+    "portion": 240,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://s3.amazonaws.com/orion-eat-app-files/buckets-prod%2FT33E4ztZ9GFDzHao8-BNF_CARTA%20GRAL%20QR_FEB2024.pdf"
+  },
+  {
+    "brand": "Bonafide",
+    "key": "bonafide_cappuccino",
+    "name": "Cappuccino sin azúcar",
+    "parts": {
+      "coffee_black": 30,
+      "milk_whole": 150
+    },
+    "unit": "ml",
+    "portion": 240,
+    "kind": "coffee",
+    "note": "Tamaño y leche supuestos para el registro; no equivalen a una ficha oficial ni incluyen azúcar adicional.",
+    "menuUrl": "https://s3.amazonaws.com/orion-eat-app-files/buckets-prod%2FT33E4ztZ9GFDzHao8-BNF_CARTA%20GRAL%20QR_FEB2024.pdf"
+  },
+  {
+    "brand": "Bonafide",
+    "key": "bonafide_medialuna",
+    "name": "Medialuna de manteca",
+    "parts": {
+      "medialuna_butter": 40
+    },
+    "unit": "g",
+    "portion": 40,
+    "kind": "pastry",
+    "note": "",
+    "menuUrl": "https://s3.amazonaws.com/orion-eat-app-files/buckets-prod%2FT33E4ztZ9GFDzHao8-BNF_CARTA%20GRAL%20QR_FEB2024.pdf"
+  },
+  {
+    "brand": "Bonafide",
+    "key": "bonafide_tostado",
+    "name": "Tostado de jamón y queso",
+    "parts": {
+      "tostado_jamon_queso": 150
+    },
+    "unit": "g",
+    "portion": 150,
+    "kind": "sandwich",
+    "note": "",
+    "menuUrl": "https://s3.amazonaws.com/orion-eat-app-files/buckets-prod%2FT33E4ztZ9GFDzHao8-BNF_CARTA%20GRAL%20QR_FEB2024.pdf"
+  },
+  {
+    "brand": "SushiClub",
+    "key": "sushiclub_phila",
+    "name": "Philadelphia · 1 pieza",
+    "parts": {
+      "sushi_philadelphia": 30
+    },
+    "unit": "g",
+    "portion": 30,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.sushiclub.com.ar/carta.php?sucursal=20&tipo=salon"
+  },
+  {
+    "brand": "SushiClub",
+    "key": "sushiclub_newyork",
+    "name": "New York · 1 pieza",
+    "parts": {
+      "sushi_uramaki_palta": 30
+    },
+    "unit": "g",
+    "portion": 30,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.sushiclub.com.ar/carta.php?sucursal=20&tipo=salon"
+  },
+  {
+    "brand": "SushiClub",
+    "key": "sushiclub_nigiri",
+    "name": "Nigiri de salmón · 1 pieza",
+    "parts": {
+      "sushi_nigiri_salmon": 30
+    },
+    "unit": "g",
+    "portion": 30,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.sushiclub.com.ar/carta.php?sucursal=20&tipo=salon"
+  },
+  {
+    "brand": "SushiClub",
+    "key": "sushiclub_sashimi",
+    "name": "Sashimi de salmón · 1 pieza",
+    "parts": {
+      "sushi_sashimi_salmon": 20
+    },
+    "unit": "g",
+    "portion": 20,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.sushiclub.com.ar/carta.php?sucursal=20&tipo=salon"
+  },
+  {
+    "brand": "SushiClub",
+    "key": "sushiclub_buenosaires",
+    "name": "Buenos Aires Roll · 1 pieza",
+    "parts": {
+      "sushi_ebi": 18,
+      "sushi_sashimi_salmon": 10,
+      "avocado": 5,
+      "cream_cheese_regular": 5,
+      "sesame": 2
+    },
+    "unit": "g",
+    "portion": 40,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.sushiclub.com.ar/carta.php?sucursal=20&tipo=salon"
+  },
+  {
+    "brand": "SushiClub",
+    "key": "sushiclub_feel",
+    "name": "Feel Roll (sin arroz) · 1 pieza",
+    "parts": {
+      "sushi_sashimi_salmon": 15,
+      "cream_cheese_regular": 8,
+      "egg_boiled": 8
+    },
+    "unit": "g",
+    "portion": 31,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.sushiclub.com.ar/carta.php?sucursal=20&tipo=salon"
+  },
+  {
+    "brand": "SushiClub",
+    "key": "sushiclub_honey",
+    "name": "Honey Roll · 1 pieza",
+    "parts": {
+      "sushi_maki_salmon": 30,
+      "honey": 3
+    },
+    "unit": "g",
+    "portion": 33,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.sushiclub.com.ar/carta.php?sucursal=20&tipo=salon"
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_phila",
+    "name": "Philadelphia · 1 pieza",
+    "parts": {
+      "sushi_philadelphia": 30
+    },
+    "unit": "g",
+    "portion": 30,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.fabricsushi.com.ar/menu/"
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_newyork",
+    "name": "New York · 1 pieza",
+    "parts": {
+      "sushi_uramaki_palta": 30
+    },
+    "unit": "g",
+    "portion": 30,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.fabricsushi.com.ar/menu/"
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_nigiri",
+    "name": "Nigiri de salmón · 1 pieza",
+    "parts": {
+      "sushi_nigiri_salmon": 30
+    },
+    "unit": "g",
+    "portion": 30,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.fabricsushi.com.ar/menu/"
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_sashimi",
+    "name": "Sashimi de salmón · 1 pieza",
+    "parts": {
+      "sushi_sashimi_salmon": 20
+    },
+    "unit": "g",
+    "portion": 20,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.fabricsushi.com.ar/menu/"
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_fabric",
+    "name": "Fabric Roll · 1 pieza",
+    "parts": {
+      "sushi_philadelphia": 30,
+      "bread_white": 4,
+      "sunflower_oil": 2
+    },
+    "unit": "g",
+    "portion": 36,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.fabricsushi.com.ar/menu/"
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_vegan",
+    "name": "Vegan Roll · 1 pieza",
+    "parts": {
+      "sushi_maki_vegetal": 30
+    },
+    "unit": "g",
+    "portion": 30,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.fabricsushi.com.ar/menu/"
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_vegetarian",
+    "name": "Vegetarian Roll · 1 pieza",
+    "parts": {
+      "sushi_maki_vegetal": 30,
+      "cream_cheese_regular": 5
+    },
+    "unit": "g",
+    "portion": 35,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.fabricsushi.com.ar/menu/"
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_avocado",
+    "name": "Avocado Roll · 1 pieza",
+    "parts": {
+      "sushi_ebi": 30,
+      "avocado": 5,
+      "sunflower_oil": 2,
+      "honey": 2
+    },
+    "unit": "g",
+    "portion": 39,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.fabricsushi.com.ar/menu/"
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_tropic",
+    "name": "Tropic Roll · 1 pieza",
+    "parts": {
+      "sushi_philadelphia": 30,
+      "mango": 5,
+      "honey": 2
+    },
+    "unit": "g",
+    "portion": 37,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.fabricsushi.com.ar/menu/"
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_feel",
+    "name": "Feel Roll (sin arroz) · 1 pieza",
+    "parts": {
+      "sushi_sashimi_salmon": 15,
+      "cream_cheese_regular": 8,
+      "egg_boiled": 8
+    },
+    "unit": "g",
+    "portion": 31,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.fabricsushi.com.ar/menu/"
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_placer",
+    "name": "Placer (sin arroz) · 1 pieza",
+    "parts": {
+      "sushi_sashimi_salmon": 15,
+      "avocado": 8,
+      "cream_cheese_regular": 6,
+      "egg_boiled": 5,
+      "sweetpotato_baked": 5,
+      "honey": 2
+    },
+    "unit": "g",
+    "portion": 41,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://www.fabricsushi.com.ar/menu/"
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_phila",
+    "name": "Philadelphia · 1 pieza",
+    "parts": {
+      "sushi_philadelphia": 30
+    },
+    "unit": "g",
+    "portion": 30,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/rolls-ishidan"
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_newyork",
+    "name": "New York · 1 pieza",
+    "parts": {
+      "sushi_uramaki_palta": 30
+    },
+    "unit": "g",
+    "portion": 30,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/rolls-ishidan"
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_nigiri",
+    "name": "Nigiri de salmón · 1 pieza",
+    "parts": {
+      "sushi_nigiri_salmon": 30
+    },
+    "unit": "g",
+    "portion": 30,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/rolls-ishidan"
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_sashimi",
+    "name": "Sashimi de salmón · 1 pieza",
+    "parts": {
+      "sushi_sashimi_salmon": 20
+    },
+    "unit": "g",
+    "portion": 20,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/rolls-ishidan"
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_california",
+    "name": "California · 1 pieza",
+    "parts": {
+      "sushi_california": 30
+    },
+    "unit": "g",
+    "portion": 30,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/rolls-ishidan"
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_phila_lima",
+    "name": "Phila, Palta y Lima · 1 pieza",
+    "parts": {
+      "sushi_philadelphia": 30,
+      "avocado": 5
+    },
+    "unit": "g",
+    "portion": 35,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/rolls-ishidan"
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_almendra",
+    "name": "Almendra Roll · 1 pieza",
+    "parts": {
+      "sushi_ebi": 27,
+      "cream_cheese_regular": 4,
+      "almonds": 3
+    },
+    "unit": "g",
+    "portion": 34,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/rolls-ishidan"
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_mango",
+    "name": "Salmón Rosado Phila y Mango · 1 pieza",
+    "parts": {
+      "sushi_philadelphia": 30,
+      "mango": 5
+    },
+    "unit": "g",
+    "portion": 35,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/rolls-ishidan"
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_milanga",
+    "name": "Milanga Roll · 1 pieza",
+    "parts": {
+      "sushi_hot_roll": 35,
+      "cheddar": 4
+    },
+    "unit": "g",
+    "portion": 39,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/rolls-ishidan"
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_scrat",
+    "name": "Scrat · 1 pieza",
+    "parts": {
+      "sushi_philadelphia": 30,
+      "honey": 2,
+      "hazelnuts": 3
+    },
+    "unit": "g",
+    "portion": 35,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/rolls-ishidan"
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_vegetariano",
+    "name": "Roll Vegetariano · 1 pieza",
+    "parts": {
+      "sushi_maki_vegetal": 30,
+      "cream_cheese_regular": 5
+    },
+    "unit": "g",
+    "portion": 35,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/rolls-ishidan"
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_japo",
+    "name": "Japo Tamago (sin arroz) · 1 pieza",
+    "parts": {
+      "sushi_sashimi_salmon": 15,
+      "cream_cheese_regular": 8,
+      "avocado": 8,
+      "egg_boiled": 8
+    },
+    "unit": "g",
+    "portion": 39,
+    "kind": "sushi",
+    "note": "Una pieza, no una tabla completa. Peso y receta aproximados; salsas extra se registran aparte. No se deduce aptitud alimentaria por el nombre.",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/rolls-ishidan"
+  },
+  {
+    "brand": "KFC",
+    "key": "kfc_strip",
+    "name": "Crispy Strip · 1 tira",
+    "parts": {
+      "milanesa_chicken_fried": 45
+    },
+    "unit": "g",
+    "portion": 45,
+    "kind": "chicken",
+    "note": "Peso comestible supuesto; sin salsas ni papas.",
+    "menuUrl": "https://www.rappi.com.ar/restaurantes/121066-KFC"
+  },
+  {
+    "brand": "KFC",
+    "key": "kfc_popcorn",
+    "name": "Popcorn (porción de referencia)",
+    "parts": {
+      "nuggets_pollo_fritos": 120
+    },
+    "unit": "g",
+    "portion": 120,
+    "kind": "chicken",
+    "note": "",
+    "menuUrl": "https://www.rappi.com.ar/restaurantes/121066-KFC"
+  },
+  {
+    "brand": "KFC",
+    "key": "kfc_ruster",
+    "name": "Ruster (sin papas ni bebida)",
+    "parts": {
+      "milanesa_chicken_fried": 120,
+      "bread_white": 75,
+      "cheddar": 25,
+      "mayonnaise": 15,
+      "tomato": 20
+    },
+    "unit": "g",
+    "portion": 255,
+    "kind": "burger",
+    "note": "",
+    "menuUrl": "https://www.rappi.com.ar/restaurantes/121066-KFC"
+  },
+  {
+    "brand": "KFC",
+    "key": "kfc_fries",
+    "name": "Papas fritas medianas",
+    "parts": {
+      "papas_fritas": 120
+    },
+    "unit": "g",
+    "portion": 120,
+    "kind": "fries",
+    "note": "",
+    "menuUrl": "https://www.rappi.com.ar/restaurantes/121066-KFC"
+  },
+  {
+    "brand": "KFC",
+    "key": "kfc_bacon_fries",
+    "name": "Bacon Cheese Fries",
+    "parts": {
+      "papas_fritas": 120,
+      "cheddar": 30,
+      "bacon": 20
+    },
+    "unit": "g",
+    "portion": 170,
+    "kind": "fries",
+    "note": "",
+    "menuUrl": "https://www.rappi.com.ar/restaurantes/121066-KFC"
+  },
+  {
+    "brand": "Subway",
+    "key": "subway_bbq_15",
+    "name": "Pollo BBQ · 15 cm (sin bebida)",
+    "parts": {
+      "bread_white": 90,
+      "chicken_breast_roasted": 90,
+      "lettuce": 20,
+      "tomato": 30,
+      "honey": 10,
+      "mustard": 10
+    },
+    "unit": "g",
+    "portion": 250,
+    "kind": "sandwich",
+    "note": "Pan, relleno y aderezos de referencia. Ajustar a los ingredientes elegidos en el local.",
+    "menuUrl": "https://www.subway.com/es-ar"
+  },
+  {
+    "brand": "Subway",
+    "key": "subway_bbq_30",
+    "name": "Pollo BBQ · 30 cm (sin bebida)",
+    "parts": {
+      "bread_white": 180,
+      "chicken_breast_roasted": 180,
+      "lettuce": 40,
+      "tomato": 60,
+      "honey": 20,
+      "mustard": 20
+    },
+    "unit": "g",
+    "portion": 500,
+    "kind": "sandwich",
+    "note": "Pan, relleno y aderezos de referencia. Ajustar a los ingredientes elegidos en el local.",
+    "menuUrl": "https://www.subway.com/es-ar"
+  },
+  {
+    "brand": "Subway",
+    "key": "subway_milanesa_15",
+    "name": "Milanesa · 15 cm (sin bebida)",
+    "parts": {
+      "bread_white": 90,
+      "milanesa_chicken_fried": 100,
+      "lettuce": 20,
+      "tomato": 30,
+      "mayonnaise": 15
+    },
+    "unit": "g",
+    "portion": 255,
+    "kind": "sandwich",
+    "note": "Pan, relleno y aderezos de referencia. Ajustar a los ingredientes elegidos en el local.",
+    "menuUrl": "https://www.subway.com/es-ar"
+  },
+  {
+    "brand": "Subway",
+    "key": "subway_milanesa_30",
+    "name": "Milanesa · 30 cm (sin bebida)",
+    "parts": {
+      "bread_white": 180,
+      "milanesa_chicken_fried": 200,
+      "lettuce": 40,
+      "tomato": 60,
+      "mayonnaise": 30
+    },
+    "unit": "g",
+    "portion": 510,
+    "kind": "sandwich",
+    "note": "Pan, relleno y aderezos de referencia. Ajustar a los ingredientes elegidos en el local.",
+    "menuUrl": "https://www.subway.com/es-ar"
+  },
+  {
+    "brand": "SushiClub",
+    "key": "sushiclub_combo_15",
+    "name": "Combinado SushiClub · 15 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 90,
+      "sushi_ebi": 54,
+      "sushi_sashimi_salmon": 115,
+      "avocado": 15,
+      "cream_cheese_regular": 39,
+      "sesame": 6,
+      "egg_boiled": 24,
+      "sushi_maki_salmon": 60,
+      "honey": 6,
+      "sushi_nigiri_salmon": 60
+    },
+    "unit": "g",
+    "portion": 469,
+    "kind": "sushi",
+    "menuUrl": "https://www.sushiclub.com.ar/carta.php?sucursal=100&tipo=salon",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Distribución ilustrativa; Placer Real aproximado por roll de salmón y queso. Salsas extra aparte.",
+    "comboPieces": 15
+  },
+  {
+    "brand": "SushiClub",
+    "key": "sushiclub_combo_30",
+    "name": "Combinado SushiClub · 30 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 150,
+      "sushi_ebi": 90,
+      "sushi_sashimi_salmon": 225,
+      "avocado": 25,
+      "cream_cheese_regular": 65,
+      "sesame": 10,
+      "egg_boiled": 40,
+      "sushi_maki_salmon": 150,
+      "honey": 15,
+      "sushi_nigiri_salmon": 150
+    },
+    "unit": "g",
+    "portion": 920,
+    "kind": "sushi",
+    "menuUrl": "https://www.sushiclub.com.ar/carta.php?sucursal=100&tipo=salon",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Distribución ilustrativa; Placer Real aproximado por roll de salmón y queso. Salsas extra aparte.",
+    "comboPieces": 30
+  },
+  {
+    "brand": "SushiClub",
+    "key": "sushiclub_combo_45",
+    "name": "Combinado SushiClub · 45 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 240,
+      "sushi_ebi": 144,
+      "sushi_sashimi_salmon": 340,
+      "avocado": 40,
+      "cream_cheese_regular": 104,
+      "sesame": 16,
+      "egg_boiled": 64,
+      "sushi_maki_salmon": 210,
+      "honey": 21,
+      "sushi_nigiri_salmon": 210
+    },
+    "unit": "g",
+    "portion": 1389,
+    "kind": "sushi",
+    "menuUrl": "https://www.sushiclub.com.ar/carta.php?sucursal=100&tipo=salon",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Distribución ilustrativa; Placer Real aproximado por roll de salmón y queso. Salsas extra aparte.",
+    "comboPieces": 45
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_combo_15",
+    "name": "Selección Omakase · 15 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 300,
+      "mango": 25,
+      "honey": 10,
+      "sushi_nigiri_salmon": 150
+    },
+    "unit": "g",
+    "portion": 485,
+    "kind": "sushi",
+    "menuUrl": "https://pedidos.masdelivery.com/fabric-sushi-caballito",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Nigiri Lima aproximado por nigiri genérico.",
+    "comboPieces": 15
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_combo_30",
+    "name": "Selección Omakase · 30 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 300,
+      "mango": 25,
+      "honey": 10,
+      "sushi_uramaki_palta": 450,
+      "sushi_nigiri_salmon": 150
+    },
+    "unit": "g",
+    "portion": 935,
+    "kind": "sushi",
+    "menuUrl": "https://pedidos.masdelivery.com/fabric-sushi-caballito",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Spring, Tari Tari y 2 Salmones aproximados por roll genérico de salmón.",
+    "comboPieces": 30
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_combo_clasicos_10",
+    "name": "Combinado de rolls clásicos · 10 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 150,
+      "sushi_uramaki_palta": 150
+    },
+    "unit": "g",
+    "portion": 300,
+    "kind": "sushi",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/combinados",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Steam aproximado por roll genérico; proporciones orientativas.",
+    "comboPieces": 10
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_combo_salmon_12",
+    "name": "Combinado sólo Salmón Rosado · 12 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 120,
+      "sushi_uramaki_palta": 120,
+      "sushi_nigiri_salmon": 60,
+      "sushi_sashimi_salmon": 40
+    },
+    "unit": "g",
+    "portion": 340,
+    "kind": "sushi",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/combinados",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Maki aproximado por roll genérico de salmón; distribución ilustrativa.",
+    "comboPieces": 12
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_combo_vegetariano_12",
+    "name": "Combinado Vegetariano · 12 piezas (sin bebida)",
+    "parts": {
+      "sushi_maki_vegetal": 360,
+      "cream_cheese_regular": 60
+    },
+    "unit": "g",
+    "portion": 420,
+    "kind": "sushi",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/combinados",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Media vegetal con queso; revisar selección elegida.",
+    "comboPieces": 12
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_combo_caliente_15",
+    "name": "Combinado Sushi Caliente · 15 piezas (sin bebida)",
+    "parts": {
+      "sushi_hot_roll": 525,
+      "cheddar": 60
+    },
+    "unit": "g",
+    "portion": 585,
+    "kind": "sushi",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/combinados",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Promedio ilustrativo de piezas calientes rebozadas, no distribución oficial.",
+    "comboPieces": 15
+  }
+]

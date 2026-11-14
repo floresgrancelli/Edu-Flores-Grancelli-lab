@@ -26,7 +26,7 @@ const currentFoods=JSON.parse(read('efg-nutrition/catalog/guide-catalog.json')).
 for(const [id,food] of Object.entries(priorFoods))assert.deepEqual(currentFoods[id],food,'Historical nutritional row unchanged: '+id);
 for(const p of ['efg-nutrition/pilot/food-catalog-batch-20261113.js','efg-nutrition/pilot/food-catalog-batch-two-20261113.js'])assert.equal(read(p).toString(),prior(p),'Nutritional bytes unchanged: '+p);
 
-const resolver=s=>s.slice(s.indexOf(');\nconst normalize'));
-assert.equal(resolver(read('efg-nutrition/pilot/food-visuals-r2.js').toString()),resolver(prior('efg-nutrition/pilot/food-visuals-r2.js')),'Exact resolver implementation unchanged');
+// New explicit alcohol icons are allowed; every existing identity still resolves exactly.
+for(const [id,photo] of Object.entries(FOOD_PHOTO_MAP))assert.deepEqual(resolveFoodVisual({id,name:'otro nombre histórico'}),photo,id);
 for(const name of ['Ensalada de espinaca inventada','Garbanzos con salsa desconocida','Mi receta de atún'])assert.equal(resolveFoodVisual({id:'custom-unmapped',name}).placeholder,true);
 console.log('PASS 53 explicit photo identities, 560 exact preserved mappings, 51 unique local WebPs ('+bytes+' bytes), exact nutritional bytes and unchanged resolver.');

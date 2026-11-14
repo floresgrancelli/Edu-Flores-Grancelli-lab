@@ -1,7 +1,7 @@
 // Explicit standalone, countable foods. Catalog equivalences remain authoritative.
 // Do not infer units from names: scoops, bowls, recipe servings and handfuls stay
 // divisible. Recipe components retain their exact ingredient quantities.
-import {FOOD_UNIT_PORTIONS} from './food-catalog.js?v=ncc-quinoa-r1-20261114';
+import {FOOD_UNIT_PORTIONS} from './food-catalog.js?v=ncc-restaurants-r1-20261114';
 // Practical per-meal counts, not clinical limits. Bread allows two real slices
 // (60 g), instead of the former 50 g ceiling that produced 1.67 slices.
 const wholeFoods=Object.freeze(Object.fromEntries(Object.entries({
@@ -11,7 +11,7 @@ const wholeFoods=Object.freeze(Object.fromEntries(Object.entries({
  cheese:2,ham_cooked:6,mozzarella:4,
  apple:1,banana:1,mandarin:2,orange:1,pear:1,kiwi:2,strawberry:20,
  peach:1,plum:3,grapefruit:1,lemon:3,mango:1,
- walnuts:12,almonds:40,cashews:30,olives:20,dates:8,hazelnuts:40,pecans:20,brazil_nuts:12,
+ olives:20,dates:8, // Nuts now use divisible 25 g servings, not individual pieces.
  medialuna_butter:2,medialuna_fat:2,chipa:3,alfajor_chocolate:1,alfajor_maicena:1,
  tostado_ham_cheese:2,sandwich_miga_ham_cheese:2,barrita_cereal:2,protein_bar_generic:2,
  empanada_beef_baked:3,empanada_chicken_baked:3,empanada_ham_cheese:3,

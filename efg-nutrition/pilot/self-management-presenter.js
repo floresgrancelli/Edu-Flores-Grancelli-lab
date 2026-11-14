@@ -1,5 +1,5 @@
-import { guidedCountablePortion } from './guided-countable-portions.js?v=ncc-quinoa-r1-20261114';
-import { FOOD_UNIT_PORTIONS } from './food-catalog.js?v=ncc-quinoa-r1-20261114';
+import { guidedCountablePortion } from './guided-countable-portions.js?v=ncc-alcohol-r1-20261114';
+import { FOOD_UNIT_PORTIONS } from './food-catalog.js?v=ncc-alcohol-r1-20261114';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const n=(v,digits=0)=>Number(v).toLocaleString('es-AR',{maximumFractionDigits:digits});
 export function showSelfManagedResult(result,p,{onEdit=()=>{},onPrint=()=>window.print()}={}) {

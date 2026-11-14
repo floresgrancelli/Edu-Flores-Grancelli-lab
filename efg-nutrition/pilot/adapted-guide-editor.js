@@ -1,8 +1,8 @@
 // Private in-memory coach draft editor; no approval, storage, auth or RPC.
-import {GUIDE_MEALS,guidedPortionBounds,guideTotals} from './guided-day.js?v=ncc-quinoa-r1-20261114';
+import {GUIDE_MEALS,guidedPortionBounds,guideTotals} from './guided-day.js?v=ncc-alcohol-r1-20261114';
 import {compositionVerified,evaluateGuideFood,patternConflict} from './guide-compatibility.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
-import {GUIDE_TARGET_TOLERANCE} from './adapted-guided-day.js?v=ncc-quinoa-r1-20261114';
-import {normalizeGuidedCountableQuantity} from './guided-countable-portions.js?v=ncc-quinoa-r1-20261114';
+import {GUIDE_TARGET_TOLERANCE} from './adapted-guided-day.js?v=ncc-alcohol-r1-20261114';
+import {normalizeGuidedCountableQuantity} from './guided-countable-portions.js?v=ncc-alcohol-r1-20261114';
 const keys=['k','p','c','f','fi'];
 const clone=x=>structuredClone(x);
 export function reviewEditedGuide(plan,{catalog,goal,context,tolerance=GUIDE_TARGET_TOLERANCE}={}){

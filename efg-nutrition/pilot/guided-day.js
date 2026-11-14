@@ -1,6 +1,6 @@
 // EFG Nutrition Pro — five-meal educational guide. No network, storage, or patient data.
 // Never equate this sample menu with the meals actually consumed.
-import {guidedCountablePortion,normalizeGuidedCountableQuantity} from "./guided-countable-portions.js?v=ncc-quinoa-r1-20261114";
+import {guidedCountablePortion,normalizeGuidedCountableQuantity} from "./guided-countable-portions.js?v=ncc-alcohol-r1-20261114";
 export const GUIDE_MEALS=Object.freeze([
  {slot:"desayuno",label:"Desayuno",items:[["egg",100],["bread",35],["cheese",35],["milk_skim",230],["coffee_black",50]]},
  {slot:"media_manana",label:"Media mañana",items:[["yogurt",200],["apple",130],["oats_raw",30]]},

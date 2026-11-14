@@ -1,6 +1,6 @@
 // Dormant adapter. Uses existing COACH119 publisher, never a direct table write.
-import {createCoachPlanDraftClient} from './coach-plan-draft-client.js?v=ncc-quinoa-r1-20261114';
-import {adaptedScopeKey} from './coach-adapted-workspace.js?v=ncc-quinoa-r1-20261114';
+import {createCoachPlanDraftClient} from './coach-plan-draft-client.js?v=ncc-alcohol-r1-20261114';
+import {adaptedScopeKey} from './coach-adapted-workspace.js?v=ncc-alcohol-r1-20261114';
 export function createBoundGuidePublication({sb,readScope,enabled=false}={}){
  return {async publish(options){
   if(enabled!==true||options?.confirmed!==true)throw Error('Publicación no habilitada o no confirmada.');

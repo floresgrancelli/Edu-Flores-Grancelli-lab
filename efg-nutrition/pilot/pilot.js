@@ -86,7 +86,7 @@ import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPla
 import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-quinoa-r1-20261114";
 import {createPullToRefresh} from "./pull-refresh.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {createVersionNotice} from "./version-notice.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createVersionNotice} from "./version-notice.js?v=ncc-team-update-r1-20261114";
 import {signOutCurrentDevice} from "./logout-session.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -1482,11 +1482,28 @@ function unauthorized(_msg){
 }
 function macroCard(name,key,t,goal){let target=goal?.[key];let ratio=target?Math.min(100,Math.max(0,t[key]/target*100)):0;return '<div class="card metric-card metric-'+key+'"><div class="metric-label">'+name+'</div><div class="metric-value">'+num(t[key],1)+' <span>'+ (target?'/ '+num(target):'') +' '+(key==='k'?'kcal':'g')+'</span></div>'+ (target?'<div class="meter"><div style="width:'+ratio+'%"></div></div><div class="metric-remaining">'+num(Math.max(0,target-t[key]),1)+' restante</div>':'<div class="metric-remaining" style="margin-top:9px">Sin objetivo asignado</div>')+'</div>';}
 
+function refreshVersionSettings(){
+ const status=versionNotice.getStatus();
+ document.querySelectorAll('[data-act="applyAppVersion"]').forEach(button=>{button.hidden=!status.hasUpdate;});
+ document.querySelectorAll('[data-version-status]').forEach(label=>{label.textContent=status.lastError?'No se pudo comprobar la versión. Revisá tu conexión.':status.hasUpdate?'Hay una nueva versión lista. Tocá Actualizar ahora.':status.lastChecked?'Estás al día. No hay una versión nueva para instalar.':'La app también revisa versiones automáticamente.';});
+}
+function openVersionSettings(){
+ let dialog=document.getElementById('nccVersionDialog');
+ if(dialog){dialog.focus();return;}
+ dialog=document.createElement('dialog');dialog.id='nccVersionDialog';dialog.className='ncc-version-dialog';
+ dialog.setAttribute('aria-label','Actualizar Nutrición Con-Ciencia');
+ dialog.innerHTML='<button type="button" class="btn ghost" data-version-close>Cerrar</button>'+versionCheckCard();
+ root.append(dialog);
+ dialog.querySelector('[data-version-close]').addEventListener('click',()=>dialog.close());
+ dialog.addEventListener('close',()=>dialog.remove());dialog.showModal();
+}
 function versionCheckCard(){
- return '<section class="card efg-version-settings"><h3>🔄 Versión de Nutrición Con-Ciencia</h3>'+
+ const update=versionNotice.getStatus().hasUpdate;
+ return '<section class="card efg-version-settings" data-version-settings tabindex="-1"><h3>🔄 Versión de Nutrición Con-Ciencia</h3>'+
  '<p class="pilot-hint">Comprobá si hay una publicación nueva sin salir de tu cuenta.</p>'+
  '<button type="button" class="btn small light" data-act="checkAppVersion">Comprobar actualizaciones</button>'+
- '<p class="pilot-hint" id="efgBuildStatus" role="status" aria-live="polite">La app también revisa versiones automáticamente.</p></section>';
+ '<button type="button" class="btn" data-act="applyAppVersion" '+(update?'':'hidden')+'>Actualizar ahora</button>'+
+ '<p class="pilot-hint" data-version-status role="status" aria-live="polite">'+(update?'Hay una nueva versión lista. Tocá Actualizar ahora.':'La app también revisa versiones automáticamente.')+'</p></section>';
 }
 /* Iconografía consistente: SVG vectorial con acabado metal cepillado via CSS.
    El tercer campo de las entradas se mantiene; no se alteran destinos o permisos. */
@@ -2916,7 +2933,7 @@ function coachRosterCard(p){
  return '<div class="pilot-record ncc-roster-person" data-rosterstage="'+next.stage+'" data-rosteractive="'+(p.active?'yes':'no')+'" data-rosterconsent="'+(coachRosterConsent[p.user_id]===true?'yes':'no')+'" data-rostername="'+escapeHTML([coachDisplayName(p),p.nickname,p.email||''].join(' ').toLocaleLowerCase('es-AR'))+'">'+
  '<div class="coach-roster-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+safePhoneEmail(p.email)+'</small>'+coachRosterStatus(next)+'</div></div>'+
  coachRosterActions(p,next)+
- '<details class="ncc-roster-options"><summary>Más opciones<span class="sr-only"> de '+escapeHTML(coachDisplayName(p))+'</span></summary><div class="pilot-toolbar"><button class="btn small ghost" data-coachname="'+p.user_id+'">Nombre preferido</button><button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button></div></details></div>';
+ '<details class="ncc-roster-options"><summary>Más opciones<span class="sr-only"> de '+escapeHTML(coachDisplayName(p))+'</span></summary><div class="pilot-toolbar"><button class="btn small ghost" data-coachname="'+p.user_id+'">Nombre preferido</button><button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button><button class="btn small ghost ncc-remove-student" data-removestudent="'+p.user_id+'">Eliminar</button></div></details></div>';
 }
 function coachView(){
  const org=state.org;
@@ -5066,6 +5083,27 @@ async function mainClick(event){
  if(!p)throw new Error("Ese alumno no está en tu lista de ingresos.");
  messages.selectStudent(p.user_id);state.tab="messages";await render();return;
 }
+if(el.dataset.removestudent){
+ const student=state.roster.find(x=>x.user_id===el.dataset.removestudent);
+ if(!student)throw new Error("Ese alumno ya no pertenece a tu equipo.");
+ if(el.disabled)return;
+ if(!window.confirm("¿Eliminar a "+coachDisplayName(student)+" de tu equipo? Dejará de aparecer en tu lista y perderás acceso a su seguimiento. Su cuenta y sus registros personales se conservan. Esta opción no es una baja temporal."))return;
+ const owner=state.session?.user?.id,epoch=state.authContextEpoch||0;
+ el.disabled=true;
+ try{
+  const {error}=await sb.rpc("efg_remove_student_from_team_v1",{p_student:student.user_id,p_org:state.org?.id});
+  if(error)throw error;
+  if(state.session?.user?.id!==owner||(state.authContextEpoch||0)!==epoch)return;
+  if(state.selectedStudent===student.user_id){state.selectedStudent=null;state.consent=null;state.coachLogs=[];state.coachGoals=[];state.coachReportGoals=null;state.coachWeights=[];state.coachActivities=[];state.coachFoodPlan=null;state.coachGuidedDraft=null;state.pendingGoal=null;state.pendingGoalRevision=null;}
+  delete coachRosterConsent[student.user_id];state.roster=state.roster.filter(p=>p.user_id!==student.user_id);
+  for(const key of ['coachIntakeForms','coachIntakeGoals','coachIntakeAccess','coachIntakeDraftStatuses'])if(state[key])delete state[key][student.user_id];
+  coachAdaptedWorkspace.close();state.coachPrivateHistory=null;
+  try{const names=coachPreferredNames();delete names[student.user_id];localStorage.setItem("efg-coach-names-"+owner,JSON.stringify(names));}catch(_){/* Optional local display name must not block confirmed removal. */}
+
+  await loadRoleData();await render();notify("Alumno eliminado de tu equipo. Su cuenta y sus registros se conservan.");
+ }finally{el.disabled=false;}
+ return;
+}
 if(el.dataset.studentstatus){
  const student=state.roster.find(x=>x.user_id===el.dataset.studentstatus);
  if(!student)throw new Error("Ese alumno no pertenece a tus cupos.");
@@ -5906,15 +5944,21 @@ if(el.dataset.foodbulk){
   notify(guide?"Objetivo guardado: revisá y aprobá la guía antes de publicar el plan.":"Objetivo guardado: prepará la guía antes de publicar el plan.");
   return;
  }
+ if(action==="applyAppVersion"){
+  let discardConfirmed=false;
+  if(hasPendingVersionEdits()){
+   discardConfirmed=window.confirm("Hay cambios sin guardar. Cancelá para guardarlos primero. ¿Querés descartarlos y actualizar ahora? Tus datos ya guardados se conservan.");
+   if(!discardConfirmed)return;
+  }
+  el.disabled=true;
+  try{const result=await versionNotice.apply({explicitClick:true,discardConfirmed});
+   if(!result.updated)notify(result.reason==='offline'?"No pudimos comprobar la actualización. Revisá tu conexión.":result.reason==='unsaved'?"Guardá tus cambios antes de actualizar.":"Ya tenés la última versión disponible.");
+  }finally{el.disabled=false;}return;
+ }
  if(action==="checkAppVersion"){
-  const label=document.getElementById("efgBuildStatus");
-  if(label)label.textContent="Comprobando la versión publicada…";
-  await versionNotice.check({force:true,reopen:true});
-  const status=versionNotice.getStatus();
-  if(label)label.textContent=status.working?"La comprobación sigue en curso. Probá de nuevo en unos segundos.":
-   status.lastError?"No se pudo comprobar la versión. Revisá tu conexión e intentá otra vez.":
-   status.hasUpdate?"Hay una nueva versión. Guardá tus cambios y volvé a abrir la aplicación para incorporarla.":
-   status.lastChecked?"Estás al día. No hay una versión nueva para instalar.":"Todavía no pudimos comprobar la versión.";
+  document.querySelectorAll('[data-version-status]').forEach(label=>{label.textContent="Comprobando la versión publicada…";});
+  el.disabled=true;
+  try{await versionNotice.check({force:true,reopen:true});refreshVersionSettings();}finally{el.disabled=false;}
   return;
  }
  if(action==="refreshPayments"){await loadOrgAndPayments();await render();notify("Comprobantes actualizados.");return;}
@@ -6251,7 +6295,7 @@ function resetPrivateSession(){
  state.scienceWelcomeStep=0;state.scienceWelcomeError="";
  state.rewardApproval=null;state.rewardFeatureReady=false;
  state.rewardOpened=false;state.plannerSelections={};state.plannerDraftGrams={};
- userHasUnconfirmedEdits=false;lastRenderedViewKey=null;state.navigationBrowse=null;
+ userHasUnconfirmedEdits=false;versionHasUnconfirmedEdits=false;lastRenderedViewKey=null;state.navigationBrowse=null;
 }
 function handleAuthStateChange(event,session){
  if(event==="SIGNED_IN"){
@@ -6265,8 +6309,14 @@ function handleAuthStateChange(event,session){
   authHydration.change(null);
  }
 }
-// Never auto-reload after a release. Only warn the user, especially when editing.
-let userHasUnconfirmedEdits=false;
+// A release never reloads automatically. Only the explicit update action may reload.
+let userHasUnconfirmedEdits=false,versionHasUnconfirmedEdits=false;
+// Update protection includes email fields and professional-workspace forms too.
+for(const type of ['input','change'])root.addEventListener(type,e=>{
+ const el=e.target;
+ if(el?.matches?.('input,textarea,select,[contenteditable]')&&!el.matches('input[type="search"]')&&!/search|filter|login|otp/i.test(el.id||'')&&el.closest('.pilot-main,.ncc-plan-sheet,[data-ncc-professional-release-host],[data-ncc-dual-panel]'))versionHasUnconfirmedEdits=true;
+},{capture:true});
+const hasPendingVersionEdits=()=>versionHasUnconfirmedEdits||hasPendingUnsavedEdits();
 const meaningfulField=el=>{
  if(isDualWorkspaceField(el)||dualWorkspaceFrame.isProfessional()||el?.closest?.('[data-ncc-professional-release-host]')||professionalReleaseFrame.isProfessional())return false;
  if(!el?.matches?.("input,textarea,select,[contenteditable]"))return false;
@@ -6315,8 +6365,11 @@ for(const type of ['click','input','change','submit'])
 const versionNotice=createVersionNotice({
  currentVersion:"20261030-grand-candidate-nut58",
  canShow:()=>!!state.profile&&!!state.session?.user?.id&&!state.welcomePending,
- announceMinorUpdates:false, // UX-35: routine releases have no popups
- hasUnsavedChanges:hasPendingUnsavedEdits
+ announceMinorUpdates:true,
+ onOpen:openVersionSettings,
+ onChange:refreshVersionSettings,
+ getContextKey:()=>[state.session?.user?.id,state.authContextEpoch||0].join("|"),
+ hasUnsavedChanges:hasPendingVersionEdits
 });
 const pullRefresh=createPullToRefresh({
  canRefresh:()=>!!state.profile&&!!state.session?.user?.id&&!state.loading&&!refreshingWorkspace&&!state.welcomePending,

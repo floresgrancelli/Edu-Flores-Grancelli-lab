@@ -45,7 +45,7 @@ function el(tag){
 const root=el("body");
 const current="build-1";
 let availableAsset=null;
-let available="build-2",editing=false,loggedIn=true,visible=true,reloads=0;
+let available="build-2",editing=false,loggedIn=true,visible=true,reloads=0,opens=0,contextKey=0;
 const original={
  document:globalThis.document,window:globalThis.window,DOMParser:globalThis.DOMParser,
  fetch:globalThis.fetch
@@ -90,7 +90,7 @@ globalThis.fetch=async (url,opts)=>{
 const notice=createVersionNotice({
  currentVersion:current,canShow:()=>loggedIn,
  hasUnsavedChanges:()=>editing,intervalMs:3600000,
- announceMinorUpdates:true // legacy compatibility test: non-default user opt-in
+ getContextKey:()=>contextKey,onOpen:()=>{opens++},reload:()=>{reloads++} // visible by default, explicit update only
 });
 const host=root.children.find(x=>x.id==="efgVersionNotice");
 assert.ok(host);
@@ -98,13 +98,15 @@ await notice.check({force:true});
 assert.equal(notice.getStatus().hasUpdate,true);
 assert.equal(host.hidden,false,"Latest version must show visible banner");
 const buttons=()=>host.children.find(x=>x.className==="efg-version-actions")?.children;
-assert.deepEqual(buttons().map(x=>x.textContent),["Más tarde","Cómo actualizar"]);
+assert.deepEqual(buttons().map(x=>x.textContent),["Más tarde","Ver actualización"]);
 assert.equal(reloads,0,"Never auto-reload merely because version changed");
 editing=true;notice.paint();
 assert.equal(host.hidden,false);
 assert.equal(buttons()[1].disabled,false,"Instructions remain accessible even during an unsaved edit");
 buttons()[1].click();
+assert.equal(opens,1,"Open update view without losing the current form");
 assert.equal(reloads,0);
+assert.deepEqual(await notice.apply({explicitClick:true}),{updated:false,reason:"unsaved"});
 assert.match(host.children.find(x=>x.className==="efg-version-copy").children[1].textContent,/Guardá tus cambios/);
 buttons()[0].click();
 assert.equal(host.hidden,true,"Dismissed release must stay hidden");
@@ -123,13 +125,29 @@ visible=true;notice.paint();
 assert.equal(host.hidden,false);
 buttons()[1].click();
 assert.equal(reloads,0,"Instructions never reload a running PWA");
+assert.deepEqual(await notice.apply(),{updated:false,reason:'unavailable'});
+assert.equal(reloads,0);
+assert.deepEqual(await notice.apply({explicitClick:true}),{updated:true});assert.equal(reloads,1);
+editing=true;
+assert.deepEqual(await notice.apply({explicitClick:true,discardConfirmed:true}),{updated:true});assert.equal(reloads,2);
+editing=false;
+const goodFetch=globalThis.fetch;globalThis.fetch=async()=>{throw Error('offline')};
+assert.deepEqual(await notice.apply({explicitClick:true}),{updated:false,reason:'offline'});assert.equal(reloads,2);
+globalThis.fetch=goodFetch;reloads=0;
+let finishUpdate;
+globalThis.fetch=async()=>new Promise(resolve=>{finishUpdate=resolve});
+const pendingUpdate=notice.apply({explicitClick:true});
+assert.deepEqual(await notice.apply({explicitClick:true}),{updated:false,reason:'unavailable'},'Double click cannot run concurrent updates');
+contextKey++;
+finishUpdate({ok:true,text:async()=>'<html><body></body></html>'});
+assert.deepEqual(await pendingUpdate,{updated:false,reason:'unavailable'},'Account change cancels the old update request');
+assert.equal(reloads,0);globalThis.fetch=goodFetch;
 notice.dispose();
 assert.equal(host.wasRemoved,true);
-// UX-35 FINAL: the same newer server HTML must NEVER pop a banner on a
-// default minor/daily deployment. Manual version check still reports it.
+// Explicit opt-out remains available to isolated consumers; the app opts in.
 const silent=createVersionNotice({
  currentVersion:current,canShow:()=>loggedIn,
- hasUnsavedChanges:()=>editing,intervalMs:3600000
+ hasUnsavedChanges:()=>editing,intervalMs:3600000,announceMinorUpdates:false
 });
 const silentHost=root.children.at(-1);
 await silent.check({force:true});
@@ -167,4 +185,4 @@ assert.equal(dying.getStatus().working,false,"Unloading releases in-flight state
 assert.equal(await dying.check({force:true}),false,"Disposed checker never fetches again");
 assert.equal(staleFetches,1);
 Object.assign(globalThis,original);
-console.log("PASS NUT-58: visible noninterrupting update notice, safe re-opening instructions, never reload, dismissal, new release reopens, login/background hidden.");
+console.log("PASS NUT-58: visible noninterrupting update notice, explicit update and unsaved-edit/offline guards, dismissal, new release reopens, login/background hidden.");

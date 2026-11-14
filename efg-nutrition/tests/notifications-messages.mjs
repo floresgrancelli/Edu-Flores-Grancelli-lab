@@ -43,7 +43,7 @@ assert.match(app,/hasUnsavedChanges/,"Updating must check unsaved user input");
 assert.match(versions,/cache:"no-store"/,"Release comparison must bypass HTML cache");
 assert.match(versions,/if\(!serverVersion\|\|!doc\.querySelector\(/,"Incomplete HTML must not be interpreted as a release");
 assert.doesNotMatch(versions,/window\.location\.reload|window\.confirm|Nueva versión disponible/,"Minor updates never interrupt or reload a draft");
-assert.match(versions,/announceMinorUpdates=false/,"Routine releases must be silent by default");
+assert.match(versions,/announceMinorUpdates=true/,"User requested routine updates on every screen");
 assert.match(versions,/const canPresent=announceMinorUpdates===true&&!!latest&&dismissed!==latest.key&&canShow\(\)/,"Notice only when explicitly enabled and user is eligible");
 assert.match(versions,/hasUnsavedChanges\(\)/,"Warn users before asking them to re-open after an unsaved edit");
 assert.match(app,/data-act="checkAppVersion"/,"Manual update check must be reachable from More menu");

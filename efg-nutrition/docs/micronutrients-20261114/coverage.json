@@ -5858,6 +5858,26 @@
     "blocker": null
   },
   {
+    "id": "milanesa_quinoa_home_baked",
+    "name": "Milanesa de quinoa casera al horno (con huevo y pan rallado)",
+    "known": [
+      "magnesium",
+      "calcium",
+      "iron",
+      "zinc",
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
+  },
+  {
     "id": "milanesa_soy_baked",
     "name": "Milanesa de soja al horno",
     "known": [

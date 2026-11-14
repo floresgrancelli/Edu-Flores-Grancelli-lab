@@ -19,10 +19,10 @@ function preservesKnown(id,before){
  for(const key of ['name','unit','sourceId','catalogSourceId','sourceDescription'])assert.equal(c.foods[id][key],before[key],id+':'+key);
 }
 function missingOrSourced(f,key){assert.ok(f.perUnit[key]===null||f.nutrientProvenance?.[key],f.name+':'+key);}
-test('every prior known value is preserved; all 617 IDs have a coverage decision',()=>{
+test('every prior known value is preserved; all 618 IDs have a coverage decision',()=>{
  for(const [id,f]of Object.entries(old.foods))for(const [n,v]of Object.entries(f.perUnit))if(v!==null)assert.equal(c.foods[id].perUnit[n],v,id+':'+n);
  const inventory=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/coverage.json',import.meta.url)));
- assert.equal(inventory.length,617);assert.equal(new Set(inventory.map(f=>f.id)).size,617);assert.equal(c.foodCount,617);
+ assert.equal(inventory.length,618);assert.equal(new Set(inventory.map(f=>f.id)).size,618);assert.equal(c.foodCount,618);
  for(const f of inventory)assert.equal(f.known.length+f.missing.length,8);
 });
 test('frozen official extract has exact manifest hash and reviewed source descriptions',()=>{
@@ -164,14 +164,15 @@ test('sixth batch preserves all 307 profiles and checks sources, raw preparation
  for(const [a,b]of [['medialuna_butter','factura_medialuna_manteca'],['galleta_agua','galletitas_agua'],['arroz_leche','arroz_con_leche'],['palomitas_dulces','pochoclos_dulces_acaramelados_genericos']])assert.deepEqual(c.foods[a].perUnit,c.foods[b].perUnit);
 });
 
-test('full completion preserves all 319 prior profiles and the canonical macro catalog byte for byte',()=>{
+test('full completion preserves all 319 prior profiles and all previous canonical macro entries',()=>{
  const baseline='7402b8541ef647cea4becf1166fdbec383086179';
  const text=execFileSync('git',['show',baseline+':efg-nutrition/pilot/micronutrient-catalog.js'],{cwd:root,encoding:'utf8'});
  const before=JSON.parse(text.slice(text.indexOf('= ')+2).replace(/;\s*$/,''));
  assert.equal(Object.keys(before.foods).length,319);
  for(const [id,f]of Object.entries(before.foods))preservesKnown(id,f);
  const macro=readFileSync(new URL('../catalog/guide-catalog.json',import.meta.url));
- assert.deepEqual(macro,execFileSync('git',['show',baseline+':efg-nutrition/catalog/guide-catalog.json'],{cwd:root}));
+ const priorMacros=JSON.parse(execFileSync('git',['show',baseline+':efg-nutrition/catalog/guide-catalog.json'],{cwd:root}));
+ for(const [id,food] of Object.entries(priorMacros.foods))assert.deepEqual(JSON.parse(macro).foods[id],food,id+' unchanged');
  const catalog=JSON.parse(macro);assert.deepEqual(Object.keys(c.foods).sort(),Object.keys(catalog.foods).sort());
  for(const f of Object.values(c.foods))for(const v of Object.values(f.perUnit))assert.ok(v===null||Number.isFinite(v)&&v>=0);
 });
@@ -242,3 +243,12 @@ test('flaxseed and walnuts now contribute named ALA; beef B12 propagates into re
  assert.equal(ala.partial,false);assert.ok(c.foods.beef.perUnit.b12>0);
  const n=totals([entry('beef',150)]).find(n=>n.id==='b12');assert.match(n.contributors[0].mappingNote,/USDA/);
 });
+
+ test('quinoa milanesa keeps the explicit recipe, grams and estimated unit coherent',()=>{
+ const recipe=JSON.parse(readFileSync(new URL('../docs/quinoa-20261114/recipe.json',import.meta.url)));
+ const f=c.foods[recipe.food.id];assert.equal(f.yieldGrams,320);assert.match(f.mappingNote,/Contiene huevo y trigo/);
+ const macros=JSON.parse(readFileSync(new URL('../catalog/guide-catalog.json',import.meta.url))).foods[recipe.food.id];
+ assert.equal(macros.k*100,177.8125);assert.equal(macros.p*100,7.5);
+ const one=totals([entry(recipe.food.id,80)]),two=totals([entry(recipe.food.id,160)]);
+ assert.ok(one.find(n=>n.id==='magnesium').food>0);assert.equal(two.find(n=>n.id==='magnesium').food,2*one.find(n=>n.id==='magnesium').food);
+ });

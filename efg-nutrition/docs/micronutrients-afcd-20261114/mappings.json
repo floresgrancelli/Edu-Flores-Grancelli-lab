@@ -739,5 +739,127 @@
       "ala"
     ],
     "note": "Equivalente comercial genérico del mismo cereal y estado; la receta de cada fabricante puede variar."
+  },
+  {
+    "target": "drink:sweet_red",
+    "code": "F009566",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta."
+  },
+  {
+    "target": "drink:fernet",
+    "code": "F000051",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta."
+  },
+  {
+    "target": "drink:gancia",
+    "code": "F009566",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta."
+  },
+  {
+    "target": "drink:campari",
+    "code": "F009566",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta."
+  },
+  {
+    "target": "drink:aperol",
+    "code": "F009566",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta."
+  },
+  {
+    "target": "drink:cynar",
+    "code": "F009566",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta."
+  },
+  {
+    "target": "drink:vermouth_red",
+    "code": "F009566",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta."
+  },
+  {
+    "target": "drink:vermouth_dry",
+    "code": "F009567",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta."
+  },
+  {
+    "target": "drink:bitters",
+    "code": "F000051",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta."
+  },
+  {
+    "target": "drink:coffee_liqueur",
+    "code": "F000051",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta."
+  },
+  {
+    "target": "drink:triple_sec",
+    "code": "F000051",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta."
+  },
+  {
+    "target": "drink:amaretto",
+    "code": "F000051",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta."
+  },
+  {
+    "target": "drink:peach_liqueur",
+    "code": "F000051",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta."
+  },
+  {
+    "target": "drink:pineapple",
+    "code": "F006710",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Jugo/bebida de la misma fruta como equivalente genérico solo para ALA; no cambia azúcar, calorías ni concentración declarada del cóctel."
+  },
+  {
+    "target": "drink:cranberry",
+    "code": "F004102",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Jugo/bebida de la misma fruta como equivalente genérico solo para ALA; no cambia azúcar, calorías ni concentración declarada del cóctel."
   }
 ]

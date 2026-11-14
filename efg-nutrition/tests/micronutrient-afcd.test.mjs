@@ -45,8 +45,8 @@ for(const id of ['cashews','pistachios','pecans','macadamia_nuts','milk_skim','b
 assert.equal(c.foods.cashews.perUnit.ala,.0007,'Use g per 100g, not percent of fatty acids');
 assert.equal(c.foods.pistachios.perUnit.ala,.0023);
 assert.equal(totals('milk_skim',200).find(n=>n.id==='ala').foodUnknown,0,'Published rounded zero has known coverage');
-assert.equal(totals('herbal_tea',200).find(n=>n.id==='ala').foodUnknown,1,'Unmatched tea stays unknown');
-assert.equal(c.foods.chinchulines_grilled.perUnit.b12,null);
+assert.equal(totals('herbal_tea',200).find(n=>n.id==='ala').foodUnknown,0,'Reviewed infusion equivalent now available');
+assert.equal(c.foods.chinchulines_grilled.perUnit.b12,.21);
 assert.ok(c.additionalDataLicenses.some(l=>l.source.includes('FSANZ')&&l.countryStatement&&l.limitationOfDataStatement&&l.licenseUrl));
 const complete=f=>Object.values(f).filter(x=>Object.values(x.perUnit).every(v=>v!==null)&&!x.incompleteNutrients?.length).length;
 console.log(JSON.stringify({matchedDirectCells:matched,changedValues:cells,changedFoods,improvedProfiles,completeBefore:complete(before),completeAfter:complete(c.foods),partialAfter:853-complete(c.foods)}));

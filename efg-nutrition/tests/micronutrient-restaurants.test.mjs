@@ -22,5 +22,5 @@ for(const id of ['rest_sushiclub_combo_30','rest_fabric_combo_15','rest_ishidan_
 }
 const milk=added.rest_starbucks_latte;assert.ok(milk.perUnit.calcium>0);assert.ok(added.alc_beer_lager.perUnit.magnesium>0);
 assert.ok(added.rest_mc_big_mac.perUnit.iron>0);assert.ok(added.rest_mc_big_mac.perUnit.zinc>0);
-const missing=newFoods.find(f=>added[f.id].incompleteNutrients.length);assert.ok(missing);assert.ok(model(missing.id,100).nutrients.some(n=>n.partial),'Known partial contributions remain marked');
+assert.ok(newFoods.every(f=>added[f.id].incompleteNutrients.length===0),'All restaurant models now have estimates; synthetic missing-data regression is in bulk tests');
 console.log('PASS: 235 new estimates, all 618 previous compositions preserved, fractions, nine combos, traceability and partial data');

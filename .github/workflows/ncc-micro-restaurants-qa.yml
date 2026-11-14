@@ -8,6 +8,9 @@ on:
       - 'efg-nutrition/tests/micronutrient-gaps*'
       - 'efg-nutrition/tests/micronutrient-afcd*'
       - 'efg-nutrition/tests/micronutrient-nori*'
+      - 'efg-nutrition/tests/micronutrient-bulk*'
+      - 'efg-nutrition/tools/micronutrient_bulk.py'
+      - 'efg-nutrition/docs/micronutrients-bulk-20261114/**'
       - 'efg-nutrition/docs/micronutrients-nori-20261114/**'
       - 'efg-nutrition/docs/micronutrients-afcd-20261114/**'
       - 'efg-nutrition/docs/micronutrients-gaps-20261114/**'
@@ -36,6 +39,7 @@ jobs:
       - run: node efg-nutrition/tests/micronutrient-nori.test.mjs
       - run: node efg-nutrition/tests/micronutrient-vinegar.test.mjs
       - run: node efg-nutrition/tests/micronutrient-juice.test.mjs
+      - run: node efg-nutrition/tests/micronutrient-bulk.test.mjs
       - run: mkdir -p /workspace
       - run: node efg-nutrition/tests/micronutrient-restaurants-browser.mjs
         env:

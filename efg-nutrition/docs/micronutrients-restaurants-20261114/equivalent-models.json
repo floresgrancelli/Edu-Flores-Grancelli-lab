@@ -247,14 +247,26 @@
         "iron": 0.0024,
         "zinc": 0.0007000000000000001,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "173176",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173176/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet"
+      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, fortified, port",
+          "foodCode": "F009566",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:sweet_white": {
       "perUnit": {
@@ -683,14 +695,46 @@
         "iron": 0.0006,
         "zinc": 0.0003,
         "b12": 0.0,
-        "ala": null,
-        "epa": null,
-        "dha": null
+        "ala": 0.0,
+        "epa": 0.0,
+        "dha": 0.0
       },
       "sourceId": "173665",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173665/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, liqueur, coffee, 63 proof"
+      "sourceDescription": "Alcoholic beverage, liqueur, coffee, 63 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        },
+        "epa": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "mg/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        },
+        "dha": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "mg/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:cream_liqueur": {
       "perUnit": {
@@ -699,14 +743,46 @@
         "iron": 0.0013,
         "zinc": 0.0016,
         "b12": 0.0008,
-        "ala": null,
+        "ala": 0.00128,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "175098",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/175098/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, liqueur, coffee with cream, 34 proof"
+      "sourceDescription": "Alcoholic beverage, liqueur, coffee with cream, 34 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "recipe_components",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "partsByGrams": {
+            "F003270": 40,
+            "F000051": 20,
+            "F008976": 20,
+            "F009527": 20
+          },
+          "note": "ESTIMACIÓN por receta estándar de baja confianza. Licor de crema genérico: crema 40%, destilado 20%, azúcar 20%, agua 20%. Densidad previa 1 g/ml; formulación de marca desconocida.",
+          "bulkEstimate": true,
+          "bulkReferences": [
+            {
+              "source": "recipe_components",
+              "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+              "sourceUnit": "g/100g",
+              "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+              "partsByGrams": {
+                "F003270": 40,
+                "F000051": 20,
+                "F008976": 20,
+                "F009527": 20
+              },
+              "note": "ESTIMACIÓN por receta estándar de baja confianza. Licor de crema genérico: crema 40%, destilado 20%, azúcar 20%, agua 20%. Densidad previa 1 g/ml; formulación de marca desconocida.",
+              "bulkEstimate": true
+            }
+          ]
+        }
+      }
     },
     "drink:triple_sec": {
       "perUnit": {
@@ -715,14 +791,26 @@
         "iron": 0.0007000000000000001,
         "zinc": 0.0004,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "173168",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173168/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, creme de menthe, 72 proof"
+      "sourceDescription": "Alcoholic beverage, creme de menthe, 72 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:amaretto": {
       "perUnit": {
@@ -731,14 +819,26 @@
         "iron": 0.0007000000000000001,
         "zinc": 0.0004,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "173168",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173168/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, creme de menthe, 72 proof"
+      "sourceDescription": "Alcoholic beverage, creme de menthe, 72 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:peach_liqueur": {
       "perUnit": {
@@ -747,14 +847,26 @@
         "iron": 0.0007000000000000001,
         "zinc": 0.0004,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "173168",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173168/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, creme de menthe, 72 proof"
+      "sourceDescription": "Alcoholic beverage, creme de menthe, 72 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:cola": {
       "perUnit": {
@@ -931,14 +1043,26 @@
         "iron": 0.0031,
         "zinc": 0.0011,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "169947",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/169947/nutrients",
       "unit": "g",
-      "sourceDescription": "Pineapple juice, canned or bottled, unsweetened, without added ascorbic acid"
+      "sourceDescription": "Pineapple juice, canned or bottled, unsweetened, without added ascorbic acid",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Pineapple, canned in pineapple juice, juice only",
+          "foodCode": "F006710",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Jugo/bebida de la misma fruta como equivalente genérico solo para ALA; no cambia azúcar, calorías ni concentración declarada del cóctel. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:cranberry": {
       "perUnit": {
@@ -947,14 +1071,26 @@
         "iron": 0.001,
         "zinc": 0.0003,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "171903",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/171903/nutrients",
       "unit": "g",
-      "sourceDescription": "Cranberry juice cocktail, bottled"
+      "sourceDescription": "Cranberry juice cocktail, bottled",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Fruit drink, cranberry",
+          "foodCode": "F004102",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Jugo/bebida de la misma fruta como equivalente genérico solo para ALA; no cambia azúcar, calorías ni concentración declarada del cóctel. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:lime": {
       "perUnit": {
@@ -1035,14 +1171,26 @@
         "iron": 0.0004,
         "zinc": 0.0004,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174815",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174815/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof"
+      "sourceDescription": "Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:fernet": {
       "perUnit": {
@@ -1051,14 +1199,26 @@
         "iron": 0.0004,
         "zinc": 0.0004,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174815",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174815/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof"
+      "sourceDescription": "Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:gancia": {
       "perUnit": {
@@ -1067,14 +1227,26 @@
         "iron": 0.0024,
         "zinc": 0.0007000000000000001,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "173176",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173176/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet"
+      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, fortified, port",
+          "foodCode": "F009566",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:campari": {
       "perUnit": {
@@ -1083,14 +1255,26 @@
         "iron": 0.0024,
         "zinc": 0.0007000000000000001,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "173176",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173176/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet"
+      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, fortified, port",
+          "foodCode": "F009566",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:aperol": {
       "perUnit": {
@@ -1099,14 +1283,26 @@
         "iron": 0.0024,
         "zinc": 0.0007000000000000001,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "173176",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173176/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet"
+      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, fortified, port",
+          "foodCode": "F009566",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:cynar": {
       "perUnit": {
@@ -1115,14 +1311,26 @@
         "iron": 0.0024,
         "zinc": 0.0007000000000000001,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "173176",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173176/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet"
+      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, fortified, port",
+          "foodCode": "F009566",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:vermouth_red": {
       "perUnit": {
@@ -1131,14 +1339,26 @@
         "iron": 0.0024,
         "zinc": 0.0007000000000000001,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "173176",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173176/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet"
+      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, fortified, port",
+          "foodCode": "F009566",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:vermouth_dry": {
       "perUnit": {
@@ -1147,14 +1367,26 @@
         "iron": 0.0024,
         "zinc": 0.0007000000000000001,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "175112",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/175112/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, dessert, dry"
+      "sourceDescription": "Alcoholic beverage, wine, dessert, dry",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, fortified, sherry, dry style (~1% sugars)",
+          "foodCode": "F009567",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente orientativo de bebida alcohólica sin crema para ácidos grasos faltantes; usa vino fortificado o destilado de referencia según la categoría ya modelada. No es composición oficial de marca, ni extrapola alcohol, azúcar o calorías. Cero a precisión de tabla, no ausencia absoluta. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:orange": {
       "name": "Jugo de naranja exprimido, sin azúcar añadida",
@@ -1519,9 +1751,7 @@
         "epa": 0.0,
         "dha": 0.0
       },
-      "incompleteNutrients": [
-        "ala"
-      ],
+      "incompleteNutrients": [],
       "ingredients": [
         {
           "id": "@coconut",
@@ -1552,10 +1782,24 @@
         },
         "ala": {
           "source": "recipe_components",
-          "note": "Recalculado al completar referencias de los ingredientes; mismas cantidades y rendimiento.",
-          "partial": true
+          "note": "Recalculado al completar referencias de los ingredientes; mismas cantidades y rendimiento. Estimación orientativa: incluye equivalentes o recetas genéricas; algunas referencias son de baja confianza.",
+          "partial": false,
+          "bulkReferences": [
+            {
+              "source": "FSANZ AFCD Release 3",
+              "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+              "foodCode": "F009527",
+              "food": "Water, tap",
+              "sourceUnit": "g/100g",
+              "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+              "note": "ESTIMACIÓN por referencia comparable. Ingrediente genérico comparable en el mismo estado; conserva cantidades y rendimiento de la receta. Diferencias de marca o formulación pueden cambiar la estimación.",
+              "bulkEstimate": true
+            }
+          ],
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx"
         }
-      }
+      },
+      "estimateConfidence": "orientativa"
     }
   },
   "restaurantEquivalents": {

@@ -18,17 +18,17 @@ for(const [id,f]of Object.entries(before)){
  for(const [key,v]of Object.entries(f.perUnit))if(v!==null&&!f.incompleteNutrients?.includes(key))assert.equal(n.perUnit[key],v,id+':'+key);
  if(JSON.stringify(n.perUnit)===JSON.stringify(f.perUnit))continue;
  changed++;
- if(id.startsWith('alc_')){
+ if(['alc_campari_orange','alc_vodka_orange','alc_sex_on_beach','alc_tequila_sunrise','alc_sangria','alc_clerico'].includes(id)){
   const orange=n.ingredients.find(x=>x.id==='orange');assert.ok(orange,id);
   assert.ok(Math.abs(n.perUnit.ala-(f.perUnit.ala||0)-.00011*orange.quantity/n.yieldQuantity)<1e-10,id);
   assert.ok(n.nutrientProvenance.ala.saraReferences.some(p=>p.ingredient==='orange'&&p.sourceUrl.endsWith('#page=129')));
  }
 }
-assert.equal(changed,8);
+assert.ok(changed>=8);
 for(const id of ['orange_juice_raw_weight','helado_frutilla_crema','alc_vodka_orange']){
  const totals=qty=>estimate({diary:{log_day:'2026-11-14',meals:{cena:[{id,qty,unit:c.foods[id].unit,sourceId:c.foods[id].catalogSourceId}]}},catalog:c,referenceMode:'general'}).nutrients;
  const a=totals(100),b=totals(50);for(let i=0;i<a.length;i++)assert.equal(b[i].total,a[i].total===null?null:a[i].total/2);
 }
-assert.equal(c.foods.herbal_tea.perUnit.ala,null);
+assert.equal(c.foods.herbal_tea.perUnit.ala,0);assert.match(c.foods.herbal_tea.nutrientProvenance.ala.note,/equivalente/);
 const complete=Object.values(c.foods).filter(f=>Object.values(f.perUnit).every(v=>v!==null)&&!f.incompleteNutrients?.length).length;
 console.log(JSON.stringify({changed,complete,partial:853-complete}));

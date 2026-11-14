@@ -40,14 +40,14 @@ for(const [id,f]of Object.entries(before)){
    assert.ok(Math.abs(next.perUnit[k]-f.perUnit[k]-contribution)<1e-8,id+':'+k);
    assert.match(next.nutrientProvenance[k].sourceUrl,/fooddb\.mext\.go\.jp/);
   }
-  for(const k of ['b12','dha']){assert.equal(next.perUnit[k],f.perUnit[k]);assert.ok(next.incompleteNutrients.includes(k));}
+  assert.ok(Math.abs(next.perUnit.b12-f.perUnit.b12-q*.396)<1e-8,id+': nori B12');assert.equal(next.perUnit.dha,f.perUnit.dha);for(const k of ['b12','dha'])assert.ok(!next.incompleteNutrients.includes(k));
  }
 }
 const totals=(id,qty)=>estimate({diary:{log_day:'2026-11-14',meals:{cena:[{id,qty,unit:c.foods[id].unit,sourceId:c.foods[id].catalogSourceId}]}},catalog:c,referenceMode:'general'}).nutrients;
 for(const id of ['sushi_maki_salmon','sushi_california','rest_sushiclub_combo_30','rest_fabric_combo_15','rest_ishidan_combo_salmon_12']){
  const a=totals(id,100),b=totals(id,50);for(let i=0;i<a.length;i++)assert.equal(b[i].total,a[i].total===null?null:a[i].total/2);
  for(const k of ['iron','calcium','magnesium','zinc'])assert.equal(a.find(n=>n.id===k).partial,false,id+':'+k);
- for(const k of ['b12','epa_dha'])assert.equal(a.find(n=>n.id===k).partial,true,id+':'+k);
+ for(const k of ['b12','epa_dha'])assert.equal(a.find(n=>n.id===k).partial,false,id+':'+k);
 }
 const complete=foods=>Object.values(foods).filter(f=>Object.values(f.perUnit).every(v=>v!==null)&&!f.incompleteNutrients?.length).length;
 console.log(JSON.stringify({changedCells:cells,changedFoods:foods,noriProfiles,completeBefore:complete(before),completeAfter:complete(c.foods),partialAfter:853-complete(c.foods)}));

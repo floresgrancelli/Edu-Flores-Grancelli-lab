@@ -16,7 +16,7 @@ for(const [id,f] of Object.entries(before)){
   covered++;assert.equal(p.foodCode,'F009498');assert.equal(p.value,0);assert.equal(p.sourceUnit,'g/100g');
   assert.equal(n.perUnit.ala,f.perUnit.ala,'Published zero improves coverage without inflating intake');
   assert.equal(n.incompleteNutrients.includes('ala'),false,id);
-  assert.equal(n.perUnit.b12,f.perUnit.b12);assert.equal(n.perUnit.dha,f.perUnit.dha);
+  for(const key of ['b12','dha'])if(!f.incompleteNutrients?.includes(key))assert.equal(n.perUnit[key],f.perUnit[key]);
  }
  improved+=JSON.stringify(n.perUnit)!==JSON.stringify(f.perUnit)||JSON.stringify(n.incompleteNutrients)!==JSON.stringify(f.incompleteNutrients);
 }
@@ -28,6 +28,6 @@ for(const id of ['sushi_maki_salmon','rest_sushiclub_combo_30','pita_wholewheat'
  const a=totals(100),b=totals(50);for(let i=0;i<a.length;i++)assert.equal(b[i].total,a[i].total===null?null:a[i].total/2);
  assert.equal(a.find(n=>n.id==='ala').foodUnknown,0);
 }
-assert.equal(c.foods.herbal_tea.perUnit.ala,null);
+assert.equal(c.foods.herbal_tea.perUnit.ala,0);assert.match(c.foods.herbal_tea.nutrientProvenance.ala.note,/equivalente/);
 const complete=Object.values(c.foods).filter(f=>Object.values(f.perUnit).every(v=>v!==null)&&!f.incompleteNutrients?.length).length;
 console.log(JSON.stringify({improved,covered,complete,partial:853-complete}));

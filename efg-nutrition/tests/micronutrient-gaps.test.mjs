@@ -39,7 +39,7 @@ for(const id of ['fish_salmon','milk_soy_unsweet','medialuna_butter','rest_mc_bi
 }
 assert.equal(c.foods.milk_skim.perUnit.ala,0,'Explicit numeric AFCD value, not a converted CoFID trace');
 assert.equal(c.foods.milk_skim.nutrientProvenance.ala.source,'FSANZ AFCD Release 3');
-assert.equal(c.foods.herbal_tea.perUnit.ala,null,'Unmatched herbal tea remains unknown');
-assert.equal(c.foods.chinchulines_grilled.perUnit.b12,null,'Unmatched B12 remains unknown');
+assert.equal(c.foods.herbal_tea.perUnit.ala,0);assert.match(c.foods.herbal_tea.nutrientProvenance.ala.note,/equivalente/);
+assert.equal(c.foods.chinchulines_grilled.perUnit.b12,.21);assert.match(c.foods.chinchulines_grilled.nutrientProvenance.b12.note,/crudo/);
 const complete=foods=>Object.values(foods).filter(f=>Object.values(f.perUnit).every(v=>v!==null)&&!f.incompleteNutrients?.length).length;
 console.log(JSON.stringify({changedValues:changed,changedFoods,completeBefore:complete(before),completeAfter:complete(c.foods),partialAfter:853-complete(c.foods)}));

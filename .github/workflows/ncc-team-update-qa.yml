@@ -1,0 +1,46 @@
+name: NCC team and update QA
+on:
+  push:
+    branches: [work/ncc-contrast-student-delete-20261114]
+permissions:
+  contents: read
+jobs:
+  permissions:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: local_qa_only
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGUSER: postgres
+      PGDATABASE: postgres
+      PGPASSWORD: local_qa_only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node efg-nutrition/tests/team-removal-postgres17.mjs
+  browser:
+    runs-on: ubuntu-24.04
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      options: --init --ipc=host
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node efg-nutrition/tests/version-notice-opt-in.mjs
+      - run: node efg-nutrition/tests/team-update-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ncc-team-update-preview
+          path: artifacts/team-update/

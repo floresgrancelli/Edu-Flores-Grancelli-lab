@@ -77,8 +77,8 @@ assert.match(app,/else if\(event==="SIGNED_OUT"\)\{\s*authHydration\.change\(nul
  'External signout must invalidate the same auth hydration gate');
 assert.match(app,/state\.roster=\[\];state\.coachLogs=\[\]/);
 assert.match(app,/state\.diary=null;state\.progressLogs=\[\]/);
-assert.match(app,/announceMinorUpdates:false/,'Only the exceptional relaunch may show notice');
-assert.match(code,/announceMinorUpdates=false/,'New detector defaults silent');
+assert.match(app,/announceMinorUpdates:true/,'User requested a global notice for every new version on 14 Nov');
+assert.match(code,/announceMinorUpdates=true/,'New detector announces releases by default');
 assert.match(code,/const canPresent=announceMinorUpdates===true/);
 assert.match(code,/getStatus:\(\)=>\(\{/,'Manual version check still works');
 assert.match(comm,new RegExp(String.raw`RELEASE_COMMUNICATIONS_ENABLED=${expectedReleaseFlag("RELEASE_COMMUNICATIONS_ENABLED")}`),'No early major signouts');
@@ -87,4 +87,4 @@ assert.match(comm,/data-act="ackReleaseAndSignOut"/);
 assert.match(comm,/data-act="markReleaseSeen"/);
 assert.doesNotMatch(code,/\.signOut\(/,'PWA polling never logs out a user');
 assert.doesNotMatch(code,/location\.reload\(/,'Minor patches never reload without user decision');
-console.log('PASS UX35: mobile sign-out safe and local, dirty drafts confirmed, signed-out RAM reset, minor versions silent and major notice separately gated.');
+console.log('PASS UX35: mobile sign-out safe and local, dirty drafts confirmed, signed-out RAM reset, minor versions announced without automatic reload and major notice separately gated.');

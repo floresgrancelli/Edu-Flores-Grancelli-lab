@@ -1342,11 +1342,11 @@ try{
    const banner=page.locator("#efgVersionNotice");
    const status=await page.evaluate(()=>window.__EFG_VISUAL_QA__.versionNotice.getStatus());
    if(!status.hasUpdate)pageReport.errors.push("New minor build was not detected");
-   if(status.automaticNoticeEnabled!==false)pageReport.errors.push("Minor build automatic notice unexpectedly enabled");
-   if(await banner.isVisible())pageReport.errors.push("Routine build unexpectedly interrupted coach with an alert");
+   if(status.automaticNoticeEnabled!==true)pageReport.errors.push("Update notice not enabled");
+   if(!await banner.isVisible())pageReport.errors.push("Global update notice missing");
    await page.locator("#targetAge").fill("42");
    await page.evaluate(()=>window.__EFG_VISUAL_QA__.versionNotice.check({force:true,reopen:true}));
-   if(await banner.isVisible())pageReport.errors.push("Manual check reopened a forbidden minor-build popup");
+   if(!await banner.isVisible())pageReport.errors.push("Manual check should offer the update");
    if(await page.locator("#targetAge").inputValue()!=="42")pageReport.errors.push("Version check lost unsaved coach draft");
    await page.evaluate(async()=>{
     const x=window.__EFG_VISUAL_QA__;
@@ -1357,11 +1357,11 @@ try{
    else{
     await manualCheck.click();
     await page.waitForFunction(()=>/nueva versión|Estás al día|No se pudo comprobar|La comprobación sigue/.test(
-     document.getElementById("efgBuildStatus")?.textContent||""),{timeout:6000});
-    const label=await page.locator("#efgBuildStatus").textContent();
-    if(!label.includes("nueva versión")||!label.includes("Guardá tus cambios"))
+     document.querySelector("[data-version-status]")?.textContent||""),{timeout:6000});
+    const label=await page.locator("[data-version-status]").textContent();
+    if(!label.includes("nueva versión")||!label.includes("Actualizar ahora"))
      pageReport.errors.push("Manual version result missing safe-save guidance: "+label);
-    if(await banner.isVisible())pageReport.errors.push("Manual version check showed unwanted popup");
+    if(!await banner.isVisible())pageReport.errors.push("Manual version check did not show update shortcut");
    }
    // Exceptional major-release CTA is a separate OFF-until-approved flow.
    await page.unroute("**/pilot/index.html?efg_version_check=*");

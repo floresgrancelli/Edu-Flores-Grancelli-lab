@@ -91,3 +91,10 @@ html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) button:focus-visib
 html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) :is(.efg-notify-item,.ncc-notify-filters button){text-transform:none!important;letter-spacing:normal!important}
 html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .ncc-notify-footer small{border:1px solid #526052;border-radius:7px;padding:2px 6px;font-size:10px!important;white-space:nowrap}
 }
+
+@layer ncc-palette {
+.ncc-notify-bulk{display:flex;flex-direction:column;gap:5px;margin:0 0 12px}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .ncc-notify-bulk button{min-height:44px;width:100%;border:1px solid #b1c579!important;border-radius:12px;background:#29372b!important;color:#e4edcd!important;font:inherit;font-size:13px;font-weight:700;padding:10px 12px;cursor:pointer;text-transform:none!important;letter-spacing:normal!important}
+.ncc-notify-bulk button:disabled{opacity:.55;cursor:default}
+.ncc-notify-bulk small{color:#c3cec6;font-size:11px;text-align:center}
+}

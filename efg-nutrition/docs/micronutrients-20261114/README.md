@@ -1,3 +1,5 @@
+Última ampliación: [ENRICHMENT.md](ENRICHMENT.md), 420 perfiles con ocho componentes y 197 parciales.
+
 Estado actual: ver [COMPLETION-617.md](COMPLETION-617.md), 617 identidades con estimaciones. Los lotes anteriores quedan como historial.
 
 # Ampliación de micronutrientes — candidata

@@ -93,7 +93,9 @@ export function estimateDailyMicronutrients({diary,profile=null,catalog,referenc
    row.food+=amount;row.foodKnown++;
    const incomplete=composition.incompleteNutrients||[];
    if(n.id==='epa_dha'?incomplete.includes('epa')||incomplete.includes('dha'):incomplete.includes(n.id))row.foodPartial++;
-   row.contributors.push({name:entry.name||composition.name,value:amount,sourceId:composition.sourceId,sourceUrl:composition.sourceUrl,mappingNote:composition.mappingNote||null,approximation:composition.approximation===true});
+   const provenance=n.id==='epa_dha'?[composition.nutrientProvenance?.epa,composition.nutrientProvenance?.dha]:[composition.nutrientProvenance?.[n.id]];
+   const notes=[composition.mappingNote,...provenance.filter(Boolean).map(p=>(p.food?p.food+': ':'')+p.note)].filter(Boolean);
+   row.contributors.push({name:entry.name||composition.name,value:amount,sourceId:composition.sourceId,sourceUrl:provenance.find(p=>p?.sourceUrl)?.sourceUrl||composition.sourceUrl,mappingNote:[...new Set(notes)].join(' ')||null,approximation:composition.approximation===true||provenance.some(Boolean)});
   }
  }
  const supplements=Array.isArray(diary.sports)?diary.sports.filter(x=>x?.kind==='supplement'||magnesiumIds.has(x?.id)||own(isolated,x?.id)||['omega3','multivitamin'].includes(x?.id)):[];

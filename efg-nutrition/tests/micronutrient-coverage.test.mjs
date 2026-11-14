@@ -14,6 +14,11 @@ const records=Object.fromEntries(JSON.parse(gunzipSync(raw)).map(r=>[r.fdcId,r])
 const day=items=>({log_day:'2026-11-14',meals:{almuerzo:items},sports:[],skipped:{}});
 const entry=(id,qty)=>({id,qty,unit:'g',sourceId:c.foods[id].catalogSourceId});
 const totals=items=>estimate({diary:day(items),catalog:c}).nutrients;
+function preservesKnown(id,before){
+ for(const [key,v]of Object.entries(before.perUnit))if(v!==null)assert.equal(c.foods[id].perUnit[key],v,id+':'+key);
+ for(const key of ['name','unit','sourceId','catalogSourceId','sourceDescription'])assert.equal(c.foods[id][key],before[key],id+':'+key);
+}
+function missingOrSourced(f,key){assert.ok(f.perUnit[key]===null||f.nutrientProvenance?.[key],f.name+':'+key);}
 test('every prior known value is preserved; all 617 IDs have a coverage decision',()=>{
  for(const [id,f]of Object.entries(old.foods))for(const [n,v]of Object.entries(f.perUnit))if(v!==null)assert.equal(c.foods[id].perUnit[n],v,id+':'+n);
  const inventory=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/coverage.json',import.meta.url)));
@@ -40,14 +45,14 @@ test('cooked beef tenderloin contributes iron zinc and B12 from grilled lean sou
 test('all six achuras have mineral data; uncertain B12 stays null; recipe propagates missing nutrients',()=>{
  for(const id of ['chorizo_cooked','chinchulines_grilled','morcilla_cooked','morcilla_vasca_estimate','kidney_beef_grilled','sweetbreads_beef_grilled']){
   for(const n of ['iron','zinc','calcium','magnesium'])assert.ok(c.foods[id].perUnit[n]>0,id+':'+n);
-  assert.equal(c.foods[id].perUnit.b12,null);
+  missingOrSourced(c.foods[id],'b12');
   assert.ok(totals([entry(id,100)]).find(n=>n.id==='iron').food>0);
  }
  assert.equal(c.foods.morcilla_vasca_estimate.perUnit.iron,Math.round((.85*c.foods.morcilla_cooked.perUnit.iron+.10*c.foods.raisins.perUnit.iron+.05*c.foods.walnuts.perUnit.iron)*1e10)/1e10);
 });
 test('protein milk uses disclosed SARA generic reference; unknown identity stays unknown',()=>{
  const f=c.foods.milk;assert.match(f.sourceDescription,/50%/);assert.equal(f.approximation,true);
- assert.equal(f.perUnit.b12,null);assert.ok(Math.abs(f.perUnit.calcium-1.21*1.03)<1e-10);
+ missingOrSourced(f,'b12');assert.ok(Math.abs(f.perUnit.calcium-1.21*1.03)<1e-10);
  const n=totals([{id:'unverified_brand_not_in_catalog',qty:200,unit:'ml'}]).find(n=>n.id==='iron');assert.equal(n.total,null);
 });
 
@@ -62,7 +67,7 @@ test('second batch preserves all 218 prior compositions and scales all 25 review
   assert.equal(c.foods[id].sourceId,String(fdc));
   for(const [key,[nutrient,scale]]of Object.entries(identities)){
    const original=records[fdc].foodNutrients.find(n=>n.nutrient.id===nutrient);
-   if(!original){assert.equal(c.foods[id].perUnit[key],null);continue;}
+   if(!original){missingOrSourced(c.foods[id],key);continue;}
    assert.ok(Math.abs(c.foods[id].perUnit[key]-original.amount*scale/100)<1e-9,id+':'+key);
   }
   const result=totals([entry(id,75)]).find(n=>n.id==='iron');
@@ -76,14 +81,14 @@ test('third batch preserves every published known value and verifies SARA scalin
  for(const [id,f]of Object.entries(baseline.foods))for(const [key,value]of Object.entries(f.perUnit))if(value!==null)assert.equal(c.foods[id].perUnit[key],value,id+':'+key);
  const sara=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/sara2-reviewed.json',import.meta.url)));
  for(const row of sara){
-  const f=c.foods[row.foodId];assert.equal(f.perUnit.b12,null);
+  const f=c.foods[row.foodId];missingOrSourced(f,'b12');
   for(const [key,value]of Object.entries(row.per100g))assert.equal(f.perUnit[key],value/100);
   assert.ok(Math.abs(totals([entry(row.foodId,150)]).find(n=>n.id==='iron').food-row.per100g.iron*1.5)<1e-9);
   if(row.fattyAcidEvidence)for(const key of ['ala','epa','dha'])assert.equal(f.perUnit[key],row.fattyAcidEvidence[key]*(key==='ala'?1:1000)/100);
  }
  assert.equal(c.foods.fish_hake.perUnit.epa,1.3);assert.equal(c.foods.fish_hake.perUnit.dha,3.45);
  assert.ok(Math.abs(totals([entry('fish_hake',150)]).find(n=>n.id==='epa_dha').food-712.5)<1e-9);
- assert.equal(c.foods.chorizo_cooked.perUnit.epa,0);assert.equal(c.foods.alfajor_chocolate.perUnit.epa,null);
+ assert.equal(c.foods.chorizo_cooked.perUnit.epa,0);assert.equal(c.foods.alfajor_chocolate.perUnit.epa,0);
  const batch=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/batch-three.json',import.meta.url)));
  for(const [id,fdc]of Object.entries(batch.usdaAdditions)){
   assert.equal(c.foods[id].sourceId,String(fdc));
@@ -111,7 +116,7 @@ test('fourth batch preserves 264 known profiles and adds exact USDA captures and
  const batch=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/batch-four.json',import.meta.url)));
  for(const [id,parts]of Object.entries(batch.existingRecipeModels))for(const key of Object.keys(c.foods[id].perUnit)){
   const incomplete=Object.keys(parts).some(k=>c.foods[k].perUnit[key]===null);
-  if(incomplete)assert.equal(c.foods[id].perUnit[key],null);
+  if(incomplete){missingOrSourced(c.foods[id],key);if(c.foods[id].perUnit[key]!==null)assert.ok(c.foods[id].incompleteNutrients.includes(key));}
   else assert.ok(Math.abs(c.foods[id].perUnit[key]-Object.entries(parts).reduce((sum,[k,w])=>sum+c.foods[k].perUnit[key]*w,0))<1e-9);
  }
  assert.equal(c.foods.merluza_filet_cruda.perUnit.iron,.019);assert.ok(Math.abs(c.foods.merluza_grill.perUnit.iron-.0247)<1e-10);
@@ -125,7 +130,7 @@ test('fifth batch checks every nutrient against frozen sources and preserves dia
   const f=c.foods[id];assert.equal(f.sourceId,String(fdc));
   for(const [key,[nutrient,scale]] of Object.entries(ids)){
    const source=records[fdc].foodNutrients.find(n=>n.nutrient.id===nutrient);
-   if(!source){assert.equal(f.perUnit[key],null);continue;}
+   if(!source){missingOrSourced(f,key);continue;}
    assert.ok(Math.abs(f.perUnit[key]-source.amount*scale/100)<1e-9,id+':'+key);
   }
   const e=entry(id,175),before=JSON.stringify(e);
@@ -139,14 +144,14 @@ test('fifth batch checks every nutrient against frozen sources and preserves dia
 test('sixth batch preserves all 307 profiles and checks sources, raw preparation and aliases',()=>{
  const priorText=execFileSync('git',['show','9e013d9a63b6f069fab0b9c6fe9b929d2a9147d8:efg-nutrition/pilot/micronutrient-catalog.js'],{cwd:root,encoding:'utf8'});
  const baseline=JSON.parse(priorText.slice(priorText.indexOf('= ')+2).replace(/;\s*$/,''));
- for(const [id,f]of Object.entries(baseline.foods))assert.deepEqual(c.foods[id],f,id);
+ for(const [id,f]of Object.entries(baseline.foods))preservesKnown(id,f);
  const batch=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/batch-six.json',import.meta.url)));
  const ids={magnesium:[1090,1],calcium:[1087,1],iron:[1089,1],zinc:[1095,1],b12:[1178,1],ala:[1404,1],epa:[1278,1000],dha:[1272,1000]};
  for(const [id,fdc] of Object.entries(batch.usdaAdditions)){
   const f=c.foods[id];assert.equal(f.sourceId,String(fdc));
   for(const [key,[nutrient,scale]] of Object.entries(ids)){
    const source=records[fdc].foodNutrients.find(n=>n.nutrient.id===nutrient);
-   if(!source){assert.equal(f.perUnit[key],null);continue;}
+   if(!source){missingOrSourced(f,key);continue;}
    assert.ok(Math.abs(f.perUnit[key]-source.amount*scale/100)<1e-9,id+':'+key);
   }
   assert.ok(Math.abs(totals([entry(id,80)]).find(n=>n.id==='iron').food-f.perUnit.iron*80)<1e-9);
@@ -164,7 +169,7 @@ test('full completion preserves all 319 prior profiles and the canonical macro c
  const text=execFileSync('git',['show',baseline+':efg-nutrition/pilot/micronutrient-catalog.js'],{cwd:root,encoding:'utf8'});
  const before=JSON.parse(text.slice(text.indexOf('= ')+2).replace(/;\s*$/,''));
  assert.equal(Object.keys(before.foods).length,319);
- for(const [id,f]of Object.entries(before.foods))assert.deepEqual(c.foods[id],f,id);
+ for(const [id,f]of Object.entries(before.foods))preservesKnown(id,f);
  const macro=readFileSync(new URL('../catalog/guide-catalog.json',import.meta.url));
  assert.deepEqual(macro,execFileSync('git',['show',baseline+':efg-nutrition/catalog/guide-catalog.json'],{cwd:root}));
  const catalog=JSON.parse(macro);assert.deepEqual(Object.keys(c.foods).sort(),Object.keys(catalog.foods).sort());
@@ -200,4 +205,40 @@ test('named brand approximations never claim to be a manufacturer label',()=>{
   const f=c.foods[id];assert.equal(f.approximation,true);assert.match(f.mappingNote,/NO RÓTULO/);
   const n=totals([entry(id,100)]).find(n=>n.id==='calcium');assert.equal(n.contributors[0].mappingNote,f.mappingNote);
  }
+});
+
+test('gap enrichment keeps every previously complete estimate and increases only documented partial sums',()=>{
+ const text=execFileSync('git',['show','2e59931f4bd3495a8eca4c6f004ae32a13a34520:efg-nutrition/pilot/micronutrient-catalog.js'],{cwd:root,encoding:'utf8'});
+ const baseline=JSON.parse(text.slice(text.indexOf('= ')+2).replace(/;\s*$/,''));let additions=0;
+ for(const [id,f]of Object.entries(baseline.foods))for(const [key,v]of Object.entries(f.perUnit)){
+  const n=c.foods[id].perUnit[key];
+  if(v!==null&&!f.incompleteNutrients?.includes(key))assert.equal(n,v,id+':'+key);
+  else if(v!==null)assert.ok(n>=v-1e-9,id+':'+key);
+  if(n!==v){assert.ok(c.foods[id].nutrientProvenance?.[key],id+':'+key);additions++;}
+ }
+ assert.ok(additions>=600);
+});
+test('every independently added nutrient matches the frozen named column and declared unit',()=>{
+ const dir=new URL('../docs/micronutrients-20261114/',import.meta.url);
+ const m=JSON.parse(readFileSync(new URL('enrichment-manifest.json',dir)));
+ for(const [name,hash]of Object.entries(m.files))assert.equal(createHash('sha256').update(readFileSync(new URL(name,dir))).digest('hex'),hash);
+ const sara=JSON.parse(readFileSync(new URL('enrichment-sara-rows.json',dir)));
+ const records=Object.fromEntries(JSON.parse(gunzipSync(readFileSync(new URL('enrichment-usda.json.gz',dir)))).map(r=>[r.fdcId,r]));
+ const ids={b12:1178,zinc:1095};
+ for(const [id,f]of Object.entries(c.foods))for(const [key,p]of Object.entries(f.nutrientProvenance||{})){
+  if(p.source==='recipe_components')continue;
+  let expected;
+  if(p.source==='SARA 2'){
+   const row=sara[p.food];
+   if(key==='b12'){assert.equal(Number(row.micro.cells[17].replace(',','.')),0);expected=0;}
+   else{const col={ala:11,epa:13,dha:14}[key];assert.notEqual(row.macro.cells[col],'');expected=Number(row.macro.cells[col].replace(',','.'))*(key==='ala'?1:1000);}
+  }else{const nutrient=records[p.fdcId].foodNutrients.find(n=>n.nutrient.id===ids[key]);assert.equal(nutrient.nutrient.unitName,key==='b12'?'µg':'mg');expected=nutrient.amount;}
+  assert.ok(Math.abs(f.perUnit[key]-expected*(f.gramsPerMl||1)/100)<1e-9,id+':'+key);
+ }
+});
+test('flaxseed and walnuts now contribute named ALA; beef B12 propagates into recipes',()=>{
+ assert.equal(c.foods.flaxseed.perUnit.ala,.22813);assert.equal(c.foods.walnuts.perUnit.ala,.0908);
+ const ala=totals([entry('flaxseed',10),entry('walnuts',20)]).find(n=>n.id==='ala');assert.ok(Math.abs(ala.total-4.0973)<1e-8);
+ assert.equal(ala.partial,false);assert.ok(c.foods.beef.perUnit.b12>0);
+ const n=totals([entry('beef',150)]).find(n=>n.id==='b12');assert.match(n.contributors[0].mappingNote,/USDA/);
 });

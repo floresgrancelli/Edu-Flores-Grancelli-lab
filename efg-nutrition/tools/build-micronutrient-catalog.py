@@ -139,7 +139,9 @@ for fid, ingredients in {'fruit_salad_basic': {'apple':.25,'banana':.25,'orange'
         'derivationCodes':{k:'recipe_weighted' for k,v in values.items() if v is not None}}
 
 from micronutrient_completion import complete_catalog
-complete_catalog(ROOT, catalog, foods, NUTRIENTS)
+internal = complete_catalog(ROOT, catalog, foods, NUTRIENTS)
+from micronutrient_enrichment import enrich_catalog
+enrich_catalog(ROOT, foods, internal, NUTRIENTS)
 
 canonical = json.dumps(foods, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
 digest = hashlib.sha256(canonical.encode()).hexdigest()

@@ -1,0 +1,1672 @@
+{
+  "chorizo_cooked": {
+    "saraName": "Chorizo (horno/parrilla)",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 174578,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Salchicha fresca de cerdo cocida en sartén como proxy de chorizo; no receta local."
+    },
+    "expectedName": "Chorizo parrillero cocido",
+    "expectedUnit": "g"
+  },
+  "sweetbreads_beef_grilled": {
+    "saraName": "Mollejas, a la parrilla",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 170195,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Timo/molleja vacuna cocida braseada como proxy de parrilla; preparación variable."
+    },
+    "expectedName": "Molleja a la parrilla · carne vacuna",
+    "expectedUnit": "g"
+  },
+  "morcilla_cooked": {
+    "saraName": "Morcilla",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 171618,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Morcilla genérica USDA; proporción de sangre y otros ingredientes variable."
+    },
+    "expectedName": "Morcilla cocida",
+    "expectedUnit": "g"
+  },
+  "kidney_beef_grilled": {
+    "saraName": "Riñón (horno/parrilla)",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 169450,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Riñón vacuno cocido hervido como proxy de parrilla, sin ajuste de retención."
+    },
+    "expectedName": "Riñón a la parrilla · carne vacuna",
+    "expectedUnit": "g"
+  },
+  "ham_cooked": {
+    "saraName": "Jamón cocido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 173864,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Jamón cocido genérico de referencia USDA."
+    },
+    "expectedName": "Jamón cocido",
+    "expectedUnit": "g"
+  },
+  "fish_hake": {
+    "saraName": "Merluza",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 175161,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Whiting cocido en calor seco como proxy de merluza cocida, especie distinta."
+    },
+    "expectedName": "Merluza cocida",
+    "expectedUnit": "g"
+  },
+  "pejerrey_cocido": {
+    "saraName": "Pejerrey",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Pejerrey cocido al horno sin aceite",
+    "expectedUnit": "g"
+  },
+  "alfajor_chocolate": {
+    "saraName": "Alfajor de chocolate",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Alfajor con baño de chocolate",
+    "expectedUnit": "g"
+  },
+  "alfajor_ddl": {
+    "saraName": "Alfajor de dulce de leche",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Alfajor de dulce de leche clásico",
+    "expectedUnit": "g"
+  },
+  "alfajor_maicena": {
+    "saraName": "Alfajor de maicena",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Alfajor de maicena",
+    "expectedUnit": "g"
+  },
+  "bread_rye": {
+    "saraName": "Pan de Centeno",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Pan de centeno",
+    "expectedUnit": "g"
+  },
+  "pan_lactal": {
+    "saraName": "Pan blanco, tipo molde, lacteado",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 174924,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Pan blanco de molde comercial genérico USDA."
+    },
+    "expectedName": "Pan lactal blanco",
+    "expectedUnit": "g"
+  },
+  "pan_salvado": {
+    "saraName": "Pan de salvado",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Pan de salvado",
+    "expectedUnit": "g"
+  },
+  "pan_frances": {
+    "saraName": "Pan francés o pan casero sin agregado de grasa o aceite",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Pan francés tipo flauta",
+    "expectedUnit": "g"
+  },
+  "pan_campo_panaderia": {
+    "saraName": "Pan francés o pan casero sin agregado de grasa o aceite",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Pan de campo tradicional de panadería",
+    "expectedUnit": "g"
+  },
+  "pan_mignon_panaderia": {
+    "saraName": "Pan francés o pan casero sin agregado de grasa o aceite",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Pan miñón común de panadería",
+    "expectedUnit": "g"
+  },
+  "cheese": {
+    "saraName": "Queso porsalut sin sal light",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 170849,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Port de Salut genérico como proxy de Port Salut light sin sal; composición variable."
+    },
+    "expectedName": "Port Salut Light",
+    "expectedUnit": "g"
+  },
+  "queso_cremoso": {
+    "saraName": "Queso Cremoso",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 171245,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Queso Muenster entero como proxy de pasta blanda; no rótulo de queso cremoso argentino."
+    },
+    "expectedName": "Queso cremoso",
+    "expectedUnit": "g"
+  },
+  "queso_fresco_magro": {
+    "saraName": "Queso pasta blanda descremado",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 169050,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Muenster reducido en grasa como proxy de queso fresco magro."
+    },
+    "expectedName": "Queso fresco magro",
+    "expectedUnit": "g"
+  },
+  "queso_sardo": {
+    "saraName": "Queso Sardo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 170848,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Parmesano duro como proxy de queso sardo duro; B12 variable con elaboración."
+    },
+    "expectedName": "Queso sardo",
+    "expectedUnit": "g"
+  },
+  "dulce_batata": {
+    "saraName": "Dulce de batata",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Dulce de batata",
+    "expectedUnit": "g"
+  },
+  "dulce_de_leche": {
+    "saraName": "Dulce de leche",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 173461,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Dulce de leche genérico de referencia USDA."
+    },
+    "expectedName": "Dulce de leche tradicional",
+    "expectedUnit": "g"
+  },
+  "dulce_leche_entero": {
+    "saraName": "Dulce de leche",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 173461,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Dulce de leche genérico de referencia USDA."
+    },
+    "expectedName": "Dulce de leche entero tradicional",
+    "expectedUnit": "g"
+  },
+  "quince": {
+    "saraName": "Dulce de membrillo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Dulce de membrillo",
+    "expectedUnit": "g"
+  },
+  "jam_regular": {
+    "saraName": "Mermelada de frutas",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Mermelada común",
+    "expectedUnit": "g"
+  },
+  "mermelada_azucar": {
+    "saraName": "Mermelada de frutas",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Mermelada común con azúcar",
+    "expectedUnit": "g"
+  },
+  "jam_light": {
+    "saraName": "Mermelada de frutas light",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Mermelada reducida en azúcar (genérica)",
+    "expectedUnit": "g"
+  },
+  "zapallito_cooked": {
+    "saraName": "Zapallito, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Zapallito cocido",
+    "expectedUnit": "g"
+  },
+  "zapallito_redondo_cocido": {
+    "saraName": "Zapallito, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Zapallito redondo hervido",
+    "expectedUnit": "g"
+  },
+  "zapallo_criollo_hervido": {
+    "saraName": "Zapallo, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Zapallo criollo hervido, sin aceite",
+    "expectedUnit": "g"
+  },
+  "pumpkin": {
+    "saraName": "Zapallo, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Calabaza cocida",
+    "expectedUnit": "g"
+  },
+  "pure_pumpkin": {
+    "saraName": "Zapallo, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Puré de calabaza sin aceite",
+    "expectedUnit": "g"
+  },
+  "pure_zapallo_simple": {
+    "saraName": "Zapallo, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Puré de zapallo sin manteca ni aceite",
+    "expectedUnit": "g"
+  },
+  "merluza_filet_cruda": {
+    "saraName": "Merluza, cruda",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 173713,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Whiting crudo como proxy de merluza cruda, especie distinta."
+    },
+    "expectedName": "Filet de merluza crudo sin rebozar",
+    "expectedUnit": "g"
+  },
+  "merluza_grill": {
+    "saraName": "Merluza",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 175161,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Whiting cocido en calor seco como proxy de merluza cocida, especie distinta."
+    },
+    "expectedName": "Merluza a la plancha sin aceite",
+    "expectedUnit": "g"
+  },
+  "acelga_cooked": {
+    "saraName": "Acelga, hervida",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Acelga hervida",
+    "expectedUnit": "g"
+  },
+  "acelga_hervida": {
+    "saraName": "Acelga, hervida",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Acelga hervida, escurrida, sin sal ni aceite (referencia USDA)",
+    "expectedUnit": "g"
+  },
+  "chard_raw": {
+    "saraName": "Acelga, cruda",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Acelga cruda",
+    "expectedUnit": "g"
+  },
+  "apple": {
+    "saraName": "Manzana con piel",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Manzana con cáscara",
+    "expectedUnit": "g"
+  },
+  "banana": {
+    "saraName": "Banana",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Banana cruda sin cáscara",
+    "expectedUnit": "g"
+  },
+  "apricot": {
+    "saraName": "Damasco",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Damasco fresco",
+    "expectedUnit": "g"
+  },
+  "artichoke_cooked": {
+    "saraName": "Alcaucil, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Alcauciles cocidos",
+    "expectedUnit": "g"
+  },
+  "asparagus": {
+    "saraName": "Espárrago, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Espárragos cocidos",
+    "expectedUnit": "g"
+  },
+  "asparagus_raw": {
+    "saraName": "Espárrago, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Espárragos crudos",
+    "expectedUnit": "g"
+  },
+  "beets": {
+    "saraName": "Remolacha, hervida",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Remolacha cocida",
+    "expectedUnit": "g"
+  },
+  "bellpepper": {
+    "saraName": "Ají rojo / morrón rojo, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Morrón rojo",
+    "expectedUnit": "g"
+  },
+  "blueberry": {
+    "saraName": "Arándanos",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Arándanos",
+    "expectedUnit": "g"
+  },
+  "blackberries_raw": {
+    "saraName": "Mora",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Moras frescas",
+    "expectedUnit": "g"
+  },
+  "broccoli_cooked": {
+    "saraName": "Brócoli, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Brócoli cocido",
+    "expectedUnit": "g"
+  },
+  "brocoli_vapor": {
+    "saraName": "Brócoli, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Brócoli al vapor sin aceite",
+    "expectedUnit": "g"
+  },
+  "bulgur_cooked": {
+    "saraName": "Trigo burgol, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Bulgur cocido",
+    "expectedUnit": "g"
+  },
+  "bulgur_dry": {
+    "saraName": "Trigo burgol, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Trigo burgol o bulgur seco",
+    "expectedUnit": "g"
+  },
+  "cabbage": {
+    "saraName": "Repollo, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Repollo",
+    "expectedUnit": "g"
+  },
+  "carrot_cooked": {
+    "saraName": "Zanahoria, hervida",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Zanahoria hervida",
+    "expectedUnit": "g"
+  },
+  "carrot_raw": {
+    "saraName": "Zanahoria, cruda",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Zanahoria cruda",
+    "expectedUnit": "g"
+  },
+  "cauliflower": {
+    "saraName": "Coliflor, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Coliflor cocida",
+    "expectedUnit": "g"
+  },
+  "coliflor_vapor": {
+    "saraName": "Coliflor, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Coliflor al vapor sin aceite",
+    "expectedUnit": "g"
+  },
+  "celery": {
+    "saraName": "Apio, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Apio",
+    "expectedUnit": "g"
+  },
+  "cherries": {
+    "saraName": "Cereza",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Cerezas",
+    "expectedUnit": "g"
+  },
+  "chickpea_flour": {
+    "saraName": "Harina de garbanzos, cruda",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Harina de garbanzo",
+    "expectedUnit": "g"
+  },
+  "chickpeas_cooked": {
+    "saraName": "Garbanzos, hervidos",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Garbanzos cocidos",
+    "expectedUnit": "g"
+  },
+  "chickpeas_dry": {
+    "saraName": "Garbanzos, crudos",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Garbanzos secos, sin cocinar",
+    "expectedUnit": "g"
+  },
+  "chickpeas_canned_drained": {
+    "saraName": "Garbanzos, enlatados",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Garbanzos en conserva, escurridos",
+    "expectedUnit": "g"
+  },
+  "corn_cooked": {
+    "saraName": "Choclo, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Choclo cocido",
+    "expectedUnit": "g"
+  },
+  "choclo_hervido": {
+    "saraName": "Choclo, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Choclo amarillo desgranado, hervido y escurrido, sin sal (referencia USDA)",
+    "expectedUnit": "g"
+  },
+  "couscous_cooked": {
+    "saraName": "Cous Cous, cocido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Cuscús cocido",
+    "expectedUnit": "g"
+  },
+  "couscous_dry": {
+    "saraName": "Cous Cous, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Cuscús seco, sin cocinar",
+    "expectedUnit": "g"
+  },
+  "cucumber": {
+    "saraName": "Pepino, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Pepino",
+    "expectedUnit": "g"
+  },
+  "dates": {
+    "saraName": "Dátiles",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Dátiles deshidratados",
+    "expectedUnit": "g"
+  },
+  "egg": {
+    "saraName": "Huevo de gallina, entero, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Huevo entero sin cáscara (referencia crudo)",
+    "expectedUnit": "g"
+  },
+  "egg_boiled": {
+    "saraName": "Huevo de gallina, entero, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Huevo duro entero",
+    "expectedUnit": "g"
+  },
+  "egg_quail": {
+    "saraName": "Huevo de codorníz, entero, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Huevos de codorniz enteros sin cáscara",
+    "expectedUnit": "g"
+  },
+  "egg_white": {
+    "saraName": "Huevo de gallina, clara, cruda",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Clara de huevo",
+    "expectedUnit": "g"
+  },
+  "eggplant": {
+    "saraName": "Berenjena, hervida",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Berenjena cocida sin aceite",
+    "expectedUnit": "g"
+  },
+  "spinach_raw": {
+    "saraName": "Espinaca, cruda",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Espinaca cruda para ensalada",
+    "expectedUnit": "g"
+  },
+  "spinach_cooked": {
+    "saraName": "Espinaca, hervida",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Espinaca cocida",
+    "expectedUnit": "g"
+  },
+  "espinaca_hervida": {
+    "saraName": "Espinaca, hervida",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Espinaca hervida, escurrida, sin sal ni aceite (referencia USDA)",
+    "expectedUnit": "g"
+  },
+  "fennel_bulb_raw": {
+    "saraName": "Hinojo, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Hinojo crudo, bulbo",
+    "expectedUnit": "g"
+  },
+  "fig_fresh": {
+    "saraName": "Higo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Higos frescos",
+    "expectedUnit": "g"
+  },
+  "garlic": {
+    "saraName": "Ajo, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Ajo",
+    "expectedUnit": "g"
+  },
+  "granola": {
+    "saraName": "Granola",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Granola genérica",
+    "expectedUnit": "g"
+  },
+  "grapefruit": {
+    "saraName": "Pomelo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Pomelo",
+    "expectedUnit": "g"
+  },
+  "grapes": {
+    "saraName": "Uva",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Uvas",
+    "expectedUnit": "g"
+  },
+  "green_beans_raw": {
+    "saraName": "Chaucha, fresca, cruda",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Chauchas crudas",
+    "expectedUnit": "g"
+  },
+  "greenbeans": {
+    "saraName": "Chaucha, fresca, hervida",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Chauchas cocidas",
+    "expectedUnit": "g"
+  },
+  "guava_raw": {
+    "saraName": "Guayaba",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Guayaba fresca",
+    "expectedUnit": "g"
+  },
+  "hazelnuts": {
+    "saraName": "Avellana",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Avellanas",
+    "expectedUnit": "g"
+  },
+  "walnuts": {
+    "saraName": "Nuez",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Nueces",
+    "expectedUnit": "g"
+  },
+  "almonds": {
+    "saraName": "Almendra",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Almendras",
+    "expectedUnit": "g"
+  },
+  "flaxseed": {
+    "saraName": "Semilla de lino",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Semillas de lino",
+    "expectedUnit": "g"
+  },
+  "oats_raw": {
+    "saraName": "Avena, arrollada, cruda",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Avena arrollada seca",
+    "expectedUnit": "g"
+  },
+  "oatmeal_cooked": {
+    "saraName": "Avena, arrollada, hervida",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Avena cocida con agua",
+    "expectedUnit": "g"
+  },
+  "rice": {
+    "saraName": "Arroz blanco, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Arroz blanco cocido sin aceite",
+    "expectedUnit": "g"
+  },
+  "rice_dry": {
+    "saraName": "Arroz blanco, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Arroz blanco largo crudo/seco",
+    "expectedUnit": "g"
+  },
+  "brownrice": {
+    "saraName": "Arroz integral, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Arroz integral cocido",
+    "expectedUnit": "g"
+  },
+  "raisins": {
+    "saraName": "Uva pasa",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Pasas de uva",
+    "expectedUnit": "g"
+  },
+  "rocket": {
+    "saraName": "Rúcula, cruda",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Rúcula",
+    "expectedUnit": "g"
+  },
+  "orange": {
+    "saraName": "Naranja",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Naranja",
+    "expectedUnit": "g"
+  },
+  "mandarin": {
+    "saraName": "Mandarina",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Mandarina",
+    "expectedUnit": "g"
+  },
+  "onion": {
+    "saraName": "Cebolla, cruda",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Cebolla",
+    "expectedUnit": "g"
+  },
+  "tomato": {
+    "saraName": "Tomate, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Tomate",
+    "expectedUnit": "g"
+  },
+  "lettuce": {
+    "saraName": "Lechuga, cruda",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Lechuga",
+    "expectedUnit": "g"
+  },
+  "pear": {
+    "saraName": "Pera",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Pera con cáscara",
+    "expectedUnit": "g"
+  },
+  "peach": {
+    "saraName": "Durazno",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Durazno",
+    "expectedUnit": "g"
+  },
+  "pineapple": {
+    "saraName": "Ananá",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Ananá",
+    "expectedUnit": "g"
+  },
+  "plum": {
+    "saraName": "Ciruela",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Ciruela",
+    "expectedUnit": "g"
+  },
+  "strawberry": {
+    "saraName": "Frutilla",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Frutillas",
+    "expectedUnit": "g"
+  },
+  "watermelon": {
+    "saraName": "Sandía",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Sandía",
+    "expectedUnit": "g"
+  },
+  "kiwi": {
+    "saraName": "Kiwi",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Kiwi",
+    "expectedUnit": "g"
+  },
+  "mango": {
+    "saraName": "Mango",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Mango",
+    "expectedUnit": "g"
+  },
+  "papaya": {
+    "saraName": "Papaya",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Papaya",
+    "expectedUnit": "g"
+  },
+  "pomegranate": {
+    "saraName": "Granada",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Granada (semillas)",
+    "expectedUnit": "g"
+  },
+  "raspberries_raw": {
+    "saraName": "Frambuesa",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Frambuesas frescas",
+    "expectedUnit": "g"
+  },
+  "lentils_cooked": {
+    "saraName": "Lentejas, hervidas",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Lentejas cocidas",
+    "expectedUnit": "g"
+  },
+  "amaranth_cooked": {
+    "saraName": "Amaranto, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Amaranto en grano cocido",
+    "expectedUnit": "g"
+  },
+  "tofu_firm": {
+    "saraName": "Tofu",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Tofu firme",
+    "expectedUnit": "g"
+  },
+  "tofu_sedoso_generic": {
+    "saraName": "Tofu",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Tofu sedoso natural",
+    "expectedUnit": "g"
+  },
+  "chocolate_blanco": {
+    "saraName": "Chocolate blanco",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Chocolate blanco común (referencia USDA)",
+    "expectedUnit": "g"
+  },
+  "chocolate_almendras": {
+    "saraName": "Chocolate con almendras",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Chocolate con leche y almendras (referencia USDA)",
+    "expectedUnit": "g"
+  },
+  "chocolate_mani": {
+    "saraName": "Chocolate con maní",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Maní recubierto de chocolate con leche (referencia USDA)",
+    "expectedUnit": "g"
+  },
+  "zucchini_plancha": {
+    "saraName": "Zucchini, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Zucchini a la plancha sin aceite",
+    "expectedUnit": "g"
+  },
+  "chinchulines_grilled": {
+    "saraName": "Chinchulines, tripa gorda (horno/ parrilla)",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Chinchulines a la parrilla · carne vacuna",
+    "expectedUnit": "g"
+  },
+  "asado_beef": {
+    "saraName": "Vacuno, cortes grasos*, PROMEDIO, horno/parrilla",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 169560,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "B12 de carne vacuna con grasa cocida a la parrilla como proxy; corte distinto, no análisis local."
+    },
+    "expectedName": "Asado de tira vacuno cocido",
+    "expectedUnit": "g"
+  },
+  "vacio_beef": {
+    "saraName": "Vacuno, cortes grasos*, PROMEDIO, horno/parrilla",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 169560,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "B12 de carne vacuna con grasa cocida a la parrilla como proxy; corte distinto, no análisis local."
+    },
+    "expectedName": "Vacío vacuno asado",
+    "expectedUnit": "g"
+  },
+  "matambre_beef": {
+    "saraName": "Vacuno, cortes grasos*, PROMEDIO, horno/parrilla",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 169560,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "B12 de carne vacuna con grasa cocida a la parrilla como proxy; corte distinto, no análisis local."
+    },
+    "expectedName": "Matambre vacuno cocido",
+    "expectedUnit": "g"
+  },
+  "ground_beef_regular": {
+    "saraName": "Vacuno, cortes grasos*, PROMEDIO, horno/parrilla",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 174034,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "B12 de carne picada 85% magra, cocida en sartén, como proxy de picada común cocida."
+    },
+    "expectedName": "Carne picada común cocida",
+    "expectedUnit": "g"
+  },
+  "beef": {
+    "saraName": "Vacuno, cortes magros**, PROMEDIO, horno/parrilla",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 168649,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "B12 de nalga/top round magro a la parrilla USDA; referencia genérica de carne magra cocida."
+    },
+    "expectedName": "Carne vacuna magra cocida",
+    "expectedUnit": "g"
+  },
+  "nalga_cooked": {
+    "saraName": "Vacuno, cortes magros**, PROMEDIO, horno/parrilla",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "usda": {
+      "fdcId": 168649,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "B12 de nalga/top round magro a la parrilla USDA; referencia genérica de carne magra cocida."
+    },
+    "expectedName": "Nalga vacuna cocida magra",
+    "expectedUnit": "g"
+  },
+  "alfajor_chocolate_triple": {
+    "saraName": "Alfajor de chocolate",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Alfajor triple de chocolate relleno",
+    "expectedUnit": "g"
+  },
+  "barrita_cereal": {
+    "saraName": "Barra de cereales, PROMEDIO",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Barrita de cereal genérica",
+    "expectedUnit": "g"
+  },
+  "bizcocho_grasa": {
+    "saraName": "Bizcochitos de grasa envasados",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Bizcochitos de grasa",
+    "expectedUnit": "g"
+  },
+  "budin_marmolado": {
+    "saraName": "Budín industrializado",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Budín marmolado tradicional",
+    "expectedUnit": "g"
+  },
+  "corn_flakes": {
+    "saraName": "Cereal desayuno, copos de maíz sin azúcar, sin fortificar",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Copos de maíz sin azúcar",
+    "expectedUnit": "g"
+  },
+  "factura_cream": {
+    "saraName": "Facturas rellenas",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Factura con crema pastelera",
+    "expectedUnit": "g"
+  },
+  "factura_dulce": {
+    "saraName": "Facturas rellenas",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Factura con dulce de leche",
+    "expectedUnit": "g"
+  },
+  "factura_bola_fraile": {
+    "saraName": "Facturas rellenas",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Bola de fraile rellena de dulce de leche",
+    "expectedUnit": "g"
+  },
+  "factura_vigilante": {
+    "saraName": "Facturas simples",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Factura vigilante azucarada",
+    "expectedUnit": "g"
+  },
+  "medialuna_fat": {
+    "saraName": "Facturas simples",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Medialuna de grasa",
+    "expectedUnit": "g"
+  },
+  "gnocchi_potato": {
+    "saraName": "Ñoquis de papa frescos, artesanal, hervidos",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Ñoquis de papa cocidos sin salsa",
+    "expectedUnit": "g"
+  },
+  "gomitas_acidas": {
+    "saraName": "Gomitas de gelatina",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Gomitas ácidas azucaradas",
+    "expectedUnit": "g"
+  },
+  "gomitas_frutales": {
+    "saraName": "Gomitas de gelatina",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Gomitas frutales con azúcar",
+    "expectedUnit": "g"
+  },
+  "mani_garrapinado": {
+    "saraName": "Garrapiñada de maní",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Maní garrapiñado",
+    "expectedUnit": "g"
+  },
+  "mani_chocolate": {
+    "saraName": "Maní con chocolate",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Maní bañado en chocolate",
+    "expectedUnit": "g"
+  },
+  "polenta_cooked": {
+    "saraName": "Harina de maíz, hervida",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Polenta cocida con agua",
+    "expectedUnit": "g"
+  },
+  "quinoa_inflada_pop_granel": {
+    "saraName": "Quinoa inflada",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Quinoa inflada (quinoa pop) — a granel",
+    "expectedUnit": "g"
+  },
+  "soy_textured_dry": {
+    "saraName": "Soja texturizada",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Soja texturizada seca",
+    "expectedUnit": "g"
+  },
+  "tapa_empanada": {
+    "saraName": "Masa de tarta o empanadas",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Tapa de empanada al horno",
+    "expectedUnit": "g"
+  },
+  "tapa_tarta": {
+    "saraName": "Masa de tarta o empanadas",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Masa para tarta",
+    "expectedUnit": "g"
+  },
+  "turron_mani": {
+    "saraName": "Turrón de maní con oblea tipo golosina",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Turrón de maní azucarado",
+    "expectedUnit": "g"
+  },
+  "crema_chantilly": {
+    "saraName": "Crema chantilly (lista para consumir, aerosol o industrial preparada)",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "usda": {
+      "fdcId": 170860,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Crema batida presurizada de referencia USDA."
+    },
+    "expectedName": "Crema chantilly azucarada",
+    "expectedUnit": "g"
+  },
+  "pastillas_menta": {
+    "saraName": "Pastillas",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Pastillas de menta con azúcar",
+    "expectedUnit": "g"
+  },
+  "chupetin_dulce": {
+    "saraName": "Caramelos duros",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Chupetín azucarado",
+    "expectedUnit": "g"
+  },
+  "helado_agua": {
+    "saraName": "Helado de agua (heladería)",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Helado de agua",
+    "expectedUnit": "g"
+  },
+  "helado_frutilla_agua": {
+    "saraName": "Helado de agua (heladería)",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Helado de frutilla al agua",
+    "expectedUnit": "g"
+  },
+  "helado_limon_agua": {
+    "saraName": "Helado de agua (heladería)",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Helado de limón al agua",
+    "expectedUnit": "g"
+  },
+  "helado_palito_agua": {
+    "saraName": "Helado de agua (palito)",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Helado palito de agua sabor fruta",
+    "expectedUnit": "g"
+  },
+  "helado_crema": {
+    "saraName": "Helado de crema (heladería)",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "usda": {
+      "fdcId": 167575,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Helado de vainilla genérico USDA."
+    },
+    "expectedName": "Helado de crema",
+    "expectedUnit": "g"
+  },
+  "helado_palito_crema": {
+    "saraName": "Bombón helado",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Helado palito de crema bañado chocolate",
+    "expectedUnit": "g"
+  },
+  "milk": {
+    "saraName": "Leche descremada fluida, con 50% más de proteínas",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "usda": {
+      "fdcId": 171271,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Leche descremada enriquecida en proteínas de referencia USDA, no etiqueta de marca."
+    },
+    "expectedName": "Leche Protein descremada",
+    "expectedUnit": "ml"
+  },
+  "soda_zero": {
+    "saraName": "Gaseosa light, PROMEDIO",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Gaseosa zero",
+    "expectedUnit": "ml"
+  },
+  "yogur_descremado_fruta": {
+    "saraName": "Yogur descremado con frutas",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "usda": {
+      "fdcId": 170905,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Yogur griego con fruta entero como proxy de B12 del yogur frutal; grasa y concentración diferentes."
+    },
+    "expectedName": "Yogur descremado sabor fruta",
+    "expectedUnit": "g"
+  },
+  "fish_sardines": {
+    "saraName": "Sardinas, enlatadas al natural",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "usda": {
+      "fdcId": 175139,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Sardina en aceite escurrida como proxy de sardina al natural, solo B12."
+    },
+    "expectedName": "Sardinas al natural escurridas",
+    "expectedUnit": "g"
+  },
+  "fish_mackerel": {
+    "saraName": "Caballa, enlatada",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "usda": {
+      "fdcId": 175121,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Caballa jack en conserva escurrida como proxy de caballa al natural; especie variable."
+    },
+    "expectedName": "Caballa al natural escurrida",
+    "expectedUnit": "g"
+  },
+  "mermelada_sugarfree": {
+    "saraName": "Mermelada de frutas light",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes.",
+    "expectedName": "Mermelada sin azúcar agregado",
+    "expectedUnit": "g"
+  },
+  "@pizza_base": {
+    "saraName": "Masa de prepizza de panadería o envasada",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes."
+  },
+  "@churros": {
+    "saraName": "Churros",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes."
+  },
+  "@ham_raw": {
+    "saraName": "Jamón crudo",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes."
+  },
+  "@coconut": {
+    "saraName": "Coco rallado",
+    "note": "Misma referencia SARA ya revisada; se completan únicamente columnas faltantes."
+  },
+  "queso_port_salut": {
+    "usda": {
+      "fdcId": 170849,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Port de Salut genérico; no equivale a rótulo de Port Salut light sin sal."
+    },
+    "saraName": "Queso porsalut sin sal light",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Queso Port Salut tradicional",
+    "expectedUnit": "g"
+  },
+  "ricotta_light": {
+    "usda": {
+      "fdcId": 171248,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Ricotta parcialmente descremada de referencia USDA."
+    },
+    "saraName": "Ricota descremada",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Ricota magra",
+    "expectedUnit": "g"
+  },
+  "ricotta_whole": {
+    "usda": {
+      "fdcId": 170851,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Ricotta de leche entera de referencia USDA."
+    },
+    "expectedName": "Ricota entera",
+    "expectedUnit": "g"
+  },
+  "beans_black": {
+    "saraName": "Porotos, hervidos",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Porotos negros cocidos",
+    "expectedUnit": "g"
+  },
+  "beans_red": {
+    "saraName": "Porotos, hervidos",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Porotos colorados cocidos",
+    "expectedUnit": "g"
+  },
+  "beans_white": {
+    "saraName": "Porotos, hervidos",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Porotos blancos cocidos",
+    "expectedUnit": "g"
+  },
+  "pallares_cooked": {
+    "saraName": "Porotos, hervidos",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Porotos pallares cocidos",
+    "expectedUnit": "g"
+  },
+  "chicken": {
+    "saraName": "Pollo sin piel (horno/parrilla)",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Pollo cocido sin piel (estimación general)",
+    "expectedUnit": "g"
+  },
+  "chicken_oven_skinless": {
+    "saraName": "Pollo sin piel (horno/parrilla)",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Pollo al horno sin piel",
+    "expectedUnit": "g"
+  },
+  "chicken_breast_roasted": {
+    "saraName": "Pollo, pechuga sin piel (horno/parrilla)",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Pechuga de pollo cocida al horno sin piel",
+    "expectedUnit": "g"
+  },
+  "chicken_roasted": {
+    "saraName": "Pollo con piel (horno/parrilla)",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Pollo al horno con piel",
+    "expectedUnit": "g"
+  },
+  "chia": {
+    "saraName": "Semilla de chía",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Semillas de chía",
+    "expectedUnit": "g"
+  },
+  "cocoa_unsweetened": {
+    "saraName": "Cacao amargo*",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Cacao amargo en polvo",
+    "expectedUnit": "g"
+  },
+  "fava_beans_cooked": {
+    "saraName": "Habas, hervida",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Habas secas maduras, hervidas sin sal",
+    "expectedUnit": "g"
+  },
+  "gelatin_sugarfree": {
+    "saraName": "Gelatina light, preparada a partir de polvo",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Gelatina sin azúcar preparada",
+    "expectedUnit": "g"
+  },
+  "gelatina_azucar": {
+    "saraName": "Gelatina preparada a partir de polvo",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Gelatina de sabor preparada con azúcar",
+    "expectedUnit": "g"
+  },
+  "honey": {
+    "saraName": "Miel",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Miel",
+    "expectedUnit": "g"
+  },
+  "kale": {
+    "saraName": "Kale, crudo",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Kale o col rizada",
+    "expectedUnit": "g"
+  },
+  "leek": {
+    "saraName": "Puerro, crudo",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Puerro",
+    "expectedUnit": "g"
+  },
+  "lemon": {
+    "saraName": "Limón",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Limón",
+    "expectedUnit": "g"
+  },
+  "melon": {
+    "saraName": "Melón",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Melón",
+    "expectedUnit": "g"
+  },
+  "milk_condensed_sweetened": {
+    "saraName": "Leche condensada",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Leche condensada azucarada",
+    "expectedUnit": "g"
+  },
+  "milk_whole": {
+    "saraName": "Leche entera fluida, sin fortificación",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Leche entera común (referencia USDA, 3,25% grasa)",
+    "expectedUnit": "ml"
+  },
+  "mozzarella": {
+    "saraName": "Queso Muzzarella",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Mozzarella",
+    "expectedUnit": "g"
+  },
+  "mushrooms": {
+    "saraName": "Champignones, frescos, crudos",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Champiñones",
+    "expectedUnit": "g"
+  },
+  "noodles_egg_cooked": {
+    "saraName": "Fideos frescos, al huevo, hervidos",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Fideos al huevo cocidos sin salsa",
+    "expectedUnit": "g"
+  },
+  "oat_bran_raw": {
+    "saraName": "Salvado de avena",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Salvado de avena crudo",
+    "expectedUnit": "g"
+  },
+  "oil": {
+    "saraName": "Aceite de oliva",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Aceite de oliva (gramos)",
+    "expectedUnit": "g"
+  },
+  "olives": {
+    "saraName": "Aceituna verde",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Aceitunas verdes",
+    "expectedUnit": "g"
+  },
+  "palomitas_dulces": {
+    "saraName": "Pochoclo acaramelado",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Pochoclo dulce acaramelado",
+    "expectedUnit": "g"
+  },
+  "pochoclos_dulces_acaramelados_genericos": {
+    "saraName": "Pochoclo acaramelado",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Pochoclos dulces / acaramelados (estimación genérica)",
+    "expectedUnit": "g"
+  },
+  "palomitas_saladas": {
+    "saraName": "Pochoclo salado",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Pochoclo blanco preparado con aceite y sal (referencia USDA)",
+    "expectedUnit": "g"
+  },
+  "pan_arabe": {
+    "saraName": "Pan árabe",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Pan árabe",
+    "expectedUnit": "g"
+  },
+  "pita_white_unenriched": {
+    "saraName": "Pan árabe",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Pan pita blanco de trigo, sin enriquecer",
+    "expectedUnit": "g"
+  },
+  "passionfruit": {
+    "saraName": "Maracuyá",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Maracuyá (pulpa)",
+    "expectedUnit": "g"
+  },
+  "peas_cooked": {
+    "saraName": "Arveja, fresca, hervida",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Arvejas cocidas",
+    "expectedUnit": "g"
+  },
+  "persimmon": {
+    "saraName": "Kaki",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Caqui",
+    "expectedUnit": "g"
+  },
+  "potato": {
+    "saraName": "Papa, hervida",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Papa hervida sin piel y sin sal",
+    "expectedUnit": "g"
+  },
+  "provolone": {
+    "saraName": "Queso Provolone",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Queso provolone",
+    "expectedUnit": "g"
+  },
+  "prunes": {
+    "saraName": "Ciruela pasa / ciruela seca",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Ciruelas pasas",
+    "expectedUnit": "g"
+  },
+  "quinoa_cooked": {
+    "saraName": "Quinoa, semilla, hervida",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Quinoa cocida",
+    "expectedUnit": "g"
+  },
+  "quinoa_dry": {
+    "saraName": "Quinoa, semilla, cruda",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Quinoa seca",
+    "expectedUnit": "g"
+  },
+  "radish": {
+    "saraName": "Rabanito, crudo",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Rabanitos",
+    "expectedUnit": "g"
+  },
+  "red_cabbage_raw": {
+    "saraName": "Repollo, crudo",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Repollo colorado crudo",
+    "expectedUnit": "g"
+  },
+  "repollo_cooked": {
+    "saraName": "Repollo, hervido",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Repollo cocido",
+    "expectedUnit": "g"
+  },
+  "rice_cakes": {
+    "saraName": "Galletas de arroz",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Galletas de arroz sin sal",
+    "expectedUnit": "g"
+  },
+  "sardines_oil_drained": {
+    "saraName": "Sardinas, enlatadas en aceite",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Sardinas en aceite, escurridas, con espinas comestibles",
+    "expectedUnit": "g"
+  },
+  "scallion": {
+    "saraName": "Cebolla de verdeo, cruda",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Cebolla de verdeo",
+    "expectedUnit": "g"
+  },
+  "semolina_dry_unenriched": {
+    "saraName": "Sémola, cruda",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Sémola de trigo seca, sin enriquecer",
+    "expectedUnit": "g"
+  },
+  "sesame": {
+    "saraName": "Semilla de sésamo",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Semillas de sésamo",
+    "expectedUnit": "g"
+  },
+  "sesame_oil": {
+    "saraName": "Aceite de sésamo",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Aceite de sésamo para ensalada o cocina",
+    "expectedUnit": "g"
+  },
+  "soy_beans_cooked": {
+    "saraName": "Soja, porotos, hervidos",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Porotos de soja cocidos",
+    "expectedUnit": "g"
+  },
+  "squid_raw": {
+    "saraName": "Calamar, crudo",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Calamar crudo, parte comestible",
+    "expectedUnit": "g"
+  },
+  "sugar": {
+    "saraName": "Azúcar blanca molida",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Azúcar",
+    "expectedUnit": "g"
+  },
+  "sunflower_oil": {
+    "saraName": "Aceite de girasol",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Aceite de girasol",
+    "expectedUnit": "g"
+  },
+  "sunflower_seeds": {
+    "saraName": "Semilla de girasol",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Semillas de girasol",
+    "expectedUnit": "g"
+  },
+  "sweetpotato": {
+    "saraName": "Batata, hervida",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Batata hervida",
+    "expectedUnit": "g"
+  },
+  "toast_whole": {
+    "saraName": "Tostadas integrales",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Tostadas integrales",
+    "expectedUnit": "g"
+  },
+  "tuna_oil_drained": {
+    "saraName": "Atún, enlatado en aceite",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Atún claro en aceite, escurrido",
+    "expectedUnit": "g"
+  },
+  "watercress": {
+    "saraName": "Berro, crudo",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Berro",
+    "expectedUnit": "g"
+  },
+  "yamani_rice_cooked": {
+    "saraName": "Arroz yamaní, hervido",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Arroz yamaní cocido",
+    "expectedUnit": "g"
+  },
+  "yogurt": {
+    "saraName": "Yogur descremado",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "usda": {
+      "fdcId": 170887,
+      "nutrients": [
+        "b12"
+      ],
+      "note": "Yogur natural de leche descremada genérico USDA."
+    },
+    "expectedName": "Yogur natural descremado sin azúcar (referencia USDA)",
+    "expectedUnit": "g"
+  },
+  "yogurt_whole": {
+    "saraName": "Yogur entero natural",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Yogur natural entero",
+    "expectedUnit": "g"
+  },
+  "anchovies_canned": {
+    "saraName": "Anchoa, enlatada en aceite",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Anchoas en conserva escurridas",
+    "expectedUnit": "g"
+  },
+  "barrita_cereal_choco": {
+    "saraName": "Barra de cereales, PROMEDIO",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Barrita de cereal y chocolate",
+    "expectedUnit": "g"
+  },
+  "barrita_chocolate_oblea": {
+    "saraName": "Galletitas dulces obleas",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Barrita de chocolate con oblea",
+    "expectedUnit": "g"
+  },
+  "brownie": {
+    "saraName": "Brownie (panadería)",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Brownie de chocolate",
+    "expectedUnit": "g"
+  },
+  "brownie_chocolate": {
+    "saraName": "Brownie (panadería)",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Brownie de chocolate con manteca",
+    "expectedUnit": "g"
+  },
+  "grisines": {
+    "saraName": "Grisines",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Grisines",
+    "expectedUnit": "g"
+  },
+  "bondiola_pork": {
+    "saraName": "Cerdo, PROMEDIO (horno/parrilla)",
+    "note": "Referencia genérica SARA 2 de familia y preparación comparable; variedades, ingredientes y contenido graso pueden diferir. Solo completa componentes ausentes.",
+    "expectedName": "Bondiola de cerdo al horno",
+    "expectedUnit": "g"
+  },
+  "milk_soy_unsweet": {
+    "usda": {
+      "fdcId": 173768,
+      "nutrients": [
+        "zinc"
+      ],
+      "note": "Zinc de bebida de soja light sin azúcar, fortificada, como proxy; dilución y marca pueden variar."
+    },
+    "expectedName": "Bebida de soja sin azúcar",
+    "expectedUnit": "ml"
+  },
+  "remolacha_hervida": {
+    "saraName": "Remolacha, hervida",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Remolacha hervida y escurrida, sin aceite (referencia USDA)",
+    "expectedUnit": "g"
+  },
+  "tomato_cherry": {
+    "saraName": "Tomate, crudo",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Tomate cherry",
+    "expectedUnit": "g"
+  },
+  "zanahoria_rallada": {
+    "saraName": "Zanahoria, cruda",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Zanahoria rallada fresca",
+    "expectedUnit": "g"
+  },
+  "zucchini": {
+    "saraName": "Zucchini, hervido",
+    "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
+    "expectedName": "Zapallito cocido",
+    "expectedUnit": "g"
+  }
+}

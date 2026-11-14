@@ -102,3 +102,5 @@ def complete_catalog(root, catalog, foods, nutrient_definitions):
     if overlap: raise ValueError('Completion must not overwrite previous profiles: '+str(overlap))
     for fid in sorted(plan['models']): build(fid)
     if set(foods) != set(catalog['foods']): raise ValueError('Incomplete catalog identity coverage')
+
+    return cache

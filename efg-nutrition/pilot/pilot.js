@@ -7,7 +7,7 @@ import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-report-gaps-r1-20261112';document.head.append(studentGuideStyles);
 const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css?v=ncc-food-entry-batch-r1-20261112';document.head.append(mealEntryStyles);
 const recipeLibraryStyles=document.createElement('link');recipeLibraryStyles.rel='stylesheet';recipeLibraryStyles.href='./recipes-library-r1.css?v=ncc-recipes-search-r1-20261112';document.head.append(recipeLibraryStyles);
-import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-day-food-actions-r1-20261111';
+import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-half-units-r1-20261114';
 import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-quinoa-r1-20261114';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
 import {PROFESSIONAL_RECONCILIATION_ENABLED,createProfessionalMutationJournal,createIndexedDBJournalDriver} from './professional-mutation-journal.mjs?v=ncc-professional-reconciliation-r1-20261107';
@@ -2322,7 +2322,7 @@ function openDiaryFoodDialog(ref,remove=false){
  host.innerHTML='<div class="meal-backdrop"><div class="meal-popup ncc-food-edit" role="dialog" aria-modal="true" aria-labelledby="diaryFoodTitle">'+
  '<h2 id="diaryFoodTitle">'+(remove?'Eliminar alimento':'Editar cantidad')+'</h2><p><strong>'+escapeHTML(item.name)+'</strong></p>'+
  (remove?'<p>Se quitará solo este alimento de '+escapeHTML(mealSlots.find(m=>m[0]===slot)[1])+'.</p>':
- '<div class="field"><label for="diaryFoodQty">Cantidad ('+escapeHTML(units?item.displayUnit:item.unit)+')</label><input id="diaryFoodQty" type="number" inputmode="decimal" min="0.1" step="'+(units?'1':'any')+'" value="'+Number(quantity)+'"></div><p class="pilot-hint">Se conserva la composición registrada'+(item.ingredients&&!Array.isArray(item.ingredients)?' y la misma proporción de leche y azúcar':'')+'.</p>')+
+ '<div class="field"><label for="diaryFoodQty">Cantidad ('+escapeHTML(units?item.displayUnit:item.unit)+')</label><input id="diaryFoodQty" type="number" inputmode="decimal" min="0.1" step="'+(units?'0.5':'any')+'" value="'+Number(quantity)+'"></div><p class="pilot-hint">Se conserva la composición registrada'+(item.ingredients&&!Array.isArray(item.ingredients)?' y la misma proporción de leche y azúcar':'')+'.</p>')+
  (remove?'':'<button type="button" class="btn ghost ncc-edit-delete" data-removefood="'+escapeHTML(ref)+'">Eliminar alimento</button>')+'<p id="diaryFoodError" role="alert"></p><div class="ncc-meal-save"><button type="button" class="btn light" data-act="closeMeal">Cancelar</button><button type="button" class="btn" data-savefood="'+escapeHTML(ref)+'">'+(remove?'Eliminar alimento':'Guardar cantidad')+'</button></div></div></div>';
  const dialog=host.querySelector('.meal-popup');
  diaryFoodDialogs.set(dialog,{slot,index,remove,owner:state.session?.user?.id,day:d.log_day,epoch:state.authContextEpoch||0,view:activeViewKey(),snapshot:JSON.stringify(item)});
@@ -2432,7 +2432,7 @@ function mealRecentQuantity(foodId){
  // Drinks and recipes require their existing ingredient/portion review.
  if(!f||!item||BEVERAGE_IDS.has(f.id)||f.privateRecipe||f.unit==='porción')return null;
  const portion=FOOD_UNIT_PORTIONS[f.id],units=Number(item.displayQty),grams=Number(item.qty);
- if(portion&&Number.isInteger(units)&&units>0&&units<=100)return {mode:'units',qty:units,label:num(units)+' un. ('+portion.label+')'};
+ if(portion&&Number.isInteger(units*2)&&units>=0.5&&units<=100)return {mode:'units',qty:units,label:num(units,1)+' un. ('+portion.label+')'};
  if(item.unit===f.unit&&Number.isFinite(grams)&&grams>0&&grams<=5000)return {mode:'weight',qty:grams,label:num(grams,1)+' '+f.unit};
  return null;
 }
@@ -2543,10 +2543,10 @@ function updateMealEntryMode(foodChanged=false){
  const unitLabel=document.getElementById('mealQtyUnit');if(unitLabel)unitLabel.textContent=counting?'un.':f?.unit||'g';
  const destination=document.getElementById('mealEntryDestination');if(destination)destination.textContent=mealSlots.find(m=>m[0]===state.activeMeal)?.[1]||'';
  label.textContent=f?.unit==="porción"?"Porciones consumidas":counting?"Cantidad ("+portion.label+(portion.grams?" · estimación":"")+")":"Cantidad ("+(f?.unit||"g")+")";
- qty.step=counting?"1":f?.unit==="porción"?"0.5":"any";
- qty.min=counting?"1":f?.unit==="porción"?"0.5":"0.1";
+ qty.step=counting?"0.5":f?.unit==="porción"?"0.5":"any";
+ qty.min=counting?"0.5":f?.unit==="porción"?"0.5":"0.1";
  qty.max=f?.unit==="porción"?"20":"5000";
- if(counting&&!Number.isInteger(Number(qty.value)))qty.value=1;
+ if(counting&&!Number.isInteger(Number(qty.value)*2))qty.value=0.5;
  const stateInput=document.getElementById("mealWeightState"),stateHint=document.getElementById("mealWeightStateHint");
  const stateWrap=document.getElementById("mealWeightStateWrap");
  if(stateWrap)stateWrap.style.display=f&&Object.values(FOOD_STATE_PAIRS).some(ids=>ids.includes(f.id))?"":"none";
@@ -2586,7 +2586,7 @@ function updateMealDialogHint(){
   return;
  }
  if(BEVERAGE_IDS.has(f.id)){try{const result=calculateBeverage(f,grams);hint.textContent=result.summary+" · "+result.source;}catch(err){hint.textContent=err.message;}return;}
- hint.innerHTML='<strong>'+escapeHTML((useUnits?num(qty)+" "+portion.label+(qty===1?"":"s")+" ≈ "+num(grams,1)+" g. ":"")+
+ hint.innerHTML='<strong>'+escapeHTML((useUnits?num(qty,1)+" "+portion.label+(qty===1?"":"s")+" ≈ "+num(grams,1)+" g. ":"")+
  num(f.k*grams)+" kcal y "+num(f.p*grams,1)+" g de proteína")+'</strong><br><small>HC '+num(f.c*grams,1)+' g · Grasas '+num(f.f*grams,1)+' g</small><details><summary>Porción y referencia nutricional</summary>'+escapeHTML(foodProvenance(f)+". "+f.source+
  (useUnits?(f.oilIncluded?". Porción estimada: el aceite de esta preparación ya está contemplado; no lo registres dos veces.":". Porción estimada: puede variar por tamaño. Si agregaste aceite no incluido en el alimento, registralo aparte."):""))+'</details>';
 }
@@ -2594,7 +2594,7 @@ async function saveSelectedMeal(continueGuided=false){
  const slot=state.activeMeal;
  if(slot&&pendingMealRegistrations.has(slot))return;
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
- if(!slot||!f||(f.unit==='porción'&&grams>20)||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
+ if(!slot||!f||(f.unit==='porción'&&grams>20)||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty*2)||qty<0.5||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
  const originTab=state.tab,originEpoch=state.authContextEpoch||0,originDialog=document.querySelectorAll('.meal-popup')[0]||null;
  const slotLease=pendingMealRegistrations.add(slot);
  const saveButtons=[...document.querySelectorAll('.ncc-meal-save button')];

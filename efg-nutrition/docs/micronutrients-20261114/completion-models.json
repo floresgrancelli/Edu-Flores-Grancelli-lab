@@ -3261,6 +3261,18 @@
       "tableId": "mate-infusion-113H",
       "gramsPerMl": 1.0,
       "note": "TBCA 113H, chimarrão: 70 g de materia seca por litro. Aproximación de infusión de yerba mate; extracción y dilución varían mucho. Mate cocido representado por esta infusión como proxy, no por un análisis de saquito. Solo infusión base: registrar leche aparte. Densidad aproximada declarada 1 g/ml."
+    },
+    "milanesa_quinoa_home_baked": {
+      "expectedName": "Milanesa de quinoa casera al horno (con huevo y pan rallado)",
+      "expectedUnit": "g",
+      "kind": "illustrative_recipe",
+      "yieldGrams": 320,
+      "ingredientQuantities": {
+        "@quinoa_recipe_168917": 250,
+        "@quinoa_recipe_171287": 50,
+        "@quinoa_recipe_174928": 50
+      },
+      "note": "ESTIMACIÓN DE RECETA; cantidades de referencia, no medidas de tu preparación. Ejemplo: quinoa ya cocida 250 g, huevo entero crudo sin cáscara 50 g y pan rallado seco común 50 g. Rendimiento final SUPUESTO 320 g: 4 milanesas de 80 g. Composición USDA SR Legacy: FDC 168917, 171287 y 174928. Pan rallado estadounidense como referencia genérica; puede variar del argentino. Sin aceite añadido en el modelo; si lo usás, registralo aparte. Contiene huevo y trigo/gluten; no es vegana ni sin gluten. No se aplican factores específicos de retención por horneado; ajustar al peso y receta reales."
     }
   },
   "ingredients": {
@@ -3326,6 +3338,15 @@
     },
     "@nori": {
       "unknownReason": "Nori seco: sin fuente validada para el estado deshidratado; no sustituir por alga cruda."
+    },
+    "@quinoa_recipe_168917": {
+      "fdcId": 168917
+    },
+    "@quinoa_recipe_171287": {
+      "fdcId": 171287
+    },
+    "@quinoa_recipe_174928": {
+      "fdcId": 174928
     }
   },
   "schemaVersion": 1,

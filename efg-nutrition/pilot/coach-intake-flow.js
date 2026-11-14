@@ -1,7 +1,7 @@
 import {DIET_PATTERNS,EATING_WINDOWS} from "./diet-pattern-workbench.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {COACH_ATOMIC_PLAN_UI_ENABLED} from "./coach-plan-draft-client.js?v=ncc-achuras-r1-20261113";
+import {COACH_ATOMIC_PLAN_UI_ENABLED} from "./coach-plan-draft-client.js?v=ncc-quinoa-r1-20261114";
 import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 // EFG Nutrition Pro — staged Coach Intake (isolated backend migration required).

@@ -166,6 +166,7 @@ Object.assign(FOOD_UNIT_PORTIONS,{
 
 // Sinónimos regionales compartidos por alumno, coach y planificador.
 export const FOOD_SEARCH_ALIASES=Object.freeze({
+ milanesa_quinoa_home_baked:["milanesa de quinoa","milanesa de quinua","milanesa de quínoa","milanesa quinoa huevo pan rallado"],
  pumpkin:["zapallo","calabaza","zapallo anco","anco hervido"],
  // Regional search should find the existing bread and sweets under colloquial names.
  pan_frances:["pan comun","pan común","pan de panaderia","pan de panadería","pan flauta","flauta","pan frances","pan francés","pan blanco de panaderia","pancito"],
@@ -188,3 +189,7 @@ export function foodSearchText(food){
  return [food.name,food.brand||"",food.productType||"",...(FOOD_SEARCH_ALIASES[food.id]||[])].join(" ");
 }
 export {EXPANDED_COUNT,PLANT_BAKERY_COUNT};
+
+// Receta doméstica de referencia; pesos supuestos documentados en docs/quinoa-20261114.
+EXTRA_FOODS.push({"id":"milanesa_quinoa_home_baked","name":"Milanesa de quinoa casera al horno (con huevo y pan rallado)","category":"prepared","unit":"g","k":1.778125,"p":0.075,"c":0.28003125,"f":0.038140625,"fi":0.02890625,"servingGrams":80,"sourceType":"recipe_estimate","validationStatus":"receta_estimado","sourceId":"quinoa-home-baked-reference-20261114","source":"ESTIMACIÓN DE RECETA; cantidades de referencia, no medidas de tu preparación. Ejemplo: quinoa ya cocida 250 g, huevo entero crudo sin cáscara 50 g y pan rallado seco común 50 g. Rendimiento final SUPUESTO 320 g: 4 milanesas de 80 g. Composición USDA SR Legacy: FDC 168917, 171287 y 174928. Pan rallado estadounidense como referencia genérica; puede variar del argentino. Sin aceite añadido en el modelo; si lo usás, registralo aparte. Contiene huevo y trigo/gluten; no es vegana ni sin gluten. No se aplican factores específicos de retención por horneado; ajustar al peso y receta reales.","oilIncluded":false});
+FOOD_UNIT_PORTIONS.milanesa_quinoa_home_baked={grams:80,label:"milanesa casera mediana (estimación)"};

@@ -1,7 +1,7 @@
 name: NCC micronutrient coverage QA
 on:
   push:
-    branches: [work/ncc-micronutrient-coverage-20261114, work/ncc-micro-next-20261114, work/ncc-micro-fifth-20261114, work/ncc-geomagnesium-20261114]
+    branches: [work/ncc-micronutrient-coverage-20261114, work/ncc-micro-next-20261114, work/ncc-micro-fifth-20261114, work/ncc-geomagnesium-20261114, work/ncc-quinoa-20261114]
 permissions:
   contents: read
 jobs:

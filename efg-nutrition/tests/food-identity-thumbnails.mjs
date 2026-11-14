@@ -8,7 +8,7 @@ const root=new URL('../../',import.meta.url),base='9dad4de8e376d164e1c2d2eca5f9c
 const read=p=>readFileSync(new URL(p,root));
 const spec=JSON.parse(read('efg-nutrition/docs/food-thumbnails-20261113/generation-prompts.json'));
 const old=JSON.parse(read('efg-nutrition/docs/food-thumbnails-20261113/baseline-photo-map.json'));
-assert.equal(Object.keys(old).length,560);assert.equal(spec.records.length,53);assert.equal(Object.keys(FOOD_PHOTO_MAP).length,613);
+assert.equal(Object.keys(old).length,560);assert.equal(spec.records.length,53);assert.equal(Object.keys(FOOD_PHOTO_MAP).length,614);
 assert.deepEqual(JSON.parse(read('efg-nutrition/pilot/food-photo-map-r2.json')),FOOD_PHOTO_MAP);
 for(const [id,p] of Object.entries(old))assert.deepEqual(FOOD_PHOTO_MAP[id],p,id);
 const hashes=new Set(),paths=new Set();let bytes=0;

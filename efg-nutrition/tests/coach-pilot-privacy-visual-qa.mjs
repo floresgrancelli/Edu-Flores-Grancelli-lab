@@ -163,7 +163,7 @@ try{
    sb.from=table=>{
     const query={select:()=>query,eq:()=>query};
     if(table==='efg_profiles'){
-     query.single=async()=>({data:profile});
+     query.single=query.maybeSingle=async()=>({data:profile});
      return query;
     }
     if(table==='efg_science_intro_receipts'){

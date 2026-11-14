@@ -45,7 +45,7 @@ function el(tag){
 const root=el("body");
 const current="build-1";
 let availableAsset=null;
-let available="build-2",editing=false,loggedIn=true,visible=true,reloads=0,opens=0;
+let available="build-2",editing=false,loggedIn=true,visible=true,reloads=0,opens=0,contextKey=0;
 const original={
  document:globalThis.document,window:globalThis.window,DOMParser:globalThis.DOMParser,
  fetch:globalThis.fetch
@@ -90,7 +90,7 @@ globalThis.fetch=async (url,opts)=>{
 const notice=createVersionNotice({
  currentVersion:current,canShow:()=>loggedIn,
  hasUnsavedChanges:()=>editing,intervalMs:3600000,
- onOpen:()=>{opens++},reload:()=>{reloads++} // visible by default, explicit update only
+ getContextKey:()=>contextKey,onOpen:()=>{opens++},reload:()=>{reloads++} // visible by default, explicit update only
 });
 const host=root.children.find(x=>x.id==="efgVersionNotice");
 assert.ok(host);
@@ -134,6 +134,14 @@ editing=false;
 const goodFetch=globalThis.fetch;globalThis.fetch=async()=>{throw Error('offline')};
 assert.deepEqual(await notice.apply({explicitClick:true}),{updated:false,reason:'offline'});assert.equal(reloads,2);
 globalThis.fetch=goodFetch;reloads=0;
+let finishUpdate;
+globalThis.fetch=async()=>new Promise(resolve=>{finishUpdate=resolve});
+const pendingUpdate=notice.apply({explicitClick:true});
+assert.deepEqual(await notice.apply({explicitClick:true}),{updated:false,reason:'unavailable'},'Double click cannot run concurrent updates');
+contextKey++;
+finishUpdate({ok:true,text:async()=>'<html><body></body></html>'});
+assert.deepEqual(await pendingUpdate,{updated:false,reason:'unavailable'},'Account change cancels the old update request');
+assert.equal(reloads,0);globalThis.fetch=goodFetch;
 notice.dispose();
 assert.equal(host.wasRemoved,true);
 // Explicit opt-out remains available to isolated consumers; the app opts in.

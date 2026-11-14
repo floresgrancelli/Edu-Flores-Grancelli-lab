@@ -2,7 +2,7 @@
 // Checks current published HTML only; no execution of remote code until the user chooses to reload.
 export function createVersionNotice({
  currentVersion,canShow=()=>true,hasUnsavedChanges=()=>false,intervalMs=90000,
- announceMinorUpdates=true,onOpen=()=>{},onChange=()=>{},
+ announceMinorUpdates=true,onOpen=()=>{},onChange=()=>{},getContextKey=()=>null,
  reload=()=>{const url=new URL(window.location.href);url.searchParams.set("ncc_updated",String(Date.now()));window.location.replace(url.toString());}
 }={}){
  const headVersion=document.querySelector('meta[name="efg-build"]')?.content||String(currentVersion||"");
@@ -104,9 +104,11 @@ export function createVersionNotice({
  async function apply({explicitClick=false,discardConfirmed=false}={}){
   if(disposed||updating||!explicitClick||!canShow())return {updated:false,reason:'unavailable'};
   if(hasUnsavedChanges()&&!discardConfirmed)return {updated:false,reason:'unsaved'};
+  const contextKey=getContextKey();
   updating=true;
   try{
    await check({force:true});
+   if(getContextKey()!==contextKey)return {updated:false,reason:'unavailable'};
    if(disposed||!canShow()||lastError)return {updated:false,reason:'offline'};
    if(!latest)return {updated:false,reason:'current'};
    if(hasUnsavedChanges()&&!discardConfirmed)return {updated:false,reason:'unsaved'};

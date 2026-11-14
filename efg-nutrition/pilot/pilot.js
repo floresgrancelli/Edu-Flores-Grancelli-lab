@@ -5946,7 +5946,7 @@ if(el.dataset.foodbulk){
  }
  if(action==="applyAppVersion"){
   let discardConfirmed=false;
-  if(hasPendingUnsavedEdits()){
+  if(hasPendingVersionEdits()){
    discardConfirmed=window.confirm("Hay cambios sin guardar. Cancelá para guardarlos primero. ¿Querés descartarlos y actualizar ahora? Tus datos ya guardados se conservan.");
    if(!discardConfirmed)return;
   }
@@ -6295,7 +6295,7 @@ function resetPrivateSession(){
  state.scienceWelcomeStep=0;state.scienceWelcomeError="";
  state.rewardApproval=null;state.rewardFeatureReady=false;
  state.rewardOpened=false;state.plannerSelections={};state.plannerDraftGrams={};
- userHasUnconfirmedEdits=false;lastRenderedViewKey=null;state.navigationBrowse=null;
+ userHasUnconfirmedEdits=false;versionHasUnconfirmedEdits=false;lastRenderedViewKey=null;state.navigationBrowse=null;
 }
 function handleAuthStateChange(event,session){
  if(event==="SIGNED_IN"){
@@ -6310,7 +6310,13 @@ function handleAuthStateChange(event,session){
  }
 }
 // A release never reloads automatically. Only the explicit update action may reload.
-let userHasUnconfirmedEdits=false;
+let userHasUnconfirmedEdits=false,versionHasUnconfirmedEdits=false;
+// Update protection includes email fields and professional-workspace forms too.
+for(const type of ['input','change'])root.addEventListener(type,e=>{
+ const el=e.target;
+ if(el?.matches?.('input,textarea,select,[contenteditable]')&&!el.matches('input[type="search"]')&&!/search|filter|login|otp/i.test(el.id||'')&&el.closest('.pilot-main,.ncc-plan-sheet,[data-ncc-professional-release-host],[data-ncc-dual-panel]'))versionHasUnconfirmedEdits=true;
+},{capture:true});
+const hasPendingVersionEdits=()=>versionHasUnconfirmedEdits||hasPendingUnsavedEdits();
 const meaningfulField=el=>{
  if(isDualWorkspaceField(el)||dualWorkspaceFrame.isProfessional()||el?.closest?.('[data-ncc-professional-release-host]')||professionalReleaseFrame.isProfessional())return false;
  if(!el?.matches?.("input,textarea,select,[contenteditable]"))return false;
@@ -6362,7 +6368,8 @@ const versionNotice=createVersionNotice({
  announceMinorUpdates:true,
  onOpen:openVersionSettings,
  onChange:refreshVersionSettings,
- hasUnsavedChanges:hasPendingUnsavedEdits
+ getContextKey:()=>[state.session?.user?.id,state.authContextEpoch||0].join("|"),
+ hasUnsavedChanges:hasPendingVersionEdits
 });
 const pullRefresh=createPullToRefresh({
  canRefresh:()=>!!state.profile&&!!state.session?.user?.id&&!state.loading&&!refreshingWorkspace&&!state.welcomePending,

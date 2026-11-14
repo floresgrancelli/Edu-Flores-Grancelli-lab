@@ -29,3 +29,12 @@ node efg-nutrition/tests/approved-release-flags.mjs
 La prueba de regresión requiere el commit base ce12efcbb9440e2a51d86d508d2a1ecc533d2836 y las revisiones históricas de cobertura, disponibles con checkout completo. Se amplía el recorrido de navegador de PR138 a salmón, bebida de soja y helado bañado, en alumno/coach/admin.
 
 Estado: candidata para revisión. Sin publicación ni escrituras en diarios reales. Las pruebas locales de datos y assets pasan; la prueba de navegador se ejecuta en CI porque este entorno no tiene instalados los binarios Playwright requeridos.
+
+
+## Jugo exprimido y helado de frutilla — 2026-11-14
+
+SARA 2: ALA del jugo de naranja exprimido, página 129 tabla 23.A, 0,011 g/100 g. Se conserva la unidad g y la densidad aproximada previa de 1 g/ml en bebidas. Fila capturada en `../micronutrients-20261114/enrichment-sara-rows.json`, comprobada contra PDF local y protegida por su manifiesto. No se usa jugo comercial como sustituto del exprimido.
+
+Helado de frutilla a la crema: equivalente genérico de helado de crema de heladería SARA página 120, ALA 0,163 g/100 g, EPA/DHA cero numérico publicado. Solo rellena los tres faltantes; conserva B12, minerales y macros USDA. El sabor y grasa de la receta concreta pueden variar; no aplica a helado de agua.
+
+Ocho perfiles mejorados, seis de ellos bebidas derivadas. Total 684 completos y 169 parciales. Prueba contra 6abec22 conserva valores completos e ingredientes, verifica incrementos según cantidad de naranja/rendimiento, unidades y medias porciones. Propaga referencias SARA hasta bebidas y platos, sin borrar fuentes anteriores. Candidata sin publicar.

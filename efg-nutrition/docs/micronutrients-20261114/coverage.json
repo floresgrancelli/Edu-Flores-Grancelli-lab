@@ -4419,15 +4419,14 @@
       "calcium",
       "iron",
       "zinc",
-      "b12"
-    ],
-    "missing": [
+      "b12",
       "ala",
       "epa",
       "dha"
     ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -6637,14 +6636,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {

@@ -1170,7 +1170,7 @@
         "iron": 0.002,
         "zinc": 0.0005,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.00011,
         "epa": 0.0,
         "dha": 0.0
       },
@@ -1185,7 +1185,17 @@
       },
       "nutrientSupplementalCaptures": {},
       "catalogSourceId": "169098",
-      "matchType": "exact_source_id"
+      "matchType": "exact_source_id",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "SARA 2",
+          "food": "Jugo de naranja, exprimido",
+          "page": 129,
+          "sourceUnit": "g/100g",
+          "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=129",
+          "note": "Jugo de naranja exprimido sin azúcar agregada, referencia argentina por 100 g; conserva la unidad de masa del catálogo."
+        }
+      }
     },
     "drink:lemon": {
       "name": "Jugo de limón exprimido, sin azúcar añadida",

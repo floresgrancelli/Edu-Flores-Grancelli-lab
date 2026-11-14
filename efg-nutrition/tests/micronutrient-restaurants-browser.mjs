@@ -33,7 +33,7 @@ try{for(const engine of (process.env.NCC_TEST_ENGINES||'chromium,webkit').split(
     s.diary.meals.cena=[{id,name:c.foods[id].name,qty:quantity,unit:c.foods[id].unit,k:300,p:15,c:30,f:10,fi:1,sourceId:c.foods[id].catalogSourceId}];
     s.profile.role=role;await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;
    },{id,quantity,role});
-   const detail=page.locator('[data-micro-detail="'+nutrient+'"]');assert.ok(await detail.locator('.ncc-micro-sources li').count()>0,id+' '+role);assert.match(await detail.textContent(),/ESTIMACIÓN DE MICRONUTRIENTES/);
+   const detail=page.locator('[data-micro-detail="'+nutrient+'"]');assert.ok(await detail.locator('.ncc-micro-sources li').count()>0,id+' '+role);assert.match(await detail.textContent(),id.startsWith('rest_')||id.startsWith('alc_')?/ESTIMACIÓN DE MICRONUTRIENTES/:/ESTIMACIÓN por referencia comparable/);
    const before=await page.locator('[data-micronutrient="'+nutrient+'"] .ncc-micro-value').first().textContent();
    await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.diary.meals.cena[0].qty/=2;await v.render();});
    const after=await page.locator('[data-micronutrient="'+nutrient+'"] .ncc-micro-value').first().textContent();assert.notEqual(after,before,id+' quantity scales visible contribution');

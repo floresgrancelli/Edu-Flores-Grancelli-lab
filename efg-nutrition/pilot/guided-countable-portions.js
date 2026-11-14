@@ -11,7 +11,7 @@ const wholeFoods=Object.freeze(Object.fromEntries(Object.entries({
  cheese:2,ham_cooked:6,mozzarella:4,
  apple:1,banana:1,mandarin:2,orange:1,pear:1,kiwi:2,strawberry:20,
  peach:1,plum:3,grapefruit:1,lemon:3,mango:1,
- walnuts:12,almonds:40,cashews:30,olives:20,dates:8,hazelnuts:40,pecans:20,brazil_nuts:12,
+ olives:20,dates:8, // Nuts now use divisible 25 g servings, not individual pieces.
  medialuna_butter:2,medialuna_fat:2,chipa:3,alfajor_chocolate:1,alfajor_maicena:1,
  tostado_ham_cheese:2,sandwich_miga_ham_cheese:2,barrita_cereal:2,protein_bar_generic:2,
  empanada_beef_baked:3,empanada_chicken_baked:3,empanada_ham_cheese:3,

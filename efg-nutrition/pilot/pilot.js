@@ -327,6 +327,10 @@ foods.push(...RAW_STATE_FOODS);
 // Suplementos declarados por el alumno. Las cantidades son las del producto consumido,
 // nunca sugerencias terapéuticas. Las sales de magnesio se registran en Mg elemental.
 const SUPPLEMENTS=[
+ {id:"geomagnesium_bisglycinate_1400",name:"GeoMagnesium Bisglicinato 1400 — Geonat",unit:"comprimidos",k:0,p:0,c:0,f:0,fi:0,
+  sourceType:"user_provided_label",sourceId:"geonat-geomagnesium-1400-label-20261114",validationStatus:"label_transcribed",
+  source:"Etiqueta del envase: 2 comprimidos aportan 197 mg de magnesio elemental, B1 10 mg, B6 5 mg y B12 500 µg; 0 kcal. Los 1400 mg corresponden al bisglicinato, no al magnesio elemental. Registrá los comprimidos realmente consumidos.",
+  micronutrientLabel:{confirmed:true,source:"GeoMagnesium Bisglicinato 1400, Geonat. Etiqueta fotografiada por el usuario el 14/11/2026; porción de 2 comprimidos.",doseQuantity:2,doseUnit:"comprimidos",amounts:{magnesium:{value:197,unit:"mg"},b1:{value:10,unit:"mg"},b6:{value:5,unit:"mg"},b12:{value:500,unit:"µg"}},compound:{name:"Bisglicinato de magnesio",value:1400,unit:"mg"}}},
  {id:"creatine",name:"Creatina monohidratada",unit:"g",k:0,p:0,c:0,f:0,fi:0,source:"No aporta energía significativa. Registrá la cantidad realmente tomada."},
  {id:"collagen",name:"Colágeno hidrolizado",unit:"g",k:3.6,p:.9,c:0,f:0,fi:0,source:"Estimación: 90 % de proteína; comprobar etiqueta. No equivale a proteína completa para hipertrofia."},
  {id:"omega3",name:"Omega-3 en cápsulas de aceite de pescado",unit:"cápsulas",k:9,p:0,c:0,f:1,fi:0,source:"Estimación para cápsulas con 1 g de aceite. Verificar contenido real de EPA/DHA y masa del aceite."},
@@ -422,6 +426,7 @@ async function addDailySupplement(){
  const moment=document.getElementById("supplementMoment")?.value||"otro";
  if(!item||!Number.isFinite(qty)||qty<=0||qty>100000||!document.getElementById("supplementQty")?.value?.trim())throw new Error("Ingresá el suplemento y una cantidad positiva de su etiqueta.");
  const entry=normItem(item,qty,moment);entry.kind="supplement";
+ if(item.micronutrientLabel)entry.micronutrientLabel=structuredClone(item.micronutrientLabel);
  return mutateSportDiary(d=>d.sports.push(entry),"Suplemento guardado por separado; balance actualizado cuando corresponde.");
 }
 function dayComment(d){return String(d?.skipped?._comment||"").slice(0,1000);}

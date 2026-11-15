@@ -15,6 +15,8 @@ writeFileSync(config,readFileSync(config,'utf8').replace('MICRONUTRIENTS_ENABLED
 const sdk=resolve(preview,'dist/efg-nutrition/tests/student-day-visual-sdk.mjs');
 let adapter=readFileSync(sdk,'utf8').replace('const filters=[];',"const filters=[];let requireRoutine=false;").replace("row&&filters.every", "row&&(!requireRoutine||row.skipped?._supplementRoutineV1)&&filters.every").replace('gte(){return q;}',"not(){requireRoutine=true;return q;},gte(){return q;}").replace('upsert(row){',"upsert(row){if(window.__FAIL_SUPPLEMENT_SAVE__)throw Object.assign(new Error('Synthetic save rejected'),{status:403});");
 writeFileSync(sdk,adapter);
+const previewPilot=resolve(preview,'dist/efg-nutrition/pilot/pilot.js');
+writeFileSync(previewPilot,readFileSync(previewPilot,'utf8')+'\nglobalThis.__NCC_R4_FULLAPP__.loadUsualSupplements=loadUsualSupplements;\n');
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.avif':'image/avif','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml'};
 const server=createServer((req,res)=>{try{const path=decodeURIComponent(new URL(req.url,'http://localhost').pathname);const file=resolve(preview,'dist','.'+path+(path.endsWith('/')?'index.html':''));if(!file.startsWith(preview+'/dist/'))throw Error();res.setHeader('content-type',mime[extname(file)]||'application/octet-stream');res.end(readFileSync(file));}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -47,7 +49,7 @@ try{for(const engine of (process.env.NCC_TEST_ENGINES||'chromium,webkit').split(
   await page.locator('[data-workspace-tab="usual"]').click();assert.match(await page.locator('.supplement-routine').textContent(),/5.*g.*Desayuno/);assert.match(await page.locator('.supplement-routine').textContent(),/2.*comprimidos.*Cena/);
   if(role==='student'){
    await page.reload();await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
-   await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.tab='supplements';await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;});
+   await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;await v.loadUsualSupplements();v.state.tab='supplements';await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;});
    await page.locator('[data-workspace-tab="usual"]').click();
    assert.equal(await page.locator('.supplement-routine li').count(),2,'Routine recovered through account query after reload');
   }

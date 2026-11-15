@@ -58,7 +58,8 @@ try{
   assert.equal(await page.locator('[data-act="revokeCoachRelaunch"]').count(),0);
   assert.equal(await page.locator('[data-act="clearCoachRelaunch"]').count(),0);
   assert.equal(await page.locator('#coachRelaunch_share').count(),0);
-  assert.equal(await page.getByRole('button',{name:'Guardar y enviar mi ficha al coach'}).count(),1);
+  assert.equal(await page.locator('#efgCoachRelaunchManageForm button[type="submit"]').count(),1);
+  assert.match(await page.locator('#efgCoachRelaunchManageForm button[type="submit"]').textContent(),/Guardar y enviar mi ficha al coach/);
   assert.equal(await page.locator('[name="gutClinicalCondition"]').count(),0,
    'Released private-health flow removes legacy clinical controls from general intake');
   await revealIntakeField(page,'dietary_pattern');

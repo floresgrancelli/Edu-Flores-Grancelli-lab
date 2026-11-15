@@ -173,7 +173,7 @@ assert.match(flow.view(),/Volver a MI DÍA/);
 fields.efgIntakeShare.checked=false;
 await flow.save();
 assert.equal(stored.shared_at,null,"Published student can revoke consent in their own intake");
-assert.match(app,/Revisar mi ficha y su permiso/,"Published students need a privacy route to their intake");
+assert.match(app,/Revisar o enviar mi ficha/,"Published students need a privacy route to their intake");
 assert.match(app,/data-tab="intake"/,"Privacy route must remain accessible after publication");
 assert.equal(writeCount,5);
 assert.equal(state.studentIntake.shared_at,null);

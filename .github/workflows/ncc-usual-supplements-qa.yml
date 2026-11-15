@@ -1,0 +1,36 @@
+name: NCC usual supplements QA
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - 'efg-nutrition/pilot/pilot.js'
+      - 'efg-nutrition/pilot/usual-supplements.js'
+      - 'efg-nutrition/pilot/workspace-tabs.js'
+      - 'efg-nutrition/tests/usual-supplements*'
+      - '.github/workflows/ncc-usual-supplements-qa.yml'
+permissions:
+  contents: read
+jobs:
+  supplements:
+    runs-on: ubuntu-24.04
+    container: mcr.microsoft.com/playwright:v1.56.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node efg-nutrition/tests/usual-supplements.test.mjs
+      - run: mkdir -p /workspace
+      - run: node efg-nutrition/tests/usual-supplements-browser.mjs
+        env:
+          NCC_TEST_ENGINES: ${{ matrix.browser }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: usual-supplements-${{ matrix.browser }}
+          path: artifacts/usual-supplements-preview/

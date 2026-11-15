@@ -42,7 +42,7 @@ try{for(const engine of ['chromium','webkit']){
  await page.locator('#supplementItem').selectOption('creatine');await page.locator('#supplementQty').fill('3');
  const before=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
  await page.locator('#nccSupplementSections [data-workspace-tab=today]').click();
- assert.equal(await page.locator(role==='student'?'.meal-food-empty':'.supplement-entries').isVisible(),true);await shot('consumed');
+ assert.equal(await page.locator(role==='student'?'#nccSupplementSections-today > .meal-food-empty':'#nccSupplementSections-today > .supplement-entries').isVisible(),true);await shot('consumed');
  await page.locator('#nccSupplementSections [data-workspace-tab=register]').click();
  assert.equal(await page.locator('#supplementQty').inputValue(),'3');assert.equal(await page.locator('#supplementItem').inputValue(),'creatine');await shot('supplements');
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before);

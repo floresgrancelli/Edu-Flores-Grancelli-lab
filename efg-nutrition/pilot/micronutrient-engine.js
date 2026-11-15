@@ -74,6 +74,49 @@ function supplementRow(entry){
  return {values,relevant};
 }
 
+
+// Personalized milk/infusion drinks store ingredient amounts for their macro
+// calculations. Reuse that diary snapshot for micronutrients, rather than the
+// generic drink estimate. Historical entries without a snapshot stay unchanged.
+const BEVERAGE_INFUSIONS=Object.freeze({
+ coffee_black:'coffee_black',coffee_decaf:'coffee_decaf',
+ coffee_milk:'coffee_black',coffee_cortado:'coffee_black',
+ tea_plain:'tea_plain',tea_green:'tea_green',tea_milk:'tea_plain',
+ herbal_tea:'herbal_tea',chamomile_tea:'chamomile_tea',
+ mint_tea:'mint_tea',tilo_tea:'tilo_tea',cedron_tea:'cedron_tea',
+ mate_plain:'mate_plain',mate_cocido:'mate_cocido',mate_cocido_milk:'mate_cocido'
+});
+const PERSONALIZED_KEYS=['magnesium','calcium','iron','zinc','b12','ala','epa','dha'];
+const MILK_IDS=new Set(['milk_skim','milk_whole','milk_lactosefree','milk']);
+function personalizedBeverage(entry,catalog,base){
+ if(entry?.unit!=='ml'||!own(BEVERAGE_INFUSIONS,entry.id)||!entry.ingredients||
+  typeof entry.ingredients!=='object'||Array.isArray(entry.ingredients)||
+  !own(entry.ingredients,'milk_ml')||!own(entry.ingredients,'sugar_g'))return base;
+ const {milk_id:milkId,milk_ml:milkMl,sugar_g:sugar}=entry.ingredients;
+ const valid=finite(entry.qty)&&entry.qty>0&&finite(milkMl)&&finite(sugar)&&sugar<=60&&
+  (milkId===null&&milkMl===0||MILK_IDS.has(milkId)&&milkMl>0&&milkMl<=entry.qty);
+ const parts=valid?[
+  {id:BEVERAGE_INFUSIONS[entry.id],qty:entry.qty-milkMl,unit:'ml'},
+  ...(milkId?[{id:milkId,qty:milkMl,unit:'ml'}]:[]),
+  ...(sugar>0?[{id:'sugar',qty:sugar,unit:'g'}]:[])
+ ].filter(p=>p.qty>0):[];
+ const perUnit={},incompleteNutrients=[];
+ for(const key of PERSONALIZED_KEYS){
+  let sum=0,hasKnown=false,partial=!valid;
+  for(const part of parts){
+   const food=catalog.foods[part.id];
+   const v=food?.unit===part.unit?food.perUnit?.[key]:null;
+   if(!finite(v)){partial=true;continue;}
+   sum+=v*part.qty;hasKnown=true;
+   if(food.incompleteNutrients?.includes(key))partial=true;
+  }
+  perUnit[key]=hasKnown?sum/entry.qty:null;
+  if(partial)incompleteNutrients.push(key);
+ }
+ return {...base,perUnit,incompleteNutrients,approximation:true,sourceUrl:'',
+  nutrientProvenance:{},mappingNote:'Bebida personalizada: micronutrientes calculados con la infusión, tipo y volumen de leche y azúcar registrados. Equivalentes genéricos; no representan una medición de esta preparación.'};
+}
+
 export function estimateDailyMicronutrients({diary,profile=null,catalog,referenceMode="personal"}={}){
  if(!/^ncc-micro-[a-f0-9]{16}$/.test(catalog?.version||'')||!catalog.foods)throw Error('Catálogo de micronutrientes no verificado.');
  if(!diary||!validDay(diary.log_day)||!diary.meals)throw Error('Registro diario inválido.');
@@ -82,7 +125,8 @@ export function estimateDailyMicronutrients({diary,profile=null,catalog,referenc
   foodKnown:0,foodUnknown:0,foodPartial:0,supplementKnown:0,supplementUnknown:0,contributors:[]} ]));
  const foods=Object.entries(diary.meals).filter(([slot])=>!diary.skipped?.[slot]).flatMap(([,items])=>Array.isArray(items)?items:[]);
  for(const entry of foods){
-  const composition=catalog.foods[entry?.id];
+  const original=catalog.foods[entry?.id];
+  const composition=original?personalizedBeverage(entry,catalog,original):null;
   const usable=composition&&entry.unit===composition.unit&&finite(entry.qty)&&entry.qty>0&&
    (!entry.sourceId||String(entry.sourceId)===(composition.catalogSourceId??composition.sourceId));
   for(const n of MICRO_NUTRIENTS){

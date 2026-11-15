@@ -72,7 +72,7 @@ const choiceCards=(id,label,value)=>'<fieldset class="ncc-intake-choices" data-i
 const textarea=(id,label,value,max)=>
  '<div class="field"><label for="coachRelaunch_'+id+'">'+label+' (opcional)</label>'+
  '<textarea id="coachRelaunch_'+id+'" maxlength="'+max+'" rows="2">'+esc(value||"")+'</textarea></div>';
-export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabled=false,guided=false}={}){
+export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabled=false,guided=false,sendOnSave=false}={}){
  if(!entry||!["intake","legal","retry","verify","inactive","ready"].includes(entry.route))
   throw Error("No se verificó el ingreso Coach.");
  if(entry.route==="ready"&&!editing)return "";
@@ -93,8 +93,8 @@ export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabl
  return '<section class="card efg-coach-relaunch" aria-labelledby="efgCoachRelaunchTitle">'+
  '<span class="eyebrow">NUTRICIÓN CON-CIENCIA · MI FICHA</span>'+
  '<h2 id="efgCoachRelaunchTitle">'+(editing?'Mi ficha':'Conozcámonos')+'</h2>'+
- (guided?'<p>Tus datos, comidas y rutina, cada uno en su solapa. Al final elegís si compartir la ficha con tu coach.</p>':'<p>Estrenamos herramientas. Revisá esta ficha inicial, incluso si ya usabas Nutrición Con-Ciencia. Tus registros, tu plan y tus mensajes anteriores se conservan.</p>')+
- '<p class="pilot-hint">Los datos básicos señalados son necesarios para preparar la Dieta Guía. Compartir la ficha requiere tu autorización separada y revocable. No ingreses diagnósticos ni información médica sensible en textos libres; esa información necesita consentimiento y permisos específicos.</p>'+
+ (guided?'<p>Tus datos, comidas y rutina, cada uno en su solapa. '+(sendOnSave?'Al final la enviás a tu coach asignado.':'Al final elegís si compartir la ficha con tu coach.')+'</p>':'<p>Estrenamos herramientas. Revisá esta ficha inicial, incluso si ya usabas Nutrición Con-Ciencia. Tus registros, tu plan y tus mensajes anteriores se conservan.</p>')+
+ '<p class="pilot-hint">Los datos básicos señalados son necesarios para preparar la Dieta Guía. '+(sendOnSave?'Al tocar «Guardar y enviar», la ficha general será enviada a tu coach asignado, con las autorizaciones de seguimiento y participación ya vigentes.':'Compartir la ficha requiere tu autorización separada y revocable.')+' No ingreses diagnósticos ni información médica sensible en textos libres; esa información necesita consentimiento y permisos específicos.</p>'+
  '<form id="'+(editing?'efgCoachRelaunchManageForm':'efgCoachRelaunchForm')+'" class="pilot-form"'+(guided?' novalidate data-intakewizard':'')+'>'+
  (guided?'<nav class="ncc-intake-steps" aria-label="Pasos de tu ficha">'+labels.map((label,n)=>'<button type="button" data-intakestep="'+n+'" aria-pressed="'+(n===0)+'">'+(n+1)+'. '+label+'</button>').join('')+'</nav><p data-intakeprogress role="status">Paso 1 de 4 · Tus datos</p>':'')+
  stage(0,'¿Qué querés lograr?')+(guided?choiceCards:select)("objective","Mi objetivo",data.objective)+
@@ -113,14 +113,14 @@ export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabl
  endStage(1)+stage(2,"¿Cómo es tu día?")+(guided?'<p class="pilot-hint">Contá tus horarios y, si querés, lo que te cuesta sostener. Sin datos médicos.</p>':'')+textarea("meal_routine","Horarios de comidas",data.meal_routine,400)+
  textarea("notes","Hábitos generales, sin información médica",data.notes,1000)+
  (guided?'<p class="ncc-intake-prompt-status pilot-hint" data-intakepromptstatus role="status"></p><details class="ncc-intake-routine-help"><summary>Ideas para tu respuesta <small>(opcional)</small></summary><p id="nccIntakeRoutineHelp" class="pilot-hint">Sumá un ejemplo al texto y adaptalo a tu día. Podés editarlo, borrarlo o dejar la respuesta vacía.</p><div class="ncc-intake-prompts" role="group" aria-label="Ejemplos para sumar a hábitos generales">'+['Me falta tiempo','Me cuesta organizarme','Me cuesta mantener la constancia'].map(text=>'<button type="button" class="btn light" data-intakeprompt="'+esc(text)+'" aria-controls="coachRelaunch_notes"><span aria-hidden="true">＋</span> '+esc(text)+'</button>').join('')+'</div></details>':'')+
- endStage(2)+stage(3,'Revisá y elegí cómo guardar')+(guided?'<dl data-intakereview class="ncc-intake-review"></dl>':'')+
- '<label class="efg-intake-share-label" for="coachRelaunch_share"><input type="checkbox" id="coachRelaunch_share"'+(editing&&entry.status.shared_at?' checked':'')+'>'+ 
- ' Autorizo compartir esta nueva ficha con mi coach. Este permiso es independiente de aceptar los términos y puede revocarse.</label>'+
- '<p class="pilot-hint" role="note">Podés continuar con la ficha privada: dejá «Autorizo compartir» desmarcado y confirmá. Para compartirla después, entrá en Privacidad, autorizá el seguimiento nutricional y abrí «Revisar permiso del piloto» para autorizar compartir. Luego volvé a Mi ficha y marcá «Autorizo compartir». Son decisiones independientes y nunca se activan automáticamente.</p>'+ '<p id="efgCoachIntakeSaveError" role="alert" hidden></p><button type="submit" class="btn block">'+(editing?'Guardar cambios de mi ficha':'Confirmar mi ficha nueva')+'</button>'+endStage(3)+'</form>'+
+ endStage(2)+stage(3,sendOnSave?'Revisá antes de enviar':'Revisá y elegí cómo guardar')+(guided?'<dl data-intakereview class="ncc-intake-review"></dl>':'')+
+ (sendOnSave?'<div class="pilot-notice ncc-intake-send-notice" role="note"><strong>Tu ficha se enviará a tu coach asignado</strong><small>Al guardar, tu coach recibirá esta ficha general para preparar tu plan. Los datos médicos y las autorizaciones de seguimiento se gestionan por separado; podés dejar de compartir la ficha desde Privacidad.</small></div>':
+ '<label class="efg-intake-share-label" for="coachRelaunch_share"><input type="checkbox" id="coachRelaunch_share"'+(editing&&entry.status.shared_at?' checked':'')+'> Autorizo compartir esta nueva ficha con mi coach. Este permiso es independiente de aceptar los términos y puede revocarse.</label>')+
+ (sendOnSave?'':'<p class="pilot-hint" role="note">Podés continuar con la ficha privada: dejá «Autorizo compartir» desmarcado y confirmá. Para compartirla después, entrá en Privacidad, autorizá el seguimiento nutricional y abrí «Revisar permiso del piloto» para autorizar compartir. Luego volvé a Mi ficha y marcá «Autorizo compartir». Son decisiones independientes y nunca se activan automáticamente.</p>')+'<p id="efgCoachIntakeSaveError" role="alert" hidden></p><button type="submit" class="btn block">'+(sendOnSave?'Guardar y enviar mi ficha al coach':editing?'Guardar cambios de mi ficha':'Confirmar mi ficha nueva')+'</button>'+endStage(3)+'</form>'+
  (editing?'<div class="pilot-toolbar"><button class="btn light" type="button" data-act="revokeCoachRelaunch">Retirar permiso de compartir</button><button class="btn light" type="button" data-act="clearCoachRelaunch">Borrar solo los datos de esta ficha</button></div><p class="pilot-hint">Los datos se borran de la ficha nueva y tu permiso para compartir queda revocado; conservamos un comprobante técnico de que completaste esta versión. No se borran tu plan, historial ni mensajes. Los derechos de supresión de otros registros se gestionan aparte.</p>':'')+ 
  '<p class="pilot-hint">El acceso a tu historia nutricional anterior no se elimina. No se publica ningún plan sin revisión y aprobación del coach.</p></section>';
 }
-export function readCoachRelaunchForm(doc){
+export function readCoachRelaunchForm(doc,{sendOnSave=false}={}){
  if(!doc||typeof doc.getElementById!=="function")throw Error("Formulario no disponible.");
  const get=id=>doc.getElementById("coachRelaunch_"+id);
  const choice=field=>{
@@ -143,8 +143,8 @@ export function readCoachRelaunchForm(doc){
   if(typeof raw!=="string"||raw.length>max)throw Error("Revisá el texto "+field+".");
   return raw.trim();
  };
- const confirm=get("share");
- if(!confirm||typeof confirm.checked!=="boolean")throw Error("Falta la opción de compartir la ficha.");
+ const confirm=sendOnSave?null:get("share");
+ if(!sendOnSave&&(!confirm||typeof confirm.checked!=="boolean"))throw Error("Falta la opción de compartir la ficha.");
  return {
   payload:{objective:choice("objective"),
    age_years:number("age_years",18,100,true),
@@ -157,7 +157,7 @@ export function readCoachRelaunchForm(doc){
    disliked_foods:text("disliked_foods",400),
    meal_routine:text("meal_routine",400),
    notes:text("notes",1000)},
-  shareWithCoach:confirm.checked===true
+  shareWithCoach:sendOnSave===true||confirm.checked===true
  };
 }
 export async function submitCoachRelaunchEntry(sb,{profile,userId,entry,payload,shareWithCoach,explicitSubmit=false}={}){

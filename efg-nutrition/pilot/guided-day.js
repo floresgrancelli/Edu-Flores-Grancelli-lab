@@ -84,7 +84,7 @@ const NUTRIENTS=["k","p","c","f","fi"];
 const valid=x=>typeof x==="number"&&Number.isFinite(x);
 const sum=(items)=>items.reduce((acc,item)=>{for(const k of NUTRIENTS)acc[k]+=(Number(item[k])||0)*Number(item.qty||0);return acc;},{k:0,p:0,c:0,f:0,fi:0});
 // Practical defaults for the example, not universal or clinical limits.
-const bounds=id=>guidedCountablePortion(id)?[guidedCountablePortion(id).min,guidedCountablePortion(id).max,guidedCountablePortion(id).grams]:
+const baseBounds=id=>guidedCountablePortion(id)?[guidedCountablePortion(id).min,guidedCountablePortion(id).max,guidedCountablePortion(id).grams]:
  /^(oil|sunflower_oil)$/.test(id)?[2,10,1]:
  id==="egg_white"?[70,280,10]:
  id==="ham_cooked"?[35,150,5]:
@@ -104,14 +104,25 @@ const bounds=id=>guidedCountablePortion(id)?[guidedCountablePortion(id).min,guid
  /^(brownrice|rice|yamani_rice_cooked)$/.test(id)?[100,340,10]:
  /^(potato|sweetpotato)$/.test(id)?[120,330,10]:
  id==="whey_powder"?[20,40,5]:[30,400,10];
-export const guidedPortionBounds=id=>bounds(id).slice(0,2);
+// Smaller, practical servings for low-energy SIX-slot guides. Five-meal legacy
+// examples retain their original bounds; whole counted foods never fractionalize.
+const bounds=(id,compact=false)=>{
+ const base=baseBounds(id);
+ if(!compact||guidedCountablePortion(id))return base;
+ const [min,max,step]=base;
+ return [Math.max(step,Math.round((min*0.5)/step)*step),max,step];
+};
+export const guidedPortionBounds=(id,compact=false)=>bounds(id,compact).slice(0,2);
+const isCompactGuide=(plan,goal)=>plan?.kind==="flexible_meal_guide"&&
+ Number(goal?.kcal)>0&&Number(goal.kcal)<=1800;
 // Necessary ranges for the current ingredients, not proof of a feasible menu.
 // Manual locks and recipe quantities must use the same limits as the editor.
-export function guideQuantityRanges(plan){
+export function guideQuantityRanges(plan,goal=null){
+ const compact=isCompactGuide(plan,goal);
  const ranges=Object.fromEntries(NUTRIENTS.map(k=>[k,{min:0,max:0}]));
  for(const item of (plan?.meals||[]).flatMap(m=>m.items||[])){
   const [min,max]=item.locked===true||item.recipeComponent===true?[item.qty,item.qty]:
-   guidedCountablePortion(item.id)?.preserveCount?[normalizeGuidedCountableQuantity(item),normalizeGuidedCountableQuantity(item)]:guidedPortionBounds(item.id);
+   guidedCountablePortion(item.id)?.preserveCount?[normalizeGuidedCountableQuantity(item),normalizeGuidedCountableQuantity(item)]:guidedPortionBounds(item.id,compact);
   for(const k of NUTRIENTS){ranges[k].min+=item[k]*min;ranges[k].max+=item[k]*max;}
  }
  return ranges;
@@ -199,13 +210,13 @@ function rebalanceGuideQuantities(existing,goal,targetTolerance,searchWholeMoves
  if(targetTolerance!==null&&(!valid(targetTolerance)||targetTolerance<0||targetTolerance>.05))throw new Error("Margen de ajuste inválido.");
  if(!Array.isArray(existing?.meals)||existing.meals.length<2||existing.meals.length>6)
   throw new Error("La guía necesita entre dos y seis horarios.");
- const plan=structuredClone(existing);
+ const plan=structuredClone(existing),compact=isCompactGuide(existing,goal);
  // Optimizes QUANTITIES, not food identities. Same repertoire can serve different goals.
  // All suggested portions are bounded to keep meals practical.
  for(const m of plan.meals)for(const item of m.items){
   // Recipe parts use exact per-serving quantities: the normal individual
   // food lower bound would silently inflate small ingredients and macros.
-  const [min,max]=item.recipeComponent===true?[0.01,1000]:guidedPortionBounds(item.id);
+  const [min,max]=item.recipeComponent===true?[0.01,1000]:guidedPortionBounds(item.id,compact);
   if(item.locked===true||item.recipeComponent===true){
    if(!valid(item.qty)||item.qty<min||item.qty>max)
     throw new Error("La cantidad fijada de "+String(item.name||item.id)+" está fuera de límites. Revisala antes de recalcular; no se modificó automáticamente.");
@@ -225,7 +236,7 @@ function rebalanceGuideQuantities(existing,goal,targetTolerance,searchWholeMoves
   const evaluation=evaluate();let best=null,bestScore=evaluation.score;
   let bestViolation=repair?evaluation.violation:0;
   for(let mi=0;mi<plan.meals.length;mi++)for(let ii=0;ii<plan.meals[mi].items.length;ii++){
-   const item=plan.meals[mi].items[ii], [min,max,coarseStep]=bounds(item.id),original=item.qty;
+   const item=plan.meals[mi].items[ii], [min,max,coarseStep]=bounds(item.id,compact),original=item.qty;
    // Fine repair applies only to divisible gram/ml portions. Counted units
    // retain their full catalog step; locks and exact recipes remain untouched.
    const step=repair==="fine"&&!guidedCountablePortion(item.id)?coarseStep/10:coarseStep;
@@ -252,7 +263,7 @@ function rebalanceGuideQuantities(existing,goal,targetTolerance,searchWholeMoves
    const moves=[];
    for(const meal of plan.meals)for(const item of meal.items){
     if(item.locked===true||item.recipeComponent===true||guidedCountablePortion(item.id)?.preserveCount)continue;
-    const [min,max,coarseStep]=bounds(item.id);
+    const [min,max,coarseStep]=bounds(item.id,compact);
     const step=repair==="fine"&&!guidedCountablePortion(item.id)?coarseStep/10:coarseStep;
     for(const delta of [-step,step])if(item.qty+delta>=min&&item.qty+delta<=max)moves.push({item,delta});
    }
@@ -311,7 +322,7 @@ function rebalanceGuideQuantities(existing,goal,targetTolerance,searchWholeMoves
    for(const meal of plan.meals)for(const item of meal.items){
     const rule=guidedCountablePortion(item.id);
     if(item.locked===true||item.recipeComponent===true||rule?.preserveCount)continue;
-    const [min,max,coarseStep]=bounds(item.id),step=rule?coarseStep:coarseStep/10,original=item.qty;
+    const [min,max,coarseStep]=bounds(item.id,compact),step=rule?coarseStep:coarseStep/10,original=item.qty;
     for(const delta of [-step,step]){
      item.qty=original+delta;
      if(item.qty>=min&&item.qty<=max){
@@ -351,13 +362,13 @@ export function validateGuidedDay(plan,goal){
  if(!(legacy||flexible)||!Array.isArray(plan.meals)||
    legacy&&plan.meals.length!==5||flexible&&(plan.meals.length<2||plan.meals.length>6))
   throw new Error("La Dieta Guía necesita los horarios y la versión correctos.");
- const slots=new Set(),permitted=new Set([...GUIDE_MEALS.map(x=>x.slot),"media_tarde"]);
+ const slots=new Set(),permitted=new Set([...GUIDE_MEALS.map(x=>x.slot),"media_tarde"]),compact=isCompactGuide(plan,goal);
  for(const meal of plan.meals){
   if(!permitted.has(meal.slot)||slots.has(meal.slot)||!Array.isArray(meal.items)||meal.items.length<1||meal.items.length>15)throw new Error("Revisá los horarios y alimentos de la guía.");
   slots.add(meal.slot);
   for(const food of meal.items){
    normalizeGuidedCountableQuantity({...food,locked:true});
-   const [min,max]=food.recipeComponent===true?[0.01,1000]:guidedPortionBounds(food.id);
+   const [min,max]=food.recipeComponent===true?[0.01,1000]:guidedPortionBounds(food.id,compact);
    if(typeof food.id!=="string"||food.id.length>100||!valid(food.qty)||food.qty<min||food.qty>max||NUTRIENTS.some(k=>!valid(food[k])||food[k]<0))throw new Error("Revisá los alimentos y las cantidades.");
   }
  }

@@ -1,0 +1,20 @@
+name: NCC guide 1560 kcal regression
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - 'efg-nutrition/pilot/guided-day-v2.js'
+      - 'efg-nutrition/pilot/guided-day.js'
+      - 'efg-nutrition/tests/guide-low-calorie-1560.test.mjs'
+      - '.github/workflows/ncc-guide-1560-qa.yml'
+permissions:
+  contents: read
+jobs:
+  low-calorie-guide:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test efg-nutrition/tests/guide-low-calorie-1560.test.mjs

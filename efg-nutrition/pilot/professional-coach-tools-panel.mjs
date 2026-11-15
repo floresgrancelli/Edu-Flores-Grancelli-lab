@@ -1,5 +1,5 @@
 import {mountCoachPlanSteps} from './coach-plan-steps.mjs?v=ncc-coach-plan-steps-r1-20261110';
-import {createProfessionalCoachTools,PROFESSIONAL_COACH_TOOLS_ENABLED} from './professional-coach-tools.mjs?v=ncc-guide-compact-r3-20261115';
+import {createProfessionalCoachTools,PROFESSIONAL_COACH_TOOLS_ENABLED} from './professional-coach-tools.mjs?v=ncc-whey-prefill-r1-20261115';
 import {guidedCountablePortion} from './guided-countable-portions.js?v=ncc-micro-restaurants-r1-20261114';
 import {guideTotals} from './guided-day.js?v=ncc-guide-compact-r2-20261115';
 import {COACH_GUIDE_WINDOWS} from './coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';

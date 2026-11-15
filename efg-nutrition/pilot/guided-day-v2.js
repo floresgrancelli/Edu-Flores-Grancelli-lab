@@ -157,11 +157,22 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
   if(!items.length)throw Error('No se pudo formar '+template.label+' con este perfil; revisión del coach requerida.');
   meals.push({slot:template.slot,label:template.label,items});
  }
- if(options.includeWhey&&available.has('whey_powder')&&active.has('media_manana')){
+ // A checked scoop is an explicit Coach choice, never a disposable seed.
+ // Preserve 30 g through the composition solver and require human review when
+ // medical restrictions are not independently verified.
+ if(options.includeWhey===true){
   const whey=available.get('whey_powder');
-  if(guideFoodSignal(whey,profile).status==='possible'&&
-    !meals.find(m=>m.slot==='media_manana').items.some(x=>x.id==='whey_powder'))
-   meals.find(m=>m.slot==='media_manana').items.push(ensureSource(whey,30));
+  if(!whey)throw Error('El scoop de proteína whey no está disponible en el catálogo.');
+  const signal=guideFoodSignal(whey,profile);
+  if(signal.status==='avoid')throw Error('No se agregó whey: '+signal.reason+'. Revisá otra fuente de proteína.');
+  const snack=['media_manana','media_tarde','merienda'].map(s=>meals.find(m=>m.slot===s)).find(Boolean);
+  if(!snack)throw Error('No hay una colación disponible para incorporar el scoop de whey.');
+  if(!meals.some(m=>m.items.some(x=>x.id==='whey_powder'))){
+   if(snack.items.length>=15)throw Error('La colación elegida ya tiene el máximo de alimentos.');
+   snack.items.push({...ensureSource(whey,30),locked:true});
+  }
+  if(signal.status==='review')notices.push(
+   'Scoop de whey (30 g): composición, alérgenos y restricciones pendientes de verificación por el coach.');
  }
  if(profile.pattern==='keto'&&goal.carb_g>Number(options.maxKetoCarbs??100))
   notices.push('El objetivo de hidratos es alto para el patrón keto declarado. El coach debe revisarlo.');

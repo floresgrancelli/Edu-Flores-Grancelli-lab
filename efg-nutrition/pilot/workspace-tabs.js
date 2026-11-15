@@ -36,7 +36,7 @@ export function mountWorkspaceTabs(root,{key,tab,role}){
   const host=main.querySelector('#supplementsToday');
   if(host){
    const entries=host.querySelector('.supplement-entries,.meal-food-empty'),form=host.querySelector('.pilot-form');
-   group(host,'nccSupplementSections',[['register','Registrar',[form]],['today','Consumidos hoy',[entries]],['usual','Habitual',[host.querySelector('.supplement-routine')]]]);
+   group(host,'nccSupplementSections',[['register','Registrar',[form]],['today','Hoy',[entries]],['usual','Habitual',[host.querySelector('.supplement-routine')]]]);
   }
  }
  if(tab==='planner'){

@@ -59,7 +59,7 @@ try{for(const engine of ['chromium','webkit']){
  await notes.fill(combined+'\nPrefiero cocinar los domingos.');const edited=await notes.inputValue();await page.locator('[data-intakenext="3"]').click();
  assert.equal(await page.locator('#coachRelaunch_share').count(),0,'No sharing-checkbox step in the guided intake');
  assert.equal(await page.locator('[data-intake-send="coach"]').isVisible(),true);
- assert.equal(await page.locator('[data-intake-send="private"]').isVisible(),true);
+ assert.equal(await page.locator('[data-intake-send="private"]').count(),0,'No private save option when preparing a coach plan');
  const sendIntent=await page.evaluate(async()=>{
   const {readCoachRelaunchForm}=await import('/efg-nutrition/pilot/coach-relaunch-entry-client.js');
   return readCoachRelaunchForm(document,{explicitShareChoice:true}).shareWithCoach;

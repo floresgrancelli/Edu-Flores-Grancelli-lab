@@ -127,7 +127,7 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
  if(!available.size)throw Error('No hay alimentos disponibles.');
  if(profile.restrictions.includes('food_allergy')&&!options.allergenDetailsConfirmed)
   throw Error('Revisá primero qué alérgeno declaró el alumno antes de generar la guía automática.');
- const active=initialSlots(profile),meals=[],notices=[];
+ const active=initialSlots(profile),meals=[],notices=[],compact=goal.kcal<=1800;
  if(profile.restrictionStatus==='unknown')notices.push('Restricciones sin verificar: no presupongas ausencia de celiaquía, intolerancias o alergias.');
  if(Array.isArray(options.restrictionReviewNotes))notices.push(...options.restrictionReviewNotes.filter(x=>typeof x==='string'&&x.length<=220));
  for(const template of templates){
@@ -149,7 +149,7 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
    }
    if(!food||used.has(food.id)||signal.status==='avoid')continue;
    if(signal.status==='review'&&profile.restrictionStatus!=='unknown')notices.push(template.label+': revisar '+food.name+' ('+signal.reason+').');
-   const [min,max]=guidedPortionBounds(food.id);
+   const [min,max]=guidedPortionBounds(food.id,compact);
    const grams=Math.min(max,Math.max(min,qty));
    items.push(ensureSource(food,grams));used.add(food.id);
   }
@@ -184,7 +184,7 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
 // auto-generated menu, allow removing redundant, unlocked template ingredients.
 // Do not remove anything from the coach's edited guide or alter the goal.
 function minimumCompositionPenalty(plan,goal){
- const ranges=guideQuantityRanges(plan);
+ const ranges=guideQuantityRanges(plan,goal);
  const targets={k:goal.kcal,p:goal.protein_g,c:goal.carb_g,f:goal.fat_g,fi:goal.fiber_g};
  const weights={k:3,p:4,c:3,f:3,fi:1};
  let penalty=0;
@@ -261,7 +261,7 @@ function fitGeneratedComposition(plan,goal,available,profile){
      // considered for an UNAPPROVED draft, never presumed clinically safe.
      if(!food||used.has(id)||!signal||signal.status==='avoid'||
         (signal.status!=='possible'&&profile.restrictionStatus!=='unknown'))continue;
-     const next=structuredClone(current),[min,max]=guidedPortionBounds(id);
+     const next=structuredClone(current),[min,max]=guidedPortionBounds(id,goal.kcal<=1800);
      next.meals[mi].items[ii]=ensureSource(food,Math.max(min,Math.min(max,prior.qty)));
      const candidate=rebalanceGuidedDay(next,goal,{targetTolerance:.0199,wholeUnitSearch:false}),candidateLoss=loss(candidate);
      if(candidateLoss<bestLoss-1e-8){
@@ -308,7 +308,7 @@ export function addFlexibleFood(existing,slot,food,catalog,goal){
  const found=(catalog||[]).find(x=>x.id===food?.id);
  if(!meal||!found||meal.items.length>=15||meal.items.some(x=>x.id===found.id))
   throw Error('Revisá el alimento elegido; ya existe o no está disponible.');
- const [min,max]=guidedPortionBounds(found.id);
+ const [min,max]=guidedPortionBounds(found.id,goal.kcal<=1800);
  const item=ensureSource(found,Math.max(min,Math.min(max,Number(food.qty)||min)));
  item.qty=normalizeGuidedCountableQuantity(item);
  meal.items.push({...item,locked:true});
@@ -319,7 +319,7 @@ export function replaceFlexibleFood(existing,slot,index,newFood,catalog,goal){
  const next=structuredClone(existing),meal=next.meals.find(m=>m.slot===slot),found=(catalog||[]).find(x=>x.id===newFood?.id);
  if(!meal||!found||!Number.isInteger(index)||index<0||index>=meal.items.length||
   meal.items.some((x,j)=>j!==index&&x.id===found.id))throw Error('Alternativa no disponible o duplicada.');
- const [min,max]=guidedPortionBounds(found.id),prior=meal.items[index];
+ const [min,max]=guidedPortionBounds(found.id,goal.kcal<=1800),prior=meal.items[index];
  const item=ensureSource(found,Math.max(min,Math.min(max,newFood.qty??prior.qty)));
  item.qty=normalizeGuidedCountableQuantity(item);
  meal.items[index]={...item,locked:true};

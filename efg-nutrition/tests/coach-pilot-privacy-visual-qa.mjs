@@ -55,15 +55,18 @@ try{
   await page.locator('#efgCoachRelaunchManageForm').waitFor();
   assert.equal(await page.locator('#coachRelaunch_dietary_pattern').inputValue(),'keto');
   assert.equal(await page.locator('#coachRelaunch_eating_window').inputValue(),'14_10');
-  assert.equal(await page.locator('[data-act="revokeCoachRelaunch"]').count(),1);
-  assert.equal(await page.locator('[data-act="clearCoachRelaunch"]').count(),1);
+  assert.equal(await page.locator('[data-act="revokeCoachRelaunch"]').count(),0);
+  assert.equal(await page.locator('[data-act="clearCoachRelaunch"]').count(),0);
+  assert.equal(await page.locator('#coachRelaunch_share').count(),0);
+  assert.equal(await page.locator('#efgCoachRelaunchManageForm button[type="submit"]').count(),1);
+  assert.match(await page.locator('#efgCoachRelaunchManageForm button[type="submit"]').textContent(),/Guardar y enviar mi ficha al coach/);
   assert.equal(await page.locator('[name="gutClinicalCondition"]').count(),0,
    'Released private-health flow removes legacy clinical controls from general intake');
   await revealIntakeField(page,'dietary_pattern');
   assert.match(await page.locator('#efgCoachRelaunchManageForm').innerText(),/Mis restricciones/);
   assert.equal(await page.locator('[name="gutClinicalCondition"]:enabled').count(),0);
   await page.evaluate(async()=>{window.__PILOT_QA__.state.tab='privacy';await window.__PILOT_QA__.render()});
-  await page.getByRole('button',{name:'Revisar mi ficha y su permiso'}).click();
+  await page.getByRole('button',{name:'Ver o enviar mi ficha'}).click();
   await page.locator('#efgCoachRelaunchManageForm').waitFor();
   await page.evaluate(async()=>{window.__PILOT_QA__.state.coachPilotEntry={route:'ready',canLogMeals:true};await window.__PILOT_QA__.render()});
   await page.locator('#efgCoachRelaunchManageForm').waitFor();
@@ -113,7 +116,8 @@ try{
   for(const [field,value] of Object.entries({age_years:'40',height_cm:'174',weight_kg:'80',preferred_foods:'Arroz ficticio',disliked_foods:'Ninguno',meal_routine:'12 y 20',notes:'Ensayo sintético'}))
    {await revealIntakeField(page,field);await page.locator('#coachRelaunch_'+field).fill(value);}
   await revealIntakeField(page,'share');
-  await page.locator('#coachRelaunch_share').check();
+  assert.equal(await page.locator('#coachRelaunch_share').count(),0,'No second opt-in for a coach-bound intake');
+  assert.equal(await page.getByRole('button',{name:'Guardar y enviar mi ficha al coach'}).isVisible(),true);
   const formSnapshot=()=>newForm.evaluate(form=>Array.from(form.querySelectorAll('input,select,textarea')).map(el=>({id:el.id,value:el.value,checked:el.checked})));
   const originalFields=await formSnapshot();
   await page.locator('.ncc-intake-steps [data-intakestep="0"]').click();
@@ -137,20 +141,20 @@ try{
   }
   assert.equal(await page.evaluate(()=>window.__intakeTest.writes),0,'No intake RPC without separate sharing permission');
   await page.screenshot({path:join(out,`pilot-intake-permission-${engine}-${width}.png`),fullPage:true});
-  // Choosing private saving reaches the server, whose failure still preserves edits.
-  await page.locator('#coachRelaunch_share').uncheck();
-  const privateFields=await formSnapshot();
+  // Existing authorized participation and follow-up allow a real submission;
+  // the final save button is itself the explicit action to send this intake.
+  await page.evaluate(()=>{window.__intakeTest.sharing=true});
   for(let retry=0;retry<2;retry++){
    await newForm.locator('button[type="submit"]').click();
    await page.waitForFunction(n=>window.__intakeTest.writes===n,retry+1);
    await page.waitForFunction(()=>document.querySelector('#efgCoachIntakeSaveError')?.textContent==='No fue posible guardar la ficha nueva.');
-   assert.deepEqual(await formSnapshot(),privateFields,'Backend rejection preserves fields and private choice');
+   assert.deepEqual(await formSnapshot(),originalFields,'Backend rejection preserves fields without a private-save alternative');
   }
   await page.evaluate(()=>{window.__intakeTest.sessionChanged=true});
   await newForm.locator('button[type="submit"]').click();
   await page.waitForFunction(()=>document.querySelector('#efgCoachIntakeSaveError')?.textContent.includes('identidad'));
   assert.equal(await page.evaluate(()=>window.__intakeTest.writes),2,'Changed session cannot write');
-  assert.deepEqual(await formSnapshot(),privateFields);
+  assert.deepEqual(await formSnapshot(),originalFields);
   // Hydrate the real app with both release gates enabled. A failed read must
   // still present education; a failed acknowledgement must permit a retry.
   await page.evaluate(async()=>{

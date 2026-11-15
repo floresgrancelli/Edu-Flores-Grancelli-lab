@@ -104,7 +104,7 @@ import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilot
 import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {showCoachIntakeStep,validateCoachIntakeSteps,loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-intake-routine-help-r1-20261113";
+import {showCoachIntakeStep,validateCoachIntakeSteps,loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-intake-send-r1-20261115";
 import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 
@@ -1749,11 +1749,10 @@ function studentSummariesView(){
 }
 function studentPrivacyView(){
  const c=state.consent;
- return rootText("Privacidad","Vos decidís si autorizás a tu coach a consultar tus registros.")+
- '<section class="card efg-content-card"><h2>Seguimiento nutricional</h2><p class="pilot-hint">Tu coach asignado puede consultar alimentación, peso, actividad y suplementos únicamente con tu consentimiento.</p><div class="pilot-notice"><strong>'+(c?.accepted?'Acceso autorizado':'Acceso no autorizado')+'</strong><small>Podés modificar este permiso cuando lo necesites.</small></div><button class="btn" data-act="'+(c?.accepted?'revokeConsent':'grantConsent')+'">'+(c?.accepted?'Revocar autorización':'Autorizar seguimiento')+'</button></section>'+
- (COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"?'<section class="card efg-content-card"><h2>Permiso de compartir en el piloto</h2><p>Si al ingresar elegiste mantener tu ficha privada, revisá aquí el permiso del piloto antes de compartirla desde Mi ficha.</p><button type="button" class="btn light" data-act="reviewPilotSharing">Revisar permiso del piloto</button></section>':'')+
+ return rootText("Privacidad","Controlá el acceso de tu coach a tus registros y tu ficha.")+
+ '<section class="card efg-content-card"><h2>Seguimiento nutricional</h2><p class="pilot-hint">Tu coach asignado puede consultar alimentación, peso, actividad y suplementos únicamente con tu autorización de seguimiento.</p><div class="pilot-notice"><strong>'+(c?.accepted?'Acceso autorizado':'Acceso no autorizado')+'</strong><small>Podés modificar este permiso cuando lo necesites.</small></div><button class="btn" data-act="'+(c?.accepted?'revokeConsent':'grantConsent')+'">'+(c?.accepted?'Revocar autorización':'Autorizar seguimiento')+'</button></section>'+
  (state.profile.role==="student"&&(state.planAccessSupported||state.coachPilotIntake)?
- '<section class="card efg-content-card"><h2>Ficha inicial y permiso para compartir</h2><p class="pilot-hint">Es un permiso separado del seguimiento nutricional. Podés revisar tus datos, corregirlos y dejar de compartir esta ficha aun cuando tu plan ya esté publicado.</p><button type="button" class="btn light" data-tab="intake">Revisar mi ficha y su permiso</button></section>':'');
+ '<section class="card efg-content-card"><h2>Mi ficha inicial</h2><p class="pilot-hint">Al tocar «Guardar y enviar mi ficha al coach», se envía la ficha general al coach asignado para preparar tu Dieta Guía. No se comparten datos médicos sin su autorización específica.</p><div class="pilot-notice"><strong>'+(state.coachPilotIntake?.shared_at?'Ficha enviada a tu coach':'Ficha aún no enviada')+'</strong></div><button type="button" class="btn light" data-tab="intake">Ver o enviar mi ficha</button></section>':'');
 }
 // Student Plan only. The embedded Mi Día guide and coach editor retain their UI.
 function currentStudentGuide(){
@@ -4245,14 +4244,14 @@ async function render(){
     const saved=state.coachPilotIntake;
     root.innerHTML=renderCoachRelaunchEntry(
      saved?{route:"ready",status:saved}:{route:"intake",status:null},
-     {editing:!!saved,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,guided:true});
+     {editing:!!saved,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,guided:true,sendOnSave:true});
    }else if(pilot?.route==="review"||pilot?.route==="private"){
     // Reading nutrition education must not allow diary writes before plan.
     if(state.tab==="nutritionScience")frame(renderScienceVerticalView());
     else if(state.tab==="messages"){frame(messagesView());messages.mount();}
     else if(state.tab==="privacy")frame(studentPrivacyView());
     else if(state.tab==="studentMore")frame(studentMoreView());
-    else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,guided:true}));
+    else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,guided:true,sendOnSave:true}));
     else if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.tab==="privateHealth")
      await renderPrivateHealthDeclaration();
     else if(pilot.route==="private")
@@ -6265,8 +6264,8 @@ root.addEventListener("submit",e=>{
    (async()=>{
     if(state.profile?.role!=="student"||!["intake","private","review","ready"].includes(state.coachPilotEntry?.route))
      throw Error("La ficha del piloto no está disponible.");
-    const data=readCoachRelaunchForm(document);
-    // A private first intake is valid; no coach sharing is inferred.
+    const data=readCoachRelaunchForm(document,{sendOnSave:true});
+    // The explicit final button is the action to send this general intake to the assigned coach.
     await submitCoachPilotGeneralIntake(sb,{profile:state.profile,payload:data.payload,
      shareWithCoach:data.shareWithCoach,expectedRevision:state.coachPilotIntake?.revision??0,explicitSubmit:true});
     await refresh();

@@ -60,6 +60,25 @@ try{for(const engine of ['chromium','webkit']){
  await page.locator('.ncc-intake-steps [data-intakestep="2"]').click();assert.equal(await notes.inputValue(),edited);assert.notEqual(await page.locator('.ncc-intake-routine-help').getAttribute('open'),null);assert.equal(await routine.inputValue(),initial.payload.meal_routine);await shot('answer-kept');
  await notes.fill('x'.repeat(995));await page.locator('[data-intakeprompt="Me falta tiempo"]').click();assert.equal(await notes.inputValue(),'x'.repeat(995),'Limit never truncates existing text');assert.match(await page.locator('[data-intakepromptstatus]').innerText(),/no se borró nada/);
  await notes.fill('');await routine.fill('');await page.locator('[data-intakenext="3"]').click();assert.equal(await page.locator('[data-intakepanel="3"]').isVisible(),true);assert.equal((await read()).payload.notes,'');assert.equal((await read()).payload.meal_routine,'');assert.equal((await read()).shareWithCoach,false);await shot('optional-empty-review');
+ // New one-action send option is exercised on synthetic data only.
+ await page.evaluate(async()=>{
+  const {renderCoachRelaunchEntry}=await import('/efg-nutrition/pilot/coach-relaunch-entry-client.js');
+  const {COACH_RELEASE_INTAKE_VERSION}=await import('/efg-nutrition/pilot/coach-relaunch-onboarding.js');
+  const status={completed_version:COACH_RELEASE_INTAKE_VERSION,revision:2,objective:'recomp',
+   activity_level:'moderate',age_years:41,height_cm:174,weight_kg:80.5,
+   dietary_pattern:'omnivore',eating_window:'regular',preferred_foods:'',
+   disliked_foods:'',notes:'',meal_routine:'',shared_at:null};
+  document.querySelector('.pilot-main').innerHTML=renderCoachRelaunchEntry(
+   {route:'ready',status},{editing:true,guided:true,privateHealthEnabled:true,sendOnSave:true});
+ });
+ await page.locator('.ncc-intake-steps [data-intakestep="3"]').click();
+ assert.equal(await page.locator('#coachRelaunch_share').count(),0);
+ assert.equal(await page.getByRole('button',{name:'Guardar y enviar mi ficha al coach'}).isVisible(),true);
+ assert.equal((await page.evaluate(async()=>{
+   const {readCoachRelaunchForm}=await import('/efg-nutrition/pilot/coach-relaunch-entry-client.js');
+   return readCoachRelaunchForm(document,{sendOnSave:true});
+ })).shareWithCoach,true);
+ await shot('send-on-save-review');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(await page.evaluate(()=>window.__NCC_WORKSPACE_FIXTURE__.writes.length),0);assert.deepEqual(errors,[]);
  evidence.push({engine,width,oneExistingTextField:true,optionalExamplesCollapsedInitially:true,openStatePreservedBetweenSteps:true,existingIntakeRemainsEditable:true,noDefaultSuggestions:true,allThreeExamples:true,onlyNotesChanges:true,nativeKeyboard:true,originalAndEditedTextPreserved:true,noRepeatedSuggestion:true,lengthLimitPreservesText:true,emptyAnswersValid:true,reviewUsesExistingField:true,sharingOptional:true,noWrites:true,noOverflow:true});await context.close();
  }}finally{await browser.close();}

@@ -56,7 +56,16 @@ try{for(const engine of ['chromium','webkit']){
  await page.locator('[data-intakeprompt="Me falta tiempo"]').click();assert.equal(await notes.inputValue(),combined,'Repeated clicks do not duplicate a suggestion');
  // Native keyboard can activate each writing aid.
  await notes.fill('Texto libre que ya estaba.');await page.locator('[data-intakeprompt="Me cuesta organizarme"]').focus();await page.keyboard.press('Enter');assert.equal(await notes.inputValue(),'Texto libre que ya estaba.\nMe cuesta organizarme');
- await notes.fill(combined+'\nPrefiero cocinar los domingos.');const edited=await notes.inputValue();await page.locator('[data-intakenext="3"]').click();assert.match(await page.locator('[data-intakereview]').innerText(),/Prefiero cocinar los domingos/);assert.equal(await page.locator('[data-intakereview] dt').count(),11);await shot('review-free-text');
+ await notes.fill(combined+'\nPrefiero cocinar los domingos.');const edited=await notes.inputValue();await page.locator('[data-intakenext="3"]').click();
+ assert.equal(await page.locator('#coachRelaunch_share').count(),0,'No sharing-checkbox step in the guided intake');
+ assert.equal(await page.locator('[data-intake-send="coach"]').isVisible(),true);
+ assert.equal(await page.locator('[data-intake-send="private"]').count(),0,'No private save option when preparing a coach plan');
+ const sendIntent=await page.evaluate(async()=>{
+  const {readCoachRelaunchForm}=await import('/efg-nutrition/pilot/coach-relaunch-entry-client.js');
+  return readCoachRelaunchForm(document,{explicitShareChoice:true}).shareWithCoach;
+ });
+ assert.equal(sendIntent,true,'Explicit send action produces the share intent');
+ assert.match(await page.locator('[data-intakereview]').innerText(),/Prefiero cocinar los domingos/);assert.equal(await page.locator('[data-intakereview] dt').count(),11);await shot('review-free-text');
  await page.locator('.ncc-intake-steps [data-intakestep="2"]').click();assert.equal(await notes.inputValue(),edited);assert.notEqual(await page.locator('.ncc-intake-routine-help').getAttribute('open'),null);assert.equal(await routine.inputValue(),initial.payload.meal_routine);await shot('answer-kept');
  await notes.fill('x'.repeat(995));await page.locator('[data-intakeprompt="Me falta tiempo"]').click();assert.equal(await notes.inputValue(),'x'.repeat(995),'Limit never truncates existing text');assert.match(await page.locator('[data-intakepromptstatus]').innerText(),/no se borró nada/);
  await notes.fill('');await routine.fill('');await page.locator('[data-intakenext="3"]').click();assert.equal(await page.locator('[data-intakepanel="3"]').isVisible(),true);assert.equal((await read()).payload.notes,'');assert.equal((await read()).payload.meal_routine,'');assert.equal((await read()).shareWithCoach,false);await shot('optional-empty-review');

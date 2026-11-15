@@ -20,6 +20,8 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node efg-nutrition/tests/coach-relaunch-entry-client.mjs
+      - run: node efg-nutrition/tests/intake-routine-review-browser.mjs
       - run: node efg-nutrition/tests/chat-and-inbox-session-regression.mjs
       - run: node efg-nutrition/tests/workspace-tabs-browser.mjs
       - uses: actions/upload-artifact@v4

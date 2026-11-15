@@ -9,7 +9,7 @@ const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='
 const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css?v=ncc-food-entry-batch-r1-20261112';document.head.append(mealEntryStyles);
 const recipeLibraryStyles=document.createElement('link');recipeLibraryStyles.rel='stylesheet';recipeLibraryStyles.href='./recipes-library-r1.css?v=ncc-recipes-search-r1-20261112';document.head.append(recipeLibraryStyles);
 import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-half-units-r1-20261114';
-import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-micro-restaurants-r1-20261114';
+import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-guide-compact-r3-20261115';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
 import {PROFESSIONAL_RECONCILIATION_ENABLED,createProfessionalMutationJournal,createIndexedDBJournalDriver} from './professional-mutation-journal.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createProfessionalContextualTransport} from './professional-screens-transport.mjs?v=ncc-professional-reconciliation-r1-20261107';
@@ -34,12 +34,12 @@ import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sou
 import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {sameRecipeIngredients} from "./recipe-ingredients-equal.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
-import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-micro-restaurants-r1-20261114';
-import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-micro-restaurants-r1-20261114';
-import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-micro-restaurants-r1-20261114';
-import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-micro-restaurants-r1-20261114';
-import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-micro-restaurants-r1-20261114";
-import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-micro-restaurants-r1-20261114";
+import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-guide-compact-r3-20261115';
+import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-guide-compact-r3-20261115';
+import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-guide-compact-r3-20261115';
+import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-guide-compact-r3-20261115';
+import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-guide-compact-r3-20261115";
+import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-guide-compact-r3-20261115";
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {studentDayWelcome,studentDayDashboard,compactDaySummary} from "./student-day-presentation-3770ec2f7790.js?v=ncc-color-system-r1-20261112";
@@ -64,7 +64,7 @@ import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a
 import {recordedProgress,progressDashboard} from "./progress-charts.js?v=ncc-progress-r1-20261112";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-micro-restaurants-r1-20261114";
+import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-guide-compact-r3-20261115";
 import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -75,7 +75,7 @@ import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilo
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-guide-compact-r2-20261115";
 import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-guide-compact-r2-20261115";
-import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-micro-restaurants-r1-20261114";
+import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-guide-compact-r3-20261115";
 import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createNotificationInbox,notificationDestination} from "./notifications-ui.js?v=ncc-notify-read-all-r1-20261114";
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";

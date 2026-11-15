@@ -42,6 +42,11 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  const photoEvidence=await page.locator('.ncc-guide-photo img').evaluateAll(imgs=>imgs.map(img=>({src:img.getAttribute('src'),height:img.getBoundingClientRect().height})));
  assert.ok(photoEvidence.length>0);for(const photo of photoEvidence){assert.ok(photo.height<=96);assert.ok(photo.src.startsWith('./assets/guide/'));}
  const firstPhoto=page.locator('.ncc-guide-photo').first();
+ // Composition repair can move the first pictured ingredient into a tab that
+ // is not initially selected. Open its own meal before testing the fallback.
+ const picturedSlot=await firstPhoto.locator('xpath=ancestor::*[@data-guidecard]').getAttribute('data-guidecard');
+ await page.locator('.ncc-guide-jumps [data-guidejump="'+picturedSlot+'"]').click();
+ assert.equal(await firstPhoto.isVisible(),true,'Image fallback test needs its owning meal tab visible');
  await firstPhoto.locator('img').dispatchEvent('error');
  assert.equal(await firstPhoto.locator('img').isVisible(),false);
  assert.equal(await firstPhoto.locator('.ncc-guide-photo-fallback').isVisible(),true);

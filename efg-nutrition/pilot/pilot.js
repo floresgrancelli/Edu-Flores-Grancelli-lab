@@ -1,3 +1,4 @@
+import {textSizeCard} from './readable-text.js?v=ncc-readable-text-r1-20261115';
 import {SUPPLEMENT_ROUTINE_KEY,readSupplementRoutine,snapshotSupplementRoutine,planUsualSupplements,newestSupplementRoutine} from './usual-supplements.js?v=ncc-supplement-routine-r1-20261114';
 import {resolveIndependentEntry} from './self-management-entry.js?v=ncc-self-entry-r1-20261113';
 import {createOperationNotices,showSavingFeedback} from './operation-notices.js?v=ncc-save-feedback-r1-20261112';
@@ -1554,7 +1555,7 @@ function openVersionSettings(){
 }
 function versionCheckCard(){
  const update=versionNotice.getStatus().hasUpdate;
- return '<section class="card efg-version-settings" data-version-settings tabindex="-1"><h3>🔄 Versión de Nutrición Con-Ciencia</h3>'+
+ return textSizeCard()+'<section class="card efg-version-settings" data-version-settings tabindex="-1"><h3>🔄 Versión de Nutrición Con-Ciencia</h3>'+
  '<p class="pilot-hint">Comprobá si hay una publicación nueva sin salir de tu cuenta.</p>'+
  '<button type="button" class="btn small light" data-act="checkAppVersion">Comprobar actualizaciones</button>'+
  '<button type="button" class="btn" data-act="applyAppVersion" '+(update?'':'hidden')+'>Actualizar ahora</button>'+

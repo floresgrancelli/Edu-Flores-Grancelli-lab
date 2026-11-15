@@ -3338,7 +3338,7 @@ function goalRevisionSection(latest){
 const guideNumbers=t=>num(t.k)+" kcal · P "+num(t.p,1)+" g · HC "+num(t.c,1)+" g · G "+num(t.f,1)+" g · Fibra "+num(t.fi,1)+" g";
 function guidedTargetFeedback(deviations,plan){
  if(plan){
-  const ranges=guideQuantityRanges(plan),labels={k:"energía",p:"proteína",c:"hidratos",f:"grasas",fi:"fibra"};
+  const ranges=guideQuantityRanges(plan,{kcal:deviations.k.target}),labels={k:"energía",p:"proteína",c:"hidratos",f:"grasas",fi:"fibra"};
   const conflicts=Object.entries(ranges).filter(([k,r])=>deviations[k]?.target>0&&
    (r.min>deviations[k].target*1.05||r.max<deviations[k].target*.95));
   if(conflicts.length)return "Recalcular cantidades no alcanza con estos alimentos, límites y gramos fijados: "+
@@ -3410,7 +3410,7 @@ function guidedDayContents(plan,goal,editable=false){
   // Nunca duplicar un plato preparado ni alterar la cuenta de nutrientes.
   const foodRow=(f,i)=>{
    const alt=editable?guidedFoodAlternatives(f.id,foods):[];
-   const [min,max]=recipeIngredientLimits(f)||guidedPortionBounds(f.id);
+   const [min,max]=recipeIngredientLimits(f)||guidedPortionBounds(f.id,flexible&&goal?.kcal<=1800);
    const countable=f.recipeComponent?null:guidedCountablePortion(f.id);
    const portion=guidePortion(f),factor=portion?.grams||1,displayQty=portion?Number((f.qty/factor).toFixed(2)):f.qty;
    const select=alt.length>1?'<label class="efg-guide-select-label">Sustituir <select data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Alternativa para '+escapeHTML(f.name)+'">'+alt.map(id=>{const x=foods.find(t=>t.id===id);return '<option value="'+escapeHTML(id)+'" '+(id===f.id?'selected':'')+'>'+escapeHTML(x?.name||id)+'</option>';}).join('')+'</select></label>':'<span>'+escapeHTML(f.name)+'</span>';
@@ -3839,7 +3839,7 @@ function readGuidedEditor(){
    qty=Math.round(qty/countable.grams)*countable.grams;
    el.value=String(qty/factor);
   }
-  const [min,max]=recipeIngredientLimits(food)||guidedPortionBounds(food?.id);
+  const [min,max]=recipeIngredientLimits(food)||guidedPortionBounds(food?.id,draft.kind==='flexible_meal_guide'&&activeCoachGuideGoal()?.kcal<=1800);
   if(!food||!el.value.trim()||!Number.isFinite(qty)||qty<min||qty>max)throw new Error("Cantidad fuera de límites orientativos para ese alimento; revisá sus unidades o porciones.");
   // Respect the coach's manual choice even if a browser skips an intermediate input event.
   if(food.qty!==qty){food.qty=qty;food.locked=true;}

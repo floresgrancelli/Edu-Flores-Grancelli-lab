@@ -93,7 +93,7 @@ export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabl
  return '<section class="card efg-coach-relaunch" aria-labelledby="efgCoachRelaunchTitle">'+
  '<span class="eyebrow">NUTRICIÓN CON-CIENCIA · MI FICHA</span>'+
  '<h2 id="efgCoachRelaunchTitle">'+(editing?'Mi ficha':'Conozcámonos')+'</h2>'+
- (guided?'<p>Tus datos, comidas y rutina, cada uno en su solapa. Al terminar, podés guardar y enviar tu ficha general al coach asignado con un solo botón.</p>':'<p>Estrenamos herramientas. Revisá esta ficha inicial, incluso si ya usabas Nutrición Con-Ciencia. Tus registros, tu plan y tus mensajes anteriores se conservan.</p>')+
+ (guided?'<p>Tus datos, comidas y rutina, cada uno en su solapa. Al terminar, enviá tu ficha general al coach asignado para que pueda preparar tu Dieta Guía.</p>':'<p>Estrenamos herramientas. Revisá esta ficha inicial, incluso si ya usabas Nutrición Con-Ciencia. Tus registros, tu plan y tus mensajes anteriores se conservan.</p>')+
  '<p class="pilot-hint">Los datos básicos señalados son necesarios para preparar la Dieta Guía. Al guardar y enviar tu ficha al coach asignado estás eligiendo compartir estos datos generales. No ingreses diagnósticos ni información médica sensible en textos libres; esa información necesita consentimiento y permisos específicos.</p>'+
  '<form id="'+(editing?'efgCoachRelaunchManageForm':'efgCoachRelaunchForm')+'" class="pilot-form"'+(guided?' novalidate data-intakewizard':'')+'>'+
  (guided?'<nav class="ncc-intake-steps" aria-label="Pasos de tu ficha">'+labels.map((label,n)=>'<button type="button" data-intakestep="'+n+'" aria-pressed="'+(n===0)+'">'+(n+1)+'. '+label+'</button>').join('')+'</nav><p data-intakeprogress role="status">Paso 1 de 4 · Tus datos</p>':'')+
@@ -115,10 +115,10 @@ export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabl
  (guided?'<p class="ncc-intake-prompt-status pilot-hint" data-intakepromptstatus role="status"></p><details class="ncc-intake-routine-help"><summary>Ideas para tu respuesta <small>(opcional)</small></summary><p id="nccIntakeRoutineHelp" class="pilot-hint">Sumá un ejemplo al texto y adaptalo a tu día. Podés editarlo, borrarlo o dejar la respuesta vacía.</p><div class="ncc-intake-prompts" role="group" aria-label="Ejemplos para sumar a hábitos generales">'+['Me falta tiempo','Me cuesta organizarme','Me cuesta mantener la constancia'].map(text=>'<button type="button" class="btn light" data-intakeprompt="'+esc(text)+'" aria-controls="coachRelaunch_notes"><span aria-hidden="true">＋</span> '+esc(text)+'</button>').join('')+'</div></details>':'')+
  endStage(2)+stage(3,'Revisá y enviá tu ficha')+(guided?'<dl data-intakereview class="ncc-intake-review"></dl>':'')+
  (guided?
-  '<div class="pilot-notice" role="note"><strong>Al guardar y enviar, tu coach asignado recibe la ficha.</strong><small>Se comparten los datos generales de esta ficha para preparar tu plan; no información clínica ni permisos para otros usos. Podés retirar el acceso más adelante desde Mi ficha.</small></div>'+
+  '<div class="pilot-notice" role="note"><strong>Para preparar tu Dieta Guía, tu coach asignado necesita recibir esta ficha.</strong><small>Se comparten los datos generales de esta ficha para preparar tu plan; no información clínica ni permisos para otros usos. Podés retirar el acceso más adelante desde Mi ficha.</small></div>'+
   '<p id="efgCoachIntakeSaveError" role="alert" hidden></p>'+
-  '<button type="submit" class="btn block" data-intake-send="coach">Guardar y enviar mi ficha al coach</button>'+
-  '<button type="submit" class="btn light" data-intake-send="private">Guardar solo para mí</button>'
+  '<button type="submit" class="btn block" data-intake-send="coach">Guardar y enviar mi ficha al coach</button>'
+
  :
   '<label class="efg-intake-share-label" for="coachRelaunch_share"><input type="checkbox" id="coachRelaunch_share"'+(editing&&entry.status.shared_at?' checked':'')+'> Autorizo compartir esta nueva ficha con mi coach. Este permiso se puede revocar.</label>'+
   '<p id="efgCoachIntakeSaveError" role="alert" hidden></p><button type="submit" class="btn block">'+(editing?'Guardar cambios de mi ficha':'Confirmar mi ficha nueva')+'</button>')+endStage(3)+'</form>'+

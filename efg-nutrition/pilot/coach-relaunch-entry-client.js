@@ -6,6 +6,33 @@ import {renderGutClinicalDraft} from "./gut-clinical-workbench.js?v=ncc-pilot-3a
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const validUid=x=>typeof x==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
 const accepted=isCurrentCoachLegalAccepted;
+const MEAL_HOUR=/^(?:[01]\\d|2[0-3]):[0-5]\\d$/;
+const MEAL_HOURS_PREFIX=/^Primera comida: ((?:[01]\\d|2[0-3]):[0-5]\\d|sin indicar) · Última comida: ((?:[01]\\d|2[0-3]):[0-5]\\d|sin indicar)(?:\\r?\\n|$)/;
+
+// Reuse the already-authorized 400-character meal_routine field: these are
+// descriptive preferences for the coach, not new health records or meal entries.
+// Existing free text is preserved exactly when reviewing/editing a saved intake.
+export function parseCoachIntakeMealTimes(raw=''){
+ const value=String(raw??'');
+ const match=MEAL_HOURS_PREFIX.exec(value);
+ if(!match)return {first:'',last:'',notes:value};
+ return {
+  first:match[1]==='sin indicar'?'':match[1],
+  last:match[2]==='sin indicar'?'':match[2],
+  notes:value.slice(match[0].length)
+ };
+}
+export function encodeCoachIntakeMealTimes({first='',last='',notes=''}={}){
+ const start=String(first||'').trim(),end=String(last||'').trim(),extra=String(notes||'').trim();
+ if(start&&!MEAL_HOUR.test(start)||end&&!MEAL_HOUR.test(end))
+  throw Error('Ingresá horas válidas con formato HH:MM.');
+ if(start&&end&&start===end)throw Error('La primera y la última comida necesitan horarios diferentes.');
+ const prefix=start||end?'Primera comida: '+(start||'sin indicar')+
+  ' · Última comida: '+(end||'sin indicar'):'';
+ const result=prefix+(prefix&&extra?'\\n':'')+extra;
+ if(result.length>400)throw Error('Reducí el texto de horarios: la ficha permite hasta 400 caracteres.');
+ return result;
+}
 // Verify signed identity after awaited legal/intake reads and writes. Server RLS
 // remains authoritative; client state must not reveal a previous account.
 async function requireSignedRelaunchStudent(sb,profile,userId){
@@ -87,6 +114,7 @@ export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabl
  '<button type="button" class="btn light" data-act="logout">Cerrar sesión</button></section>';
  const data=editing?initialCoachRelaunchIntake({draftVersion:COACH_RELEASE_INTAKE_VERSION,
   currentVersionDraft:entry.status}):initialCoachRelaunchIntake();
+ const storedHours=parseCoachIntakeMealTimes(data.meal_routine);
  const labels=['Tus datos','Comidas','Tu rutina','Revisar'];
  const stage=(n,title)=>guided?'<section data-intakepanel="'+n+'" '+(n?'hidden':'')+'><h3 tabindex="-1">'+title+'</h3>':'';
  const endStage=n=>guided?'<div class="ncc-intake-actions">'+(n?'<button class="btn light" type="button" data-intakestep="'+(n-1)+'">Atrás</button>':'')+(n<3?'<button class="btn" type="button" data-intakenext="'+(n+1)+'">Continuar</button>':'')+'</div></section>':'';
@@ -110,7 +138,12 @@ export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabl
   renderGutClinicalDraft())+
  textarea("preferred_foods","Alimentos que me gustan",data.preferred_foods,400)+
  textarea("disliked_foods","Alimentos que evito por gusto",data.disliked_foods,400)+
- endStage(1)+stage(2,"¿Cómo es tu día?")+(guided?'<p class="pilot-hint">Contá tus horarios y, si querés, lo que te cuesta sostener. Sin datos médicos.</p>':'')+textarea("meal_routine","Horarios de comidas",data.meal_routine,400)+
+ endStage(1)+stage(2,"¿Cómo es tu día?")+
+ '<p class="pilot-hint">¿A qué hora solés hacer tu primera y última comida? Son horarios orientativos para que tu coach organice la Dieta Guía. Una ventana 12:12 puede contener seis comidas; no cambia tus calorías.</p>'+
+ '<div class="field-row ncc-intake-meal-times" role="group" aria-label="Horarios habituales de alimentación">'+
+ '<div class="field"><label for="coachRelaunch_meal_start">Hora de la primera comida (opcional)</label><input type="time" id="coachRelaunch_meal_start" value="'+esc(storedHours.first)+'"></div>'+
+ '<div class="field"><label for="coachRelaunch_meal_end">Hora de la última comida (opcional)</label><input type="time" id="coachRelaunch_meal_end" value="'+esc(storedHours.last)+'"></div></div>'+
+ textarea("meal_routine","Otros horarios de comidas (opcional)",storedHours.notes,400)+
  textarea("notes","Hábitos generales, sin información médica",data.notes,1000)+
  (guided?'<p class="ncc-intake-prompt-status pilot-hint" data-intakepromptstatus role="status"></p><details class="ncc-intake-routine-help"><summary>Ideas para tu respuesta <small>(opcional)</small></summary><p id="nccIntakeRoutineHelp" class="pilot-hint">Sumá un ejemplo al texto y adaptalo a tu día. Podés editarlo, borrarlo o dejar la respuesta vacía.</p><div class="ncc-intake-prompts" role="group" aria-label="Ejemplos para sumar a hábitos generales">'+['Me falta tiempo','Me cuesta organizarme','Me cuesta mantener la constancia'].map(text=>'<button type="button" class="btn light" data-intakeprompt="'+esc(text)+'" aria-controls="coachRelaunch_notes"><span aria-hidden="true">＋</span> '+esc(text)+'</button>').join('')+'</div></details>':'')+
  endStage(2)+stage(3,sendOnSave?'Revisá antes de enviar':'Revisá y elegí cómo guardar')+(guided?'<dl data-intakereview class="ncc-intake-review"></dl>':'')+
@@ -155,7 +188,7 @@ export function readCoachRelaunchForm(doc,{sendOnSave=false}={}){
    eating_window:choice("eating_window"),
    preferred_foods:text("preferred_foods",400),
    disliked_foods:text("disliked_foods",400),
-   meal_routine:text("meal_routine",400),
+   meal_routine:encodeCoachIntakeMealTimes({first:get("meal_start")?.value??"",last:get("meal_end")?.value??"",notes:text("meal_routine",400)}),
    notes:text("notes",1000)},
   shareWithCoach:sendOnSave===true||confirm.checked===true
  };

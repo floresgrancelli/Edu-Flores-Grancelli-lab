@@ -6,8 +6,8 @@ import {renderGutClinicalDraft} from "./gut-clinical-workbench.js?v=ncc-pilot-3a
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const validUid=x=>typeof x==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
 const accepted=isCurrentCoachLegalAccepted;
-const MEAL_HOUR=/^(?:[01]\\d|2[0-3]):[0-5]\\d$/;
-const MEAL_HOURS_PREFIX=/^Primera comida: ((?:[01]\\d|2[0-3]):[0-5]\\d|sin indicar) · Última comida: ((?:[01]\\d|2[0-3]):[0-5]\\d|sin indicar)(?:\\r?\\n|$)/;
+const MEAL_HOUR=/^(?:[01]\d|2[0-3]):[0-5]\d$/;
+const MEAL_HOURS_PREFIX=/^Primera comida: ((?:[01]\d|2[0-3]):[0-5]\d|sin indicar) · Última comida: ((?:[01]\d|2[0-3]):[0-5]\d|sin indicar)(?:\r?\n|$)/;
 
 // Reuse the already-authorized 400-character meal_routine field: these are
 // descriptive preferences for the coach, not new health records or meal entries.
@@ -29,7 +29,7 @@ export function encodeCoachIntakeMealTimes({first='',last='',notes=''}={}){
  if(start&&end&&start===end)throw Error('La primera y la última comida necesitan horarios diferentes.');
  const prefix=start||end?'Primera comida: '+(start||'sin indicar')+
   ' · Última comida: '+(end||'sin indicar'):'';
- const result=prefix+(prefix&&extra?'\\n':'')+extra;
+ const result=prefix+(prefix&&extra?'\n':'')+extra;
  if(result.length>400)throw Error('Reducí el texto de horarios: la ficha permite hasta 400 caracteres.');
  return result;
 }

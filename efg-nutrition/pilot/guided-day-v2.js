@@ -254,7 +254,11 @@ function fitGeneratedComposition(plan,goal,available,profile){
     const choices=groupSets[roleOf(prior.id,meal.slot)]||[];
     for(const id of choices){
      const food=available.get(id);
-     if(!food||used.has(id)||guideFoodSignal(food,profile).status!=='possible')continue;
+     const signal=food?guideFoodSignal(food,profile):null;
+     // An unverified clinical profile remains amber; substitutions can be
+     // considered for an UNAPPROVED draft, never presumed clinically safe.
+     if(!food||used.has(id)||!signal||signal.status==='avoid'||
+        (signal.status!=='possible'&&profile.restrictionStatus!=='unknown'))continue;
      const next=structuredClone(current),[min,max]=guidedPortionBounds(id);
      next.meals[mi].items[ii]=ensureSource(food,Math.max(min,Math.min(max,prior.qty)));
      const candidate=rebalanceGuidedDay(next,goal,{targetTolerance:.0199,wholeUnitSearch:false}),candidateLoss=loss(candidate);

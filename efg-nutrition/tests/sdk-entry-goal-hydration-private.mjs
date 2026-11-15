@@ -6,6 +6,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {readVerifiedCoachRestrictionScope} from '../pilot/coach-guide-restriction-scope.js';
+import {createCoachCalculatorPrefill} from '../pilot/coach-intake-prefill.js';
 const source=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 const start=source.indexOf('async function loadStudentDetail(studentId){'),end=source.indexOf('\nasync function refresh(){',start);
 assert.ok(start>0&&end>start);
@@ -17,9 +18,9 @@ const weekStart=source.indexOf('function weeklyReportEnd(){'),weekEnd=source.ind
 const weeklyWindow=source.slice(weekStart,weekEnd);
 const dir=mkdtempSync(join(tmpdir(),'ncc-source-hydration-'));
 try{
- const path=join(dir,'actual.mjs');writeFileSync(path,'export function build(env){const {state,sb,coachAdaptedWorkspace,coachIntakeFlow,COACH_ATOMIC_PLAN_UI_ENABLED,COACH_VERSIONED_INTAKE_ENABLED=false,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false,PRIVATE_HEALTH_DECLARATION_UI_ENABLED=false,coachDraftClient,coachDraftSourceCurrent,loadSundayPermission,today,readVerifiedCoachRestrictionScope,loadPeriodReportGoals,normalizeReportTrendGoals}=env;\n'+healthOwner+weeklyWindow+source.slice(start,end)+'\nreturn loadStudentDetail;}');
+ const path=join(dir,'actual.mjs');writeFileSync(path,'export function build(env){const {state,sb,coachAdaptedWorkspace,coachIntakeFlow,COACH_ATOMIC_PLAN_UI_ENABLED,COACH_VERSIONED_INTAKE_ENABLED=false,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false,PRIVATE_HEALTH_DECLARATION_UI_ENABLED=false,coachDraftClient,coachDraftSourceCurrent,loadSundayPermission,today,readVerifiedCoachRestrictionScope,loadPeriodReportGoals,normalizeReportTrendGoals,COACH_VERSIONED_INTAKE_ENABLED=false,COACH_RELEASE_INTAKE_VERSION='coach_major_2026_r1',createCoachCalculatorPrefill}=env;\n'+healthOwner+weeklyWindow+source.slice(start,end)+'\nreturn loadStudentDetail;}');
  const {build:actualBuild}=await import(pathToFileURL(path).href);
- const build=env=>actualBuild({loadPeriodReportGoals,normalizeReportTrendGoals,...env});
+ const build=env=>actualBuild({loadPeriodReportGoals,normalizeReportTrendGoals,createCoachCalculatorPrefill,...env});
  for(const [status,current,guide,expected]of [['draft',true,null,true],['draft',true,{kind:'five_meal_example'},true],['draft',false,null,false],['published',true,null,false]]){
   const state={session:{user:{id:'coach'}},roster:[{user_id:'student',active:true}],coachIntakeForms:{student:{revision:1,shared_at:'date'}}};
   const chain=name=>({select(){return this;},eq(){return this;},gte(){return this;},lte(){return this;},gt(){return this;},range(){return this;},order(){return this;},limit(){return this;},
@@ -32,6 +33,40 @@ try{
   assert.equal(state.coachReportGoals.userId,'coach');assert.equal(state.coachReportGoals.studentId,'student');assert.deepEqual(state.coachReportGoals.goals,[]);assert.equal(state.coachReportGoals.from,'2026-10-23');assert.equal(state.coachReportGoals.to,'2026-10-29');
   if(expected)assert.deepEqual(state.pendingGoal,{...goal,student_id:'student'});
   assert.deepEqual(state.coachGuidedDraft,expected?guide:null);
+ }
+ // A current, RLS-shared general intake must populate this student's calculator
+ // immediately after hydration, never calculate goals or infer equation sex.
+ for(const [shared,organization,expected] of [
+  [true,'org',true],[false,'org',false],[true,'foreign-org',false]
+ ]){
+  const studentId='prefill-student',record={
+   student_id:studentId,organization_id:organization,
+   completed_version:'coach_major_2026_r1',revision:3,
+   shared_at:shared?'2026-11-15T12:00:00Z':null,updated_at:'2026-11-15T12:05:00Z',
+   objective:'recomp',age_years:41,height_cm:174,weight_kg:80.5,
+   activity_level:'moderate',dietary_pattern:'omnivore'
+  };
+  const state={session:{user:{id:'coach'}},profile:{role:'coach'},org:{id:'org'},
+   roster:[{user_id:studentId,active:true}],coachIntakeForms:{}};
+  const chain=table=>({select(){return this;},eq(){return this;},gte(){return this;},
+   lte(){return this;},gt(){return this;},range(){return this;},
+   order(){return this;},limit(){return this;},
+   maybeSingle:async()=>({data:table==='efg_consents'?{accepted:true}:null}),
+   then(resolve){return Promise.resolve({data:[]}).then(resolve);}});
+  const run=build({state,sb:{from:chain},coachAdaptedWorkspace:{close(){}},
+   coachIntakeFlow:{refreshCoachDetail:async()=>{
+    if(record.shared_at)state.coachIntakeForms[studentId]=record;
+   }},COACH_VERSIONED_INTAKE_ENABLED:true,COACH_ATOMIC_PLAN_UI_ENABLED:false,
+   loadSundayPermission:async()=>{},today:()=> '2026-11-15'});
+  await run(studentId);
+  assert.equal(Boolean(state.coachIntakePrefill),expected);
+  if(expected){
+   assert.deepEqual(state.coachIntakePrefill.fields,{
+    targetAge:'41',targetHeight:'174',targetWeight:'80.5',targetGoal:'recomp',targetActivity:'1.5'
+   });
+   assert.ok(!Object.hasOwn(state.coachIntakePrefill.fields,'targetSex'));
+   assert.equal(state.pendingGoal,null,'Prefill must not compute the calorie goal');
+  }
  }
  // Sharing a general intake alone must never initiate the private health read.
  const clinicalStudent='11111111-1111-4111-8111-111111111111';

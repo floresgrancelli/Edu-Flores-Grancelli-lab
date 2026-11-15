@@ -1751,9 +1751,9 @@ function studentPrivacyView(){
  const c=state.consent;
  return rootText("Privacidad","Vos decidís si autorizás a tu coach a consultar tus registros.")+
  '<section class="card efg-content-card"><h2>Seguimiento nutricional</h2><p class="pilot-hint">Tu coach asignado puede consultar alimentación, peso, actividad y suplementos únicamente con tu consentimiento.</p><div class="pilot-notice"><strong>'+(c?.accepted?'Acceso autorizado':'Acceso no autorizado')+'</strong><small>Podés modificar este permiso cuando lo necesites.</small></div><button class="btn" data-act="'+(c?.accepted?'revokeConsent':'grantConsent')+'">'+(c?.accepted?'Revocar autorización':'Autorizar seguimiento')+'</button></section>'+
- (COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"?'<section class="card efg-content-card"><h2>Permiso de compartir en el piloto</h2><p>Si al ingresar elegiste mantener tu ficha privada, revisá aquí el permiso del piloto antes de compartirla desde Mi ficha.</p><button type="button" class="btn light" data-act="reviewPilotSharing">Revisar permiso del piloto</button></section>':'')+
+ (COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"?'<details class="card efg-content-card"><summary>Opciones avanzadas del piloto</summary><p>Podés revisar tu autorización de participación y compartir la ficha. Esta opción es independiente del envío desde Mi ficha.</p><button type="button" class="btn light" data-act="reviewPilotSharing">Revisar autorización del piloto</button></details>':'')+
  (state.profile.role==="student"&&(state.planAccessSupported||state.coachPilotIntake)?
- '<section class="card efg-content-card"><h2>Ficha inicial y permiso para compartir</h2><p class="pilot-hint">Es un permiso separado del seguimiento nutricional. Podés revisar tus datos, corregirlos y dejar de compartir esta ficha aun cuando tu plan ya esté publicado.</p><button type="button" class="btn light" data-tab="intake">Revisar mi ficha y su permiso</button></section>':'');
+ '<section class="card efg-content-card"><h2>Mi ficha</h2><p class="pilot-hint">Revisá tus datos y envialos al coach con un botón. También podés guardarlos solo para vos o retirar el acceso a la ficha compartida cuando quieras.</p><button type="button" class="btn light" data-tab="intake">Revisar o enviar mi ficha</button></section>':'');
 }
 // Student Plan only. The embedded Mi Día guide and coach editor retain their UI.
 function currentStudentGuide(){
@@ -4257,7 +4257,7 @@ async function render(){
      await renderPrivateHealthDeclaration();
     else if(pilot.route==="private")
      // The owner chose NOT to share. Never imply the Coach received the form.
-     frame('<section class="card efg-coach-private-notice" role="status"><h2>Tu ficha está guardada como privada</h2><p>Tu coach todavía no puede verla ni preparar el nuevo plan. Podés revisar el permiso desde Mi ficha. Tu historial permanece disponible.</p><button type="button" class="btn light" data-tab="intake">Revisar mi ficha y el permiso</button></section>'+
+     frame('<section class="card efg-coach-private-notice" role="status"><h2>Tu ficha está guardada como privada</h2><p>Tu coach todavía no puede verla ni preparar el nuevo plan. Abrí Mi ficha y tocá «Guardar y enviar mi ficha al coach» para enviarla. Tu historial permanece disponible.</p><button type="button" class="btn light" data-tab="intake">Abrir mi ficha para enviarla</button></section>'+
       renderCoachPrivateHistory(state.coachPrivateHistory,{userId:state.session.user.id}));
     else if(["history","summaries"].includes(state.tab))
      frame(renderCoachPrivateHistory(state.coachPrivateHistory,{userId:state.session.user.id}));
@@ -6265,8 +6265,11 @@ root.addEventListener("submit",e=>{
    (async()=>{
     if(state.profile?.role!=="student"||!["intake","private","review","ready"].includes(state.coachPilotEntry?.route))
      throw Error("La ficha del piloto no está disponible.");
-    const data=readCoachRelaunchForm(document);
-    // A private first intake is valid; no coach sharing is inferred.
+    // Clicking the clearly labeled send button is the pupil's explicit
+    // sharing action. Never infer sharing from completion or previous consent.
+    const intent=e.submitter?.dataset?.intakeSend;
+    if(!['coach','private'].includes(intent))throw Error("Elegí Guardar y enviar o Guardar solo para mí.");
+    const data=readCoachRelaunchForm(document,{explicitShareChoice:intent==='coach'});
     await submitCoachPilotGeneralIntake(sb,{profile:state.profile,payload:data.payload,
      shareWithCoach:data.shareWithCoach,expectedRevision:state.coachPilotIntake?.revision??0,explicitSubmit:true});
     await refresh();

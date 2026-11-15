@@ -32,6 +32,8 @@ test('one-step coach send has no extra sharing checkbox and explicit notice',()=
  assert.match(html,/Tu ficha se enviará a tu coach asignado/);
  assert.match(html,/podés dejar de compartir la ficha desde Privacidad/);
  assert.doesNotMatch(html,/id="coachRelaunch_share"/);
+ assert.doesNotMatch(html,/Retirar permiso de compartir/);
+ assert.doesNotMatch(html,/Borrar solo los datos de esta ficha/);
  assert.doesNotMatch(html,/Revisar permiso del piloto/);
  assert.match(html,/data-intakereview/);
  assert.match(html,/data-intakepanel="3"/);

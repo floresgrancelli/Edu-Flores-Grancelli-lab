@@ -17,7 +17,7 @@ const weekStart=source.indexOf('function weeklyReportEnd(){'),weekEnd=source.ind
 const weeklyWindow=source.slice(weekStart,weekEnd);
 const dir=mkdtempSync(join(tmpdir(),'ncc-source-hydration-'));
 try{
- const path=join(dir,'actual.mjs');writeFileSync(path,'export function build(env){const {state,sb,coachAdaptedWorkspace,coachIntakeFlow,COACH_ATOMIC_PLAN_UI_ENABLED,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false,PRIVATE_HEALTH_DECLARATION_UI_ENABLED=false,coachDraftClient,coachDraftSourceCurrent,loadSundayPermission,today,readVerifiedCoachRestrictionScope,loadPeriodReportGoals,normalizeReportTrendGoals}=env;\n'+healthOwner+weeklyWindow+source.slice(start,end)+'\nreturn loadStudentDetail;}');
+ const path=join(dir,'actual.mjs');writeFileSync(path,'export function build(env){const {state,sb,coachAdaptedWorkspace,coachIntakeFlow,COACH_ATOMIC_PLAN_UI_ENABLED,COACH_VERSIONED_INTAKE_ENABLED=false,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false,PRIVATE_HEALTH_DECLARATION_UI_ENABLED=false,coachDraftClient,coachDraftSourceCurrent,loadSundayPermission,today,readVerifiedCoachRestrictionScope,loadPeriodReportGoals,normalizeReportTrendGoals}=env;\n'+healthOwner+weeklyWindow+source.slice(start,end)+'\nreturn loadStudentDetail;}');
  const {build:actualBuild}=await import(pathToFileURL(path).href);
  const build=env=>actualBuild({loadPeriodReportGoals,normalizeReportTrendGoals,...env});
  for(const [status,current,guide,expected]of [['draft',true,null,true],['draft',true,{kind:'five_meal_example'},true],['draft',false,null,false],['published',true,null,false]]){

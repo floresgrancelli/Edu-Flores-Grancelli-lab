@@ -52,9 +52,9 @@ assert.match(html,/Autorizo compartir/);
 assert.doesNotMatch(html,/id="coachRelaunch_share"[^>]+checked/);
 const oneStep=renderCoachRelaunchEntry(gate,{guided:true});
 assert.match(oneStep,/Guardar y enviar mi ficha al coach/);
-assert.match(oneStep,/Guardar solo para mí/);
+assert.doesNotMatch(oneStep,/Guardar solo para mí/);
 assert.match(oneStep,/data-intake-send="coach"/);
-assert.match(oneStep,/data-intake-send="private"/);
+assert.doesNotMatch(oneStep,/data-intake-send="private"/);
 assert.doesNotMatch(oneStep,/id="coachRelaunch_share"/,'No second sharing checkbox in the current guided pupil journey');
 
 const fields={
@@ -69,7 +69,7 @@ assert.equal(form.shareWithCoach,false);
 const oneStepDoc={getElementById:id=>id==='coachRelaunch_share'?null:doc.getElementById(id)};
 assert.equal(readCoachRelaunchForm(oneStepDoc).shareWithCoach,false,'Do not infer sharing when called without explicit submit action');
 assert.equal(readCoachRelaunchForm(oneStepDoc,{explicitShareChoice:true}).shareWithCoach,true,'Send button is explicit sharing choice');
-assert.equal(readCoachRelaunchForm(oneStepDoc,{explicitShareChoice:false}).shareWithCoach,false,'Private button stays private');
+assert.equal(readCoachRelaunchForm(oneStepDoc,{explicitShareChoice:false}).shareWithCoach,false,'Revocation remains available outside the guided intake, not through a private submission button');
 assert.throws(()=>readCoachRelaunchForm(oneStepDoc,{explicitShareChoice:'true'}),/decisión/);
 assert.equal(form.payload.weight_kg,80.5);
 assert.equal(form.payload.eating_window,"regular");
@@ -158,6 +158,7 @@ assert.ok(start>0&&legacy>start,"Intake/legal checks precede legacy data fetches
 assert.match(source,/if\(e.target.id==="efgCoachRelaunchForm"\|\|e.target.id==="efgCoachRelaunchManageForm"\)/);
 assert.match(source,/await submitCoachRelaunchEntry\(sb,/);
 assert.match(source,/e\.submitter\?\.dataset\?\.intakeSend/,'Intake sharing follows the explicit submit button');
+assert.match(source,/if\(intent!=='coach'\)/,'No private path through guided submit handler');
 assert.match(source,/COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION\}/);
 const flow=await (await import("node:fs/promises")).readFile(
  new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");

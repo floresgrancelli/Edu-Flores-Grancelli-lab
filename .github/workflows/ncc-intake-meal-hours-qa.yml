@@ -1,0 +1,20 @@
+name: NCC intake meal-time fields QA
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - 'efg-nutrition/pilot/coach-relaunch-entry-client.js'
+      - 'efg-nutrition/tests/coach-intake-meal-times.test.mjs'
+      - 'efg-nutrition/tests/intake-routine-review-browser.mjs'
+      - '.github/workflows/ncc-intake-meal-hours-qa.yml'
+permissions:
+  contents: read
+jobs:
+  meal-hours:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test efg-nutrition/tests/coach-intake-meal-times.test.mjs

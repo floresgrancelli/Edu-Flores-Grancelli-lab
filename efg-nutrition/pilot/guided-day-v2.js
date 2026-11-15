@@ -213,10 +213,12 @@ function trimImpossibleGeneratedMinimums(original,goal){
     for(let ii=0;ii<meal.items.length;ii++){
      const item=meal.items[ii];
      if(item.locked===true||item.recipeComponent===true)continue;
-     // Keep an explicit protein source in each main meal when its template
-     // has one. Simplify redundant extras first, not an entire lunch protein.
-     if(['almuerzo','cena'].includes(meal.slot)&&groupSets.protein.includes(item.id)&&
-        !meal.items.some((other,index)=>index!==ii&&groupSets.protein.includes(other.id)))continue;
+     // Keep a protein source at breakfast and in each main meal wherever
+     // the initial template has one; trim redundant extras first.
+     const anchorGroup=meal.slot==='desayuno'?groupSets.breakfastProtein:
+       ['almuerzo','cena'].includes(meal.slot)?groupSets.protein:null;
+     if(anchorGroup?.includes(item.id)&&
+       !meal.items.some((other,index)=>index!==ii&&anchorGroup.includes(other.id)))continue;
      const candidate=structuredClone(current);
      candidate.meals[mi].items.splice(ii,1);
      const score=minimumCompositionPenalty(candidate,goal);

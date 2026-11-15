@@ -33,9 +33,24 @@ try{for(const engine of (process.env.NCC_TEST_ENGINES||'chromium,webkit').split(
   await page.waitForFunction(()=>window.__NCC_R4_FULLAPP__.state.diary.sports.length===1&&!window.__NCC_R4_FULLAPP__.state.diaryWritePending);
   await page.locator('#supplementItem').selectOption('geomagnesium_bisglycinate_1400');await page.locator('#supplementQty').fill('2');await page.locator('#supplementMoment').selectOption('cena');await page.locator('[data-act="addDailySupplement"]').click();
   await page.waitForFunction(()=>window.__NCC_R4_FULLAPP__.state.diary.sports.length===2&&!window.__NCC_R4_FULLAPP__.state.diaryWritePending);
-  await page.locator('[data-workspace-tab="usual"]').click();await page.locator('[data-act="saveUsualSupplements"]').click();
+  await page.locator('[data-workspace-tab="usual"]').click();
+  if(role==='student'){
+   await page.evaluate(()=>{window.__FAIL_SUPPLEMENT_SAVE__=true;});
+   await page.locator('[data-act="saveUsualSupplements"]').click();
+   await page.waitForFunction(()=>!window.__NCC_R4_FULLAPP__.state.diaryWritePending);
+   assert.equal(await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.diary.skipped._supplementRoutineV1),undefined,'Rejected save restores template metadata');
+   assert.equal(await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.diary.sports.length),2,'Rejected template save preserves consumed supplements');
+   await page.evaluate(()=>{window.__FAIL_SUPPLEMENT_SAVE__=false;});
+  }
+  await page.locator('[data-act="saveUsualSupplements"]').click();
   await page.waitForFunction(()=>!!window.__NCC_R4_FULLAPP__.state.diary.skipped._supplementRoutineV1&&!window.__NCC_R4_FULLAPP__.state.diaryWritePending);
   await page.locator('[data-workspace-tab="usual"]').click();assert.match(await page.locator('.supplement-routine').textContent(),/5.*g.*Desayuno/);assert.match(await page.locator('.supplement-routine').textContent(),/2.*comprimidos.*Cena/);
+  if(role==='student'){
+   await page.reload();await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
+   await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.tab='supplements';await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;});
+   await page.locator('[data-workspace-tab="usual"]').click();
+   assert.equal(await page.locator('.supplement-routine li').count(),2,'Routine recovered through account query after reload');
+  }
   // Simulate a fresh day's diary; the cloud-loaded account template persists.
   await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__,s=v.state;s.diary.sports=[{id:'water',kind:'sport',qty:500,unit:'ml',when:'other',k:0,p:0,c:0,f:0,fi:0}];s.diary.skipped={_comment:'conservar'};await v.render();});
   assert.equal(await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.diary.sports.length),1,'Routine never auto-registers');

@@ -1,0 +1,21 @@
+name: NCC intake send-on-save QA
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - 'efg-nutrition/pilot/coach-relaunch-entry-client.js'
+      - 'efg-nutrition/pilot/pilot.js'
+      - 'efg-nutrition/tests/intake-send-on-save.test.mjs'
+      - 'efg-nutrition/tests/intake-routine-review-browser.mjs'
+      - '.github/workflows/ncc-intake-send-on-save-qa.yml'
+permissions:
+  contents: read
+jobs:
+  one-step-intake:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test efg-nutrition/tests/intake-send-on-save.test.mjs

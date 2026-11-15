@@ -140,17 +140,17 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
   }
   v.frame(v.coachGuidedSection()+v.coachAtomicDraftPanel());
  });
- await page.locator('[data-guideall]').click();
  const eggKey=await page.evaluate(()=>{const s=window.__GUIDE_QA__.state;for(const m of s.coachGuidedDraft.meals){const i=m.items.findIndex(f=>f.id==='egg');if(i>=0)return m.slot+':'+i;}});
- assert.ok(eggKey);await page.locator(`[data-guideqty="${eggKey}"]`).fill('2');
+ assert.ok(eggKey);await page.locator(`[data-guidejump="${eggKey.split(':')[0]}"]`).click();
+ await page.locator(`[data-guideqty="${eggKey}"]`).fill('2');
  assert.equal(await page.evaluate(key=>{const [slot,i]=key.split(':');return window.__GUIDE_QA__.state.coachGuidedDraft.meals.find(m=>m.slot===slot).items[i].qty},eggKey),100,'2 catalog eggs = 100g');
  await page.locator(`[data-guideqty="${eggKey}"]`).blur();
  await page.locator('[data-guidejump="cena"]').click();
  await page.locator(`[data-guidejump="${eggKey.split(':')[0]}"]`).click();
  assert.equal(await page.locator(`[data-guideqty="${eggKey}"]`).inputValue(),'2');
- await page.locator('[data-guideall]').click();
  const breadKey=await page.evaluate(()=>{for(const m of window.__GUIDE_QA__.state.coachGuidedDraft.meals){const i=m.items.findIndex(f=>f.id==='bread');if(i>=0)return m.slot+':'+i;}});
- assert.ok(breadKey);await page.locator(`[data-guideqty="${breadKey}"]`).fill('1');
+ assert.ok(breadKey);await page.locator(`[data-guidejump="${breadKey.split(':')[0]}"]`).click();
+ await page.locator(`[data-guideqty="${breadKey}"]`).fill('1');
  assert.equal(await page.evaluate(key=>{const [slot,i]=key.split(':');return window.__GUIDE_QA__.state.coachGuidedDraft.meals.find(m=>m.slot===slot).items[i].qty},breadKey),30,'1 catalog slice = 30g');
  await page.locator(`[data-guideqty="${breadKey}"]`).blur();
  const equivalent=await page.evaluate(()=>{const v=window.__GUIDE_QA__,plan=v.state.coachGuidedDraft;return JSON.stringify(v.guideTotals(plan))===JSON.stringify(v.guideTotals(v.readGuidedEditor()));});assert.equal(equivalent,true,'Portion round trip preserves all nutrition totals');

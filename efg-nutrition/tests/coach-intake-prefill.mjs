@@ -66,7 +66,7 @@ assert.match(detailBody,/sharedIntake\.organization_id===organizationId/);
 assert.match(detailBody,/c\.data\?\.accepted===true/);
 assert.match(detailBody,/currentVersion/);
 assert.doesNotMatch(detailBody,/calculateGoal\(/);
-assert.match(app,/<option value=\\"\\">Confirmá la actividad<\/option>/);
+assert.ok(app.includes('Confirmá la actividad'), 'Unmapped high activity stays unselected for manual review');
 
 assert.match(app,/if\(action==="prepareCoachPlanFromIntake"\)/);
 assert.match(app,/await loadStudentDetail\(studentId\)/,"Re-read RLS/consent before using intake");

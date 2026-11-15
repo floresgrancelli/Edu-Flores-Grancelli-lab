@@ -1,7 +1,8 @@
+import {SUPPLEMENT_ROUTINE_KEY,readSupplementRoutine,snapshotSupplementRoutine,planUsualSupplements,newestSupplementRoutine} from './usual-supplements.js?v=ncc-supplement-routine-r1-20261114';
 import {resolveIndependentEntry} from './self-management-entry.js?v=ncc-self-entry-r1-20261113';
 import {createOperationNotices,showSavingFeedback} from './operation-notices.js?v=ncc-save-feedback-r1-20261112';
 import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-micro-restaurants-r1-20261114';
-import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-self-entry-r1-20261113';
+import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-supplement-routine-r1-20261114';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
 import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-report-gaps-r1-20261112';document.head.append(studentGuideStyles);
@@ -382,12 +383,28 @@ const SUPPLEMENTS=[
 const SUPPLEMENT_IDS=new Set(SUPPLEMENTS.map(s=>s.id));
 const supplementRecord=e=>e?.kind==="supplement"||SUPPLEMENT_IDS.has(e?.id);
 const supplementSummary=e=>num(e.qty,1)+" "+escapeHTML(e.unit)+" · "+num(e.k)+" kcal · P "+num(e.p,1)+" g · HC "+num(e.c,1)+" g · G "+num(e.f,1)+" g";
+function currentSupplementRoutine(){
+ const owner=state.session?.user?.id;
+ const cached=state.supplementRoutineOwner===owner?state.supplementRoutine:null;
+ return newestSupplementRoutine([{skipped:{[SUPPLEMENT_ROUTINE_KEY]:cached}},activeDiary()],SUPPLEMENTS);
+}
+function supplementRoutinePanel(d){
+ const routine=currentSupplementRoutine(),items=routine?.items||[];
+ const labels={desayuno:'Desayuno',media_manana:'Media mañana',almuerzo:'Almuerzo',media_tarde:'Media tarde',merienda:'Merienda',cena:'Cena',otro:'Otro momento',pre:'Preentrenamiento',during:'Durante el entrenamiento',post:'Postentrenamiento',morning:'Media mañana',afternoon:'Media tarde',other:'Otro momento'};
+ const count=(d.sports||[]).filter(supplementRecord).length;
+ return '<div class="supplement-routine"><h4>☆ Suplementación habitual</h4><p class="pilot-hint">Guardá tus suplementos, cantidades y momentos para volver a registrarlos otro día.</p>'+
+ (state.supplementRoutineError?'<p class="pilot-hint" role="status">'+escapeHTML(state.supplementRoutineError)+'</p>':'')+
+ (items.length?'<ul>'+items.map(e=>'<li><strong>'+escapeHTML(SUPPLEMENTS.find(x=>x.id===e.id)?.name||e.id)+'</strong><span> · '+num(e.qty,2)+' '+escapeHTML(e.unit)+' · '+escapeHTML(labels[e.when])+'</span></li>').join('')+'</ul><button type="button" class="btn small light" data-act="applyUsualSupplements">Registrar habitual hoy</button><p class="pilot-hint">Tocá el botón solo si ya los consumiste. Se agregan los que faltan; lo registrado en el mismo momento se conserva.</p>':'<p class="meal-food-empty">Todavía no guardaste una habitual.</p>')+
+ '<div class="meal-actions"><button type="button" class="btn small ghost" data-act="saveUsualSupplements" '+(!count?'disabled':'')+'>'+(items.length?'Reemplazar con los de hoy':'Guardar los de hoy como habitual')+'</button>'+
+ (items.length?'<button type="button" class="btn small ghost" data-act="clearUsualSupplements">Eliminar habitual</button>':'')+'</div></div>';
+}
 function supplementsPanel(d){
  const existing=(d.sports||[]).map((e,index)=>({e,index})).filter(x=>supplementRecord(x.e));
  const choices=SUPPLEMENTS.slice().sort((a,b)=>a.name.localeCompare(b.name,"es-AR"));
  return '<section class="nutrition-supplements" id="supplementsToday"><div class="section-head"><h3>💊 Suplementos del día</h3><span class="pilot-pill">'+existing.length+' registrados</span></div>'+
  '<p class="pilot-hint">Separados de las comidas. Registrá solo lo que consumiste; no son recomendaciones para tomar suplementos.</p>'+
  (existing.length?'<div class="supplement-entries">'+existing.map(({e,index})=>'<div class="meal-food-line"><div class="meal-food-label"><strong>'+escapeHTML(e.name)+'</strong><span>'+supplementSummary(e)+'</span></div><button class="meal-remove-item" type="button" data-removesupp="'+index+'" aria-label="Eliminar suplemento">×</button></div>').join("")+'</div>':'<p class="meal-food-empty">Todavía no registraste suplementos.</p>')+
+ supplementRoutinePanel(d)+
  '<div class="pilot-form"><div class="field"><label for="supplementItem">Suplemento</label><select id="supplementItem">'+option(choices)+'</select></div>'+
  '<div class="field-row"><div class="field"><label for="supplementQty" id="supplementQtyLabel">Cantidad</label><input type="number" inputmode="decimal" step="any" min="0.01" max="100000" id="supplementQty" placeholder="Según etiqueta"></div>'+
  '<div class="field"><label for="supplementMoment">Momento del día</label><select id="supplementMoment">'+[["desayuno","Desayuno"],["media_manana","Media mañana"],["almuerzo","Almuerzo"],["media_tarde","Media tarde"],["merienda","Merienda"],["cena","Cena"],["otro","Otro momento"]].map(([id,name])=>'<option value="'+id+'">'+name+'</option>').join("")+'</select></div></div>'+
@@ -432,6 +449,44 @@ async function addDailySupplement(){
  const entry=normItem(item,qty,moment);entry.kind="supplement";
  if(item.micronutrientLabel)entry.micronutrientLabel=structuredClone(item.micronutrientLabel);
  return mutateSportDiary(d=>d.sports.push(entry),"Suplemento guardado por separado; balance actualizado cuando corresponde.");
+}
+async function saveUsualSupplements(clear=false){
+ const owner=state.session?.user?.id;
+ const existing=currentSupplementRoutine();
+ if(clear&&!confirm('¿Eliminar tu suplementación habitual? Los consumos ya registrados se conservan.'))return;
+ if(!clear&&existing?.items.length&&!confirm('¿Reemplazar tu habitual por los suplementos registrados hoy, con sus cantidades y momentos?'))return;
+ const routine=clear?{version:1,savedAt:new Date().toISOString(),items:[]}:snapshotSupplementRoutine((activeDiary().sports||[]).filter(supplementRecord),SUPPLEMENTS);
+ await mutateSportDiary(d=>{d.skipped[SUPPLEMENT_ROUTINE_KEY]=routine;},clear?'Suplementación habitual eliminada.':'Suplementación habitual guardada en tu cuenta.');
+ if(state.session?.user?.id===owner&&readSupplementRoutine(activeDiary().skipped?.[SUPPLEMENT_ROUTINE_KEY],SUPPLEMENTS)?.savedAt===routine.savedAt){
+  state.supplementRoutineLoadToken=null;state.supplementRoutine=routine;state.supplementRoutineOwner=owner;state.supplementRoutineError='';
+ }
+}
+async function applyUsualSupplements(){
+ const plan=planUsualSupplements(currentSupplementRoutine(),(activeDiary().sports||[]).filter(supplementRecord),SUPPLEMENTS);
+ if(!plan.missing.length){notify('Tu suplementación habitual ya está registrada hoy.');return;}
+ return mutateSportDiary(d=>{
+  for(const saved of plan.missing){
+   const product=SUPPLEMENTS.find(p=>p.id===saved.id),entry=normItem(product,saved.qty,saved.when);entry.kind='supplement';
+   if(product.micronutrientLabel)entry.micronutrientLabel=structuredClone(product.micronutrientLabel);
+   d.sports.push(entry);
+  }
+ },'Suplementación habitual registrada: '+plan.missing.length+' agregados'+(plan.skipped?' · '+plan.skipped+' ya registrados, conservados.':'.'));
+}
+async function loadUsualSupplements(){
+ const owner=state.session?.user?.id,epoch=state.authContextEpoch||0;
+ if(!owner)return;
+ const token=Symbol('supplement-routine-load');state.supplementRoutineLoadToken=token;
+ try{
+  const {data,error}=await sb.from('efg_daily_logs').select('skipped').eq('student_id',owner).not('skipped->'+SUPPLEMENT_ROUTINE_KEY,'is',null).order('updated_at',{ascending:false}).limit(1);
+  if(error)throw error;
+  if(state.session?.user?.id!==owner||(state.authContextEpoch||0)!==epoch||state.supplementRoutineLoadToken!==token)return;
+  const routine=newestSupplementRoutine(data||[],SUPPLEMENTS);
+  if(data?.length&&!routine)throw Error('La habitual guardada requiere revisión.');
+  state.supplementRoutine=routine;state.supplementRoutineOwner=owner;state.supplementRoutineError='';
+ }catch(error){
+  if(state.session?.user?.id!==owner||(state.authContextEpoch||0)!==epoch||state.supplementRoutineLoadToken!==token)return;
+  state.supplementRoutineError='No pudimos cargar tu habitual guardada. Volvé a intentar con conexión.';
+ }
 }
 function dayComment(d){return String(d?.skipped?._comment||"").slice(0,1000);}
 function readDayComment(){
@@ -4684,7 +4739,7 @@ async function refresh(){
   if(!result.data.user){state.profile=null;return loginView();}
   const id=result.data.user.id;authHydration.verified(ticket,id);
   const switchingUser=state.session?.user?.id!==id;
-  if(switchingUser){state.foodCompatEvidence=[];state.coachSharedRecipeScope=null;state.coachSharedRecipes=[];state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";}
+  if(switchingUser){state.supplementRoutine=null;state.supplementRoutineOwner=null;state.supplementRoutineLoadToken=null;state.supplementRoutineError="";state.foodCompatEvidence=[];state.coachSharedRecipeScope=null;state.coachSharedRecipes=[];state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";}
   // getUser above is authoritative; cached session supplies only JWT correlation metadata.
   const currentSession=await contextRead(sb.auth.getSession());
   // Epoch was revalidated after getSession; same-user token rotation is harmless.
@@ -4773,7 +4828,7 @@ async function refresh(){
    if(state.coachRelaunchEntry.route!=="ready")return render();
   }
   await contextRead(Promise.all([loadPersonalData(),loadOrgAndPayments()]));
-  await contextRead(Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]));
+  await contextRead(Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports(),loadUsualSupplements()]));
   await contextRead(loadRoleData());
   if(state.profile.role==="student")await contextRead(coachIntakeFlow.loadStudent());
   await contextRead(refreshFoodCompatibilityEvidence());
@@ -4841,7 +4896,7 @@ async function refreshVisibleWorkspace(){
    if(state.coachRelaunchEntry.route!=="ready"){await contextRead(render());return;}
   }
   await contextRead(Promise.all([loadPersonalData(),loadOrgAndPayments()]));
-  await contextRead(Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]));
+  await contextRead(Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports(),loadUsualSupplements()]));
   await contextRead(loadRoleData());
   await contextRead(refreshFoodCompatibilityEvidence());
   // No refresh can revive edits based on an intake that was changed or unshared
@@ -5703,6 +5758,9 @@ if(el.dataset.foodbulk){
  if(action==="saveSelectedMeal"){return saveSelectedMeal();}
  if(action==="saveSelectedMealContinue"){return saveSelectedMeal(true);}
  if(action==="addDailySupplement"){return addDailySupplement();}
+ if(action==="saveUsualSupplements"){return saveUsualSupplements();}
+ if(action==="clearUsualSupplements"){return saveUsualSupplements(true);}
+ if(action==="applyUsualSupplements"){return applyUsualSupplements();}
  if(action==="saveDayComment"){return saveDayComment();}
  if(action==="addSport"){
   const id=document.getElementById("sportItem").value,qty=Number(document.getElementById("sportQty").value);
@@ -6279,7 +6337,7 @@ function resetPrivateSession(){
  state.diary=null;state.progressLogs=[];state.weights=[];state.activities=[];
  // A pending request belongs to the old auth epoch: do not lock the next user.
  state.diaryWritePending=false;state.diaryWriteOwner=null;state.diaryWriteToken=null;
- state.habitualesLoadToken=null;state.recipesLoadToken=null;
+ state.habitualesLoadToken=null;state.recipesLoadToken=null;state.supplementRoutine=null;state.supplementRoutineOwner=null;state.supplementRoutineLoadToken=null;state.supplementRoutineError="";
  pendingMealRegistrations.clear();pendingHabitualSlots.clear();
  recipeRegistrationBusy=false;
  state.goals=[];state.foodPlan=null;state.personalTargets=null;

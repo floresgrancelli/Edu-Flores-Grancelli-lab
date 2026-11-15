@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {readSupplementRoutine as read,snapshotSupplementRoutine as save,planUsualSupplements as plan,newestSupplementRoutine as latest,SUPPLEMENT_ROUTINE_KEY as key} from '../pilot/usual-supplements.js';
+const catalog=[{id:'mg',unit:'comprimidos'},{id:'creatine',unit:'g'}];
+const entries=[{id:'mg',qty:2,unit:'comprimidos',when:'cena',micronutrientLabel:{dose:2}},{id:'creatine',qty:5,unit:'g',when:'desayuno'}];
+const r=save(entries,catalog,'2026-11-14T10:00:00Z');assert.equal(r.items.length,2);assert.notEqual(r.items[0],entries[0]);
+assert.deepEqual(plan(r,[],catalog),{missing:r.items,skipped:0});
+assert.deepEqual(plan(r,entries,catalog),{missing:[],skipped:2});
+assert.deepEqual(plan(r,[{...entries[0],qty:1}],catalog),{missing:[r.items[1]],skipped:1},'Preserve actual consumption even when routine dose differs');
+assert.equal(plan(r,[{...entries[0],when:'almuerzo'}],catalog).missing.length,2,'Different moments remain distinct');
+const twice=save([entries[0],entries[0]],catalog);assert.equal(plan(twice,[entries[0]],catalog).missing.length,1,'Match multiple doses by occurrence');
+for(const bad of [{...entries[0],qty:0},{...entries[0],qty:Infinity},{...entries[0],qty:100001},{...entries[0],id:'unknown'},{...entries[0],when:'bad'},{...entries[0],unit:'g'}])assert.throws(()=>save([bad],catalog));
+assert.throws(()=>save([],catalog));assert.equal(read({...r,savedAt:'bad'},catalog),null);
+const tombstone={version:1,savedAt:'2026-11-15T10:00:00Z',items:[]};
+assert.deepEqual(latest([{skipped:{[key]:r}},{skipped:{[key]:tombstone}}],catalog),tombstone,'Deletion survives older daily records');
+assert.equal(latest([{skipped:{}}],catalog),null);assert.throws(()=>plan(tombstone,[],catalog));
+assert.deepEqual(entries[0].micronutrientLabel,{dose:2},'Routine serialization never mutates consumed entry');
+console.log('PASS: routine quantities, moments, duplicate doses, changed quantity, validation, deletion and immutable snapshots');

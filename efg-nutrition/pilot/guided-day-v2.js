@@ -2,7 +2,7 @@
 // This module does not read or store health data. The caller must supply a CURRENT,
 // consented and server-authorized profile; this is not a medical decision engine.
 // The existing food catalog is reused in full, never filtered for a student's diary.
-import {GUIDE_MEALS,rebalanceGuidedDay,guideDeviation,guidedPortionBounds} from './guided-day.js?v=ncc-micro-restaurants-r1-20261114';
+import {GUIDE_MEALS,rebalanceGuidedDay,guideDeviation,guideQuantityRanges,guidedPortionBounds} from './guided-day.js?v=ncc-micro-restaurants-r1-20261114';
 
 import {normalizeGuidedCountableQuantity} from "./guided-countable-portions.js?v=ncc-micro-restaurants-r1-20261114";
 
@@ -178,6 +178,59 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
  }
  return fitGeneratedComposition(plan,goal,available,profile);
 }
+// A six-meal seed can exceed a smaller approved goal even with EVERY item at
+// its minimum (e.g., 1,560 kcal with mandatory 160 g meat portions). A quantity
+// solver alone cannot fix an impossible lower bound. Before balancing a NEW
+// auto-generated menu, allow removing redundant, unlocked template ingredients.
+// Do not remove anything from the coach's edited guide or alter the goal.
+function minimumCompositionPenalty(plan,goal){
+ const ranges=guideQuantityRanges(plan);
+ const targets={k:goal.kcal,p:goal.protein_g,c:goal.carb_g,f:goal.fat_g,fi:goal.fiber_g};
+ const weights={k:3,p:4,c:3,f:3,fi:1};
+ let penalty=0;
+ for(const key of required){
+  const target=Number(targets[key]);
+  if(!(target>0))continue;
+  const range=ranges[key];
+  const tooHigh=Math.max(0,range.min/target-1.0199);
+  // Avoid fixing an excess by deleting the last source of an essential macro.
+  const tooLow=Math.max(0,0.9801-range.max/target);
+  penalty+=weights[key]*(tooHigh*tooHigh+tooLow*tooLow);
+ }
+ return penalty;
+}
+function trimImpossibleGeneratedMinimums(original,goal){
+ let current=original,penalty=minimumCompositionPenalty(original,goal),removed=0;
+ if(penalty<=1e-10)return original;
+ // Prefer at least two ingredients per meal; a single-item meal is only a
+ // fallback when otherwise no feasible six-slot composition exists.
+ for(const minimumItems of [2,1]){
+  for(let pass=0;pass<12&&penalty>1e-10;pass++){
+   let winner=null,winnerPenalty=penalty;
+   for(let mi=0;mi<current.meals.length;mi++){
+    const meal=current.meals[mi];
+    if(meal.items.length<=minimumItems)continue;
+    for(let ii=0;ii<meal.items.length;ii++){
+     const item=meal.items[ii];
+     if(item.locked===true||item.recipeComponent===true)continue;
+     const candidate=structuredClone(current);
+     candidate.meals[mi].items.splice(ii,1);
+     const score=minimumCompositionPenalty(candidate,goal);
+     if(score<winnerPenalty-1e-9){
+      winnerPenalty=score;winner=candidate;
+     }
+    }
+   }
+   if(!winner)break;
+   current=winner;penalty=winnerPenalty;removed++;
+  }
+ }
+ if(removed){
+  current.profileReviewNotes=[...new Set([...(current.profileReviewNotes||[]),
+   'La guía automática simplificó ingredientes del menú modelo para acercarse a la meta diaria. Revisá la variedad, las porciones y las restricciones antes de publicarla.'])].slice(0,25);
+ }
+ return current;
+}
 // Generation may choose another compatible food; editing an existing guide
 // continues to rebalance quantities only, preserving the coach's choices.
 // Use the same strict daily tolerance for composition selection and quantity
@@ -185,7 +238,7 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
 function fitGeneratedComposition(plan,goal,available,profile){
  const loss=p=>Object.values(guideDeviation(p,goal)).reduce((sum,d)=>sum+
   (d.target>0?Math.max(0,Math.abs(d.percent)-1.99)**2:0),0);
- let current=rebalanceGuidedDay(plan,goal,{targetTolerance:.0199,wholeUnitSearch:false}),currentLoss=loss(current);
+ let current=rebalanceGuidedDay(trimImpossibleGeneratedMinimums(plan,goal),goal,{targetTolerance:.0199,wholeUnitSearch:false}),currentLoss=loss(current);
  // One bounded repair opportunity per possible meal, rather than stopping
  // after three changes when whole-unit choices need additional compensation.
  for(let pass=0;pass<6&&currentLoss>0;pass++){

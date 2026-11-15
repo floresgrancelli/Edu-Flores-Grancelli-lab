@@ -2,7 +2,7 @@
 // This module does not read or store health data. The caller must supply a CURRENT,
 // consented and server-authorized profile; this is not a medical decision engine.
 // The existing food catalog is reused in full, never filtered for a student's diary.
-import {GUIDE_MEALS,rebalanceGuidedDay,guideDeviation,guidedPortionBounds} from './guided-day.js?v=ncc-micro-restaurants-r1-20261114';
+import {GUIDE_MEALS,rebalanceGuidedDay,guideDeviation,guideQuantityRanges,guidedPortionBounds} from './guided-day.js?v=ncc-guide-compact-r2-20261115';
 
 import {normalizeGuidedCountableQuantity} from "./guided-countable-portions.js?v=ncc-micro-restaurants-r1-20261114";
 
@@ -127,7 +127,7 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
  if(!available.size)throw Error('No hay alimentos disponibles.');
  if(profile.restrictions.includes('food_allergy')&&!options.allergenDetailsConfirmed)
   throw Error('Revisá primero qué alérgeno declaró el alumno antes de generar la guía automática.');
- const active=initialSlots(profile),meals=[],notices=[];
+ const active=initialSlots(profile),meals=[],notices=[],compact=goal.kcal<=1800;
  if(profile.restrictionStatus==='unknown')notices.push('Restricciones sin verificar: no presupongas ausencia de celiaquía, intolerancias o alergias.');
  if(Array.isArray(options.restrictionReviewNotes))notices.push(...options.restrictionReviewNotes.filter(x=>typeof x==='string'&&x.length<=220));
  for(const template of templates){
@@ -149,7 +149,7 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
    }
    if(!food||used.has(food.id)||signal.status==='avoid')continue;
    if(signal.status==='review'&&profile.restrictionStatus!=='unknown')notices.push(template.label+': revisar '+food.name+' ('+signal.reason+').');
-   const [min,max]=guidedPortionBounds(food.id);
+   const [min,max]=guidedPortionBounds(food.id,compact);
    const grams=Math.min(max,Math.max(min,qty));
    items.push(ensureSource(food,grams));used.add(food.id);
   }
@@ -178,6 +178,65 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
  }
  return fitGeneratedComposition(plan,goal,available,profile);
 }
+// A six-meal seed can exceed a smaller approved goal even with EVERY item at
+// its minimum (e.g., 1,560 kcal with mandatory 160 g meat portions). A quantity
+// solver alone cannot fix an impossible lower bound. Before balancing a NEW
+// auto-generated menu, allow removing redundant, unlocked template ingredients.
+// Do not remove anything from the coach's edited guide or alter the goal.
+function minimumCompositionPenalty(plan,goal){
+ const ranges=guideQuantityRanges(plan,goal);
+ const targets={k:goal.kcal,p:goal.protein_g,c:goal.carb_g,f:goal.fat_g,fi:goal.fiber_g};
+ const weights={k:3,p:4,c:3,f:3,fi:1};
+ let penalty=0;
+ for(const key of required){
+  const target=Number(targets[key]);
+  if(!(target>0))continue;
+  const range=ranges[key];
+  const tooHigh=Math.max(0,range.min/target-1.0199);
+  // Avoid fixing an excess by deleting the last source of an essential macro.
+  const tooLow=Math.max(0,0.9801-range.max/target);
+  penalty+=weights[key]*(tooHigh*tooHigh+tooLow*tooLow);
+ }
+ return penalty;
+}
+function trimImpossibleGeneratedMinimums(original,goal){
+ let current=original,penalty=minimumCompositionPenalty(original,goal),removed=0;
+ if(penalty<=1e-10)return original;
+ // Prefer at least two ingredients per meal; a single-item meal is only a
+ // fallback when otherwise no feasible six-slot composition exists.
+ for(const minimumItems of [2,1]){
+  for(let pass=0;pass<12&&penalty>1e-10;pass++){
+   let winner=null,winnerPenalty=penalty;
+   for(let mi=0;mi<current.meals.length;mi++){
+    const meal=current.meals[mi];
+    if(meal.items.length<=minimumItems)continue;
+    for(let ii=0;ii<meal.items.length;ii++){
+     const item=meal.items[ii];
+     if(item.locked===true||item.recipeComponent===true)continue;
+     // Keep a protein source at breakfast and in each main meal wherever
+     // the initial template has one; trim redundant extras first.
+     const anchorGroup=meal.slot==='desayuno'?groupSets.breakfastProtein:
+       ['almuerzo','cena'].includes(meal.slot)?groupSets.protein:null;
+     if(anchorGroup?.includes(item.id)&&
+       !meal.items.some((other,index)=>index!==ii&&anchorGroup.includes(other.id)))continue;
+     const candidate=structuredClone(current);
+     candidate.meals[mi].items.splice(ii,1);
+     const score=minimumCompositionPenalty(candidate,goal);
+     if(score<winnerPenalty-1e-9){
+      winnerPenalty=score;winner=candidate;
+     }
+    }
+   }
+   if(!winner)break;
+   current=winner;penalty=winnerPenalty;removed++;
+  }
+ }
+ if(removed){
+  current.profileReviewNotes=[...new Set([...(current.profileReviewNotes||[]),
+   'La guía automática simplificó ingredientes del menú modelo para acercarse a la meta diaria. Revisá la variedad, las porciones y las restricciones antes de publicarla.'])].slice(0,25);
+ }
+ return current;
+}
 // Generation may choose another compatible food; editing an existing guide
 // continues to rebalance quantities only, preserving the coach's choices.
 // Use the same strict daily tolerance for composition selection and quantity
@@ -185,7 +244,7 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
 function fitGeneratedComposition(plan,goal,available,profile){
  const loss=p=>Object.values(guideDeviation(p,goal)).reduce((sum,d)=>sum+
   (d.target>0?Math.max(0,Math.abs(d.percent)-1.99)**2:0),0);
- let current=rebalanceGuidedDay(plan,goal,{targetTolerance:.0199,wholeUnitSearch:false}),currentLoss=loss(current);
+ let current=rebalanceGuidedDay(trimImpossibleGeneratedMinimums(plan,goal),goal,{targetTolerance:.0199,wholeUnitSearch:false}),currentLoss=loss(current);
  // One bounded repair opportunity per possible meal, rather than stopping
  // after three changes when whole-unit choices need additional compensation.
  for(let pass=0;pass<6&&currentLoss>0;pass++){
@@ -197,8 +256,12 @@ function fitGeneratedComposition(plan,goal,available,profile){
     const choices=groupSets[roleOf(prior.id,meal.slot)]||[];
     for(const id of choices){
      const food=available.get(id);
-     if(!food||used.has(id)||guideFoodSignal(food,profile).status!=='possible')continue;
-     const next=structuredClone(current),[min,max]=guidedPortionBounds(id);
+     const signal=food?guideFoodSignal(food,profile):null;
+     // An unverified clinical profile remains amber; substitutions can be
+     // considered for an UNAPPROVED draft, never presumed clinically safe.
+     if(!food||used.has(id)||!signal||signal.status==='avoid'||
+        (signal.status!=='possible'&&profile.restrictionStatus!=='unknown'))continue;
+     const next=structuredClone(current),[min,max]=guidedPortionBounds(id,goal.kcal<=1800);
      next.meals[mi].items[ii]=ensureSource(food,Math.max(min,Math.min(max,prior.qty)));
      const candidate=rebalanceGuidedDay(next,goal,{targetTolerance:.0199,wholeUnitSearch:false}),candidateLoss=loss(candidate);
      if(candidateLoss<bestLoss-1e-8){
@@ -245,7 +308,7 @@ export function addFlexibleFood(existing,slot,food,catalog,goal){
  const found=(catalog||[]).find(x=>x.id===food?.id);
  if(!meal||!found||meal.items.length>=15||meal.items.some(x=>x.id===found.id))
   throw Error('Revisá el alimento elegido; ya existe o no está disponible.');
- const [min,max]=guidedPortionBounds(found.id);
+ const [min,max]=guidedPortionBounds(found.id,goal.kcal<=1800);
  const item=ensureSource(found,Math.max(min,Math.min(max,Number(food.qty)||min)));
  item.qty=normalizeGuidedCountableQuantity(item);
  meal.items.push({...item,locked:true});
@@ -256,7 +319,7 @@ export function replaceFlexibleFood(existing,slot,index,newFood,catalog,goal){
  const next=structuredClone(existing),meal=next.meals.find(m=>m.slot===slot),found=(catalog||[]).find(x=>x.id===newFood?.id);
  if(!meal||!found||!Number.isInteger(index)||index<0||index>=meal.items.length||
   meal.items.some((x,j)=>j!==index&&x.id===found.id))throw Error('Alternativa no disponible o duplicada.');
- const [min,max]=guidedPortionBounds(found.id),prior=meal.items[index];
+ const [min,max]=guidedPortionBounds(found.id,goal.kcal<=1800),prior=meal.items[index];
  const item=ensureSource(found,Math.max(min,Math.min(max,newFood.qty??prior.qty)));
  item.qty=normalizeGuidedCountableQuantity(item);
  meal.items[index]={...item,locked:true};

@@ -42,6 +42,11 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  const photoEvidence=await page.locator('.ncc-guide-photo img').evaluateAll(imgs=>imgs.map(img=>({src:img.getAttribute('src'),height:img.getBoundingClientRect().height})));
  assert.ok(photoEvidence.length>0);for(const photo of photoEvidence){assert.ok(photo.height<=96);assert.ok(photo.src.startsWith('./assets/guide/'));}
  const firstPhoto=page.locator('.ncc-guide-photo').first();
+ // Composition repair can move the first pictured ingredient into a tab that
+ // is not initially selected. Open its own meal before testing the fallback.
+ const picturedSlot=await firstPhoto.locator('xpath=ancestor::*[@data-guidecard]').getAttribute('data-guidecard');
+ await page.locator('.ncc-guide-jumps [data-guidejump="'+picturedSlot+'"]').click();
+ assert.equal(await firstPhoto.isVisible(),true,'Image fallback test needs its owning meal tab visible');
  await firstPhoto.locator('img').dispatchEvent('error');
  assert.equal(await firstPhoto.locator('img').isVisible(),false);
  assert.equal(await firstPhoto.locator('.ncc-guide-photo-fallback').isVisible(),true);
@@ -119,16 +124,33 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
   el.dispatchEvent(event);el.dispatchEvent(touchEvent('touchcancel',null));
   return event.defaultPrevented;
  }),false,'Guide never claims native downward touch for pull-to-refresh');
+ // Countable-portion UI is tested with explicit, catalog-backed specimens.
+ // Composition optimization may replace egg/bread in the generated day; it must
+ // not make the quantity-editor regression test depend on those food choices.
+ const generatedFixture=await page.evaluate(()=>structuredClone(window.__GUIDE_QA__.state.coachGuidedDraft));
+ await page.evaluate(()=>{
+  const v=window.__GUIDE_QA__,plan=v.state.coachGuidedDraft;
+  for(const [id,grams] of [['egg',100],['bread',30]]){
+   if(plan.meals.some(meal=>meal.items.some(item=>item.id===id)))continue;
+   const source=v.foods.find(food=>food.id===id);
+   if(!source)throw Error('Missing catalog specimen '+id);
+   const breakfast=plan.meals.find(meal=>meal.slot==='desayuno');
+   if(!breakfast||breakfast.items.length>=15)throw Error('No room for countable specimen');
+   breakfast.items.push({...source,qty:grams,locked:false});
+  }
+  v.frame(v.coachGuidedSection()+v.coachAtomicDraftPanel());
+ });
  const eggKey=await page.evaluate(()=>{const s=window.__GUIDE_QA__.state;for(const m of s.coachGuidedDraft.meals){const i=m.items.findIndex(f=>f.id==='egg');if(i>=0)return m.slot+':'+i;}});
- assert.ok(eggKey);await page.locator(`[data-guideqty="${eggKey}"]`).fill('2');
+ assert.ok(eggKey);await page.locator(`[data-guidejump="${eggKey.split(':')[0]}"]`).click();
+ await page.locator(`[data-guideqty="${eggKey}"]`).fill('2');
  assert.equal(await page.evaluate(key=>{const [slot,i]=key.split(':');return window.__GUIDE_QA__.state.coachGuidedDraft.meals.find(m=>m.slot===slot).items[i].qty},eggKey),100,'2 catalog eggs = 100g');
  await page.locator(`[data-guideqty="${eggKey}"]`).blur();
  await page.locator('[data-guidejump="cena"]').click();
  await page.locator(`[data-guidejump="${eggKey.split(':')[0]}"]`).click();
  assert.equal(await page.locator(`[data-guideqty="${eggKey}"]`).inputValue(),'2');
- await page.locator('[data-guideall]').click();
  const breadKey=await page.evaluate(()=>{for(const m of window.__GUIDE_QA__.state.coachGuidedDraft.meals){const i=m.items.findIndex(f=>f.id==='bread');if(i>=0)return m.slot+':'+i;}});
- assert.ok(breadKey);await page.locator(`[data-guideqty="${breadKey}"]`).fill('1');
+ assert.ok(breadKey);await page.locator(`[data-guidejump="${breadKey.split(':')[0]}"]`).click();
+ await page.locator(`[data-guideqty="${breadKey}"]`).fill('1');
  assert.equal(await page.evaluate(key=>{const [slot,i]=key.split(':');return window.__GUIDE_QA__.state.coachGuidedDraft.meals.find(m=>m.slot===slot).items[i].qty},breadKey),30,'1 catalog slice = 30g');
  await page.locator(`[data-guideqty="${breadKey}"]`).blur();
  const equivalent=await page.evaluate(()=>{const v=window.__GUIDE_QA__,plan=v.state.coachGuidedDraft;return JSON.stringify(v.guideTotals(plan))===JSON.stringify(v.guideTotals(v.readGuidedEditor()));});assert.equal(equivalent,true,'Portion round trip preserves all nutrition totals');
@@ -152,6 +174,13 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  }
 
  await page.getByRole('button',{name:'Volver a editar'}).click();assert.equal(await page.locator('#coachGuidePreview').count(),0);
+ // Undo the specimens after exercising the real editor and preview. The rest of
+ // this test uses the generator's unchanged six-meal proposal for publish gates.
+ await page.evaluate(original=>{
+  const v=window.__GUIDE_QA__;
+  v.state.coachGuidedDraft=original;
+  v.frame(v.coachGuidedSection()+v.coachAtomicDraftPanel());
+ },generatedFixture);
  assert.deepEqual(await page.evaluate(()=>[trace.saves,trace.publishes]),[0,0]);
  if(mobileTouch){await top();touchEvidence.closeState=await page.evaluate(()=>({y:scrollY,height:document.documentElement.scrollHeight,viewport:innerHeight,active:document.activeElement?.outerHTML.slice(0,180),target:document.elementFromPoint(innerWidth*.8,600)?.outerHTML.slice(0,180),overflow:[getComputedStyle(document.documentElement).overflowY,getComputedStyle(document.body).overflowY],dialogs:document.querySelectorAll('dialog[open]').length}));await swipe();touchEvidence.afterClose=await page.evaluate(()=>window.scrollY);assert.ok(touchEvidence.afterClose>50,JSON.stringify({role,width,...touchEvidence})+' editor remains touch-scrollable after closing preview');await top();}
 

@@ -21,7 +21,7 @@ jobs:
           node-version: '22'
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - run: node efg-nutrition/tests/readable-text-browser.mjs
-      - run: node efg-nutrition/tests/color-system-browser.mjs
+      - run: node efg-nutrition/tests/settings-preview-browser.mjs
         env:
           NCC_TEXT_SIZE: extra
       - uses: actions/upload-artifact@v4

@@ -5,6 +5,7 @@ on:
     paths:
       - 'efg-nutrition/pilot/guided-day-v2.js'
       - 'efg-nutrition/pilot/pilot.js'
+      - 'efg-nutrition/tests/settings-all-roles.mjs'
       - 'efg-nutrition/tests/guide-whey-opt-in.test.mjs'
       - 'efg-nutrition/tests/coach-intake-prefill.mjs'
       - '.github/workflows/ncc-whey-prefill-qa.yml'
@@ -20,3 +21,4 @@ jobs:
           node-version: '22'
       - run: node --test efg-nutrition/tests/guide-whey-opt-in.test.mjs
       - run: node efg-nutrition/tests/coach-intake-prefill.mjs
+      - run: node --test efg-nutrition/tests/settings-all-roles.mjs

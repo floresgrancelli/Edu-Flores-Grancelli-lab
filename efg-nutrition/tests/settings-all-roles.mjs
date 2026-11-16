@@ -40,3 +40,4 @@ test("Configuración is reachable while student waits for coach",()=>{
  const guarded=app.split('else if(pilot?.route==="review"||pilot?.route==="private"){')[1]||"";
  assert.match(guarded,/else if\(state\.tab==="settings"\)frame\(settingsView\(\)\)/);
 });
+// Regression: a student awaiting Coach approval must reach Settings, not the waiting screen.

@@ -68,6 +68,18 @@ try{for(const engine of ['chromium','webkit']){
  await page.evaluate(()=>window.scrollTo(0,0));await snap('guide');
  for(const tab of ['home','weight','recipes','nutritionScience','studentMore','supplements','reports','privacy']){
  await page.evaluate(async tab=>{const v=window.__NCC_R4_FULLAPP__;v.state.tab=tab;await v.render();},tab);await snap('student-'+tab);
+ if(process.env.NCC_TEXT_SIZE&&tab==='home'){
+  const trigger=page.locator(width<700?'.efg-mobile-header [data-ncc-open-settings]':'.pilot-nav [data-ncc-open-settings]');
+  await trigger.click();await page.locator('#nccSettingsDialog').waitFor();
+  await page.getByRole('button',{name:'Normal',exact:true}).click();
+  await page.screenshot({path:resolve(out,engine+'-'+width+'-settings-normal.png'),fullPage:false});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  await page.getByRole('button',{name:'Cerrar configuración',exact:true}).click();
+  await snap('settings-location-normal');
+  await trigger.click();await page.getByRole('button',{name:'Extra grande',exact:true}).click();
+  await page.screenshot({path:resolve(out,engine+'-'+width+'-settings-extra.png'),fullPage:false});
+  await page.keyboard.press('Escape');assert.equal(await page.locator('#nccSettingsDialog').count(),0);
+ }
  }
  // Student's actual versioned form and handlers. No submit/network writes.
  await page.evaluate(async()=>{const {renderCoachRelaunchEntry}=await import('/efg-nutrition/pilot/coach-relaunch-entry-client.js');document.querySelector('.pilot-main').innerHTML=renderCoachRelaunchEntry({route:'intake'},{guided:true});});

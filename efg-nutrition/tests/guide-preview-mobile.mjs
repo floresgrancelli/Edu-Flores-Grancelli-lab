@@ -222,7 +222,8 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
    const paths=await page.evaluate(()=>window.__GUIDE_QA__.studentSecondaryNavigation().map(x=>x[0]));
    for(const tab of paths)assert.ok(await page.locator('.efg-menu-grid [data-tab="'+tab+'"]').count(),'Secondary route '+tab);
    if(route!=='ready'){
-    assert.deepEqual(paths.slice().sort(),['nutritionScience','privacy','privateHealth'].sort());
+    assert.deepEqual(paths.slice().sort(),['nutritionScience','privacy','privateHealth','settings'].sort());
+    assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.studentPendingTabAllowed('settings')),true,'Configuración stays accessible while plan is pending');
     assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.studentPendingTabAllowed('planner')),false,'Pending access remains restricted');
    }
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),'Student menu fits viewport');

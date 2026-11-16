@@ -1,0 +1,26 @@
+name: NCC planner autocomplete mobile regression
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - 'efg-nutrition/pilot/pilot.js'
+      - 'efg-nutrition/pilot/pilot.css'
+      - 'efg-nutrition/pilot/index.html'
+      - 'efg-nutrition/tests/planner-autocomplete-browser.mjs'
+      - '.github/workflows/ncc-planner-autocomplete-qa.yml'
+permissions:
+  contents: read
+jobs:
+  mobile-planner-autocomplete:
+    runs-on: ubuntu-24.04
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      options: --init --ipc=host
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node efg-nutrition/tests/planner-autocomplete-browser.mjs

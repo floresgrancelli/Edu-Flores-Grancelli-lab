@@ -6,7 +6,7 @@ const moduleSource=readFileSync('efg-nutrition/pilot/readable-text.js','utf8');
 const server=createServer((req,res)=>{
  if(req.url==='/readable.js'){res.setHeader('Content-Type','text/javascript');return res.end(moduleSource);}
  if(req.url==='/late.css'){res.setHeader('Content-Type','text/css');return res.end('.late{font-size:20px}');}
- res.setHeader('Content-Type','text/html');res.end('<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:Arial;background:#10231b;color:#fff;font-size:16px;padding:16px}button{font-size:14px;padding:12px}p{font-size:12px}h3{font-size:20px}@media(max-width:500px){h3{font-size:18px}}</style><div id="app"></div><script type="module">import {textSizeCard} from "/readable.js";document.querySelector("#app").innerHTML=textSizeCard()+\'<p class="late">Probando la lectura de Nutrición Con-Ciencia.</p>\'</script>');
+ res.setHeader('Content-Type','text/html; charset=utf-8');res.end('<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:Arial;background:#10231b;color:#fff;font-size:16px;padding:16px}button{font-size:14px;padding:12px}p{font-size:12px}h3{font-size:20px}@media(max-width:500px){h3{font-size:18px}}</style><div id="app"></div><script type="module">import {textSizeCard} from "/readable.js";document.querySelector("#app").innerHTML=textSizeCard()+\'<p class="late">Probando la lectura de Nutrición Con-Ciencia.</p>\'</script>');
 });
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 mkdirSync('artifacts/readable-text',{recursive:true});

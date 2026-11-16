@@ -9,7 +9,7 @@ const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='
 const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css?v=ncc-food-entry-batch-r1-20261112';document.head.append(mealEntryStyles);
 const recipeLibraryStyles=document.createElement('link');recipeLibraryStyles.rel='stylesheet';recipeLibraryStyles.href='./recipes-library-r1.css?v=ncc-recipes-search-r1-20261112';document.head.append(recipeLibraryStyles);
 import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-half-units-r1-20261114';
-import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-guide-compact-r3-20261115';
+import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-whey-prefill-r1-20261115';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
 import {PROFESSIONAL_RECONCILIATION_ENABLED,createProfessionalMutationJournal,createIndexedDBJournalDriver} from './professional-mutation-journal.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createProfessionalContextualTransport} from './professional-screens-transport.mjs?v=ncc-professional-reconciliation-r1-20261107';
@@ -74,8 +74,8 @@ import {nutritionTipDisclosureHTML} from "./nutrition-daily-tip.js?v=ncc-daily-t
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-guide-compact-r2-20261115";
-import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-guide-compact-r2-20261115";
-import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-guide-compact-r3-20261115";
+import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-whey-prefill-r1-20261115";
+import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-whey-prefill-r1-20261115";
 import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createNotificationInbox,notificationDestination} from "./notifications-ui.js?v=ncc-notify-read-all-r1-20261114";
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -3796,7 +3796,7 @@ function coachGuidedSection(){
  return '<section id="coachGuidedSlot" class="efg-guide-shell"><span class="eyebrow">NUTRICIÓN CON-CIENCIA · DE LOS MACROS A LA COMIDA REAL</span><h3>🥗 Dieta Guía automática e interactiva</h3>'+adaptedEntry+
  '<p class="pilot-hint">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'El borrador es privado. Solo la publicación atómica validada en el servidor mostrará objetivo y guía al alumno.':'El alumno verá un ejemplo claro, editable por vos antes de aprobarlo. Nunca reemplaza su registro diario real.')+'</p>'+
  (!goal?'<div class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Calculá primero una propuesta para preparar sus comidas de guía.':'Primero aprobá el objetivo nutricional de este alumno.')+'</div>':
- coachGuideWindowControl(currentCoachGuideWindow())+'<div class="pilot-toolbar"><label><input id="guideWhey" type="checkbox" '+(draft?.meals?.some(m=>m.items.some(f=>f.id==="whey_powder"))?"checked":"")+'> Agregar whey opcional a media mañana</label>'+
+ coachGuideWindowControl(currentCoachGuideWindow())+'<div class="pilot-toolbar"><label><input id="guideWhey" type="checkbox" '+(draft?.meals?.some(m=>m.items.some(f=>f.id==="whey_powder"))?"checked":"")+'> Agregar 1 scoop de proteína whey (30 g) a una colación</label>'+
  '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' comidas según la ventana</button></div>'+
  (plan?guidedDayContents(plan,goal,!!draft)+
  (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Recalcular con nuevos pesos y/o ingredientes</button>'+
@@ -4719,6 +4719,23 @@ async function loadStudentDetail(studentId){
  }
  await contextRead(loadSundayPermission(studentId,assertCurrent));
  state.consent=c.data;
+ // Only a freshly fetched, same-organization and RLS-shared intake may
+ // prefill the current student's calculator. Never infer equation sex,
+ // calculate or publish a nutritional goal without Coach confirmation.
+ const sharedIntake=state.coachIntakeForms?.[studentId];
+ const currentVersion=!COACH_VERSIONED_INTAKE_ENABLED||
+  (sharedIntake?.completed_version===COACH_RELEASE_INTAKE_VERSION&&
+   Number.isSafeInteger(sharedIntake?.revision)&&sharedIntake.revision>0);
+ const authorizedRole=state.profile?.role==='coach'||
+  (state.profile?.role==='admin'&&state.org?.is_test===true);
+ if(authorizedRole&&c.data?.accepted===true&&currentVersion&&
+    sharedIntake?.student_id===studentId&&sharedIntake.organization_id===organizationId&&
+    typeof sharedIntake.shared_at==='string'&&sharedIntake.shared_at){
+  state.coachIntakePrefill=createCoachCalculatorPrefill({
+   intake:sharedIntake,studentId,coachAuthorized:true,
+   requiredIntakeVersion:COACH_VERSIONED_INTAKE_ENABLED?COACH_RELEASE_INTAKE_VERSION:null
+  });
+ }
 }
 async function refresh(){
  if(state.loading)return;

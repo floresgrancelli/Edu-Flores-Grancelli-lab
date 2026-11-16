@@ -57,6 +57,17 @@ assert.ok(!Object.hasOwn(x.fields,"targetSex"),"No inferred sex");
 const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const form=readFileSync(new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");
 assert.match(app,/createCoachCalculatorPrefill/);
+// Autofill happens during the authorized fresh student-detail read, not
+// through an untrusted saved form, and does not trigger a calculation.
+const detailBody=app.split('async function loadStudentDetail(studentId){')[1]?.split('async function refresh(){')[0]||'';
+assert.match(detailBody,/state\.coachIntakePrefill=createCoachCalculatorPrefill\(/);
+assert.match(detailBody,/sharedIntake\?\.student_id===studentId/);
+assert.match(detailBody,/sharedIntake\.organization_id===organizationId/);
+assert.match(detailBody,/c\.data\?\.accepted===true/);
+assert.match(detailBody,/currentVersion/);
+assert.doesNotMatch(detailBody,/calculateGoal\(/);
+assert.ok(app.includes('Confirmá la actividad'), 'Unmapped high activity stays unselected for manual review');
+
 assert.match(app,/if\(action==="prepareCoachPlanFromIntake"\)/);
 assert.match(app,/await loadStudentDetail\(studentId\)/,"Re-read RLS/consent before using intake");
 assert.match(form,/data-act="prepareCoachPlanFromIntake"/);

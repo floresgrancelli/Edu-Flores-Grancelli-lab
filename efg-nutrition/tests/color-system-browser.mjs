@@ -78,7 +78,7 @@ try{for(const engine of ['chromium','webkit']){
   await snap('settings-location-normal');
   await trigger.click();await page.getByRole('button',{name:'Extra grande',exact:true}).click();
   await page.screenshot({path:resolve(out,engine+'-'+width+'-settings-extra.png'),fullPage:false});
-  await page.keyboard.press('Escape');assert.equal(await page.locator('#nccSettingsDialog').count(),0);
+  await page.keyboard.press('Escape');await page.locator('#nccSettingsDialog').waitFor({state:'detached'});
  }
  }
  // Student's actual versioned form and handlers. No submit/network writes.

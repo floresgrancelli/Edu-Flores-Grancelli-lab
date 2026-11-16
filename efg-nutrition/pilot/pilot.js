@@ -2103,7 +2103,8 @@ function plannerCard(){
    let options='<option value="none"'+(currentId==="none"?' selected':'')+'>No agregar</option>'+groupedFoodOptions(plannerDisplayFoods,meal.slot);
    if(currentId!=="none")options=options.replace('<option value="'+escapeHTML(currentId)+'">','<option value="'+escapeHTML(currentId)+'" selected>');
    out+='<div class="planner-item"><label for="planSearch_'+escapeHTML(key)+'">'+label+'</label>'+
-    '<input class="planner-food-search" type="search" autocomplete="off" data-plansearch="'+escapeHTML(key)+'" id="planSearch_'+escapeHTML(key)+'" placeholder="Buscar entre todos los alimentos…">'+
+    '<input class="planner-food-search" type="search" autocomplete="off" data-plansearch="'+escapeHTML(key)+'" id="planSearch_'+escapeHTML(key)+'" placeholder="Buscar entre todos los alimentos…" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="planMatches_'+escapeHTML(key)+'">'+
+    '<div class="planner-food-matches" id="planMatches_'+escapeHTML(key)+'" data-planmatches="'+escapeHTML(key)+'" role="listbox" aria-label="Alimentos encontrados para '+escapeHTML(label)+'" hidden></div>'+
     '<select aria-label="'+escapeHTML(label)+'" data-planselect="'+escapeHTML(key)+'">'+options+'</select>'+
     '<div class="efg-compat-status" data-plan-compat="'+escapeHTML(key)+'" role="status">'+(row.food?plannerFoodSignal(row.food).details:'')+'</div>';
    out+='<div class="planner-row-actions" data-plancontrols="'+escapeHTML(key)+'">';
@@ -2198,6 +2199,20 @@ function filterPlannerFoods(input){
   return {...f,name:(signal.symbol?signal.symbol+" ":"")+f.name};
  }),slot)+(matched.length?"":'<option disabled>Sin coincidencias</option>');
  select.value=nextId;
+ // iOS leaves the native select closed after typing: show tappable matches.
+ const list=input.parentElement?.querySelector('[data-planmatches]');
+ if(list){
+  list.hidden=!hasQuery;
+  input.setAttribute('aria-expanded',String(hasQuery));
+  const first=matched.slice(0,8);
+  list.innerHTML=!hasQuery?'':!first.length?
+   '<p class="planner-food-empty" role="status">Sin coincidencias. Probá otro nombre.</p>':
+   first.map(f=>{
+    const signal=plannerFoodSignal(f);
+    const label=(signal.symbol?signal.symbol+' ':'')+f.name;
+    return '<button type="button" class="planner-food-match" role="option" aria-selected="'+(f.id===nextId)+'" data-planmatchfood="'+escapeHTML(f.id)+'" data-planmatchkey="'+escapeHTML(key)+'">'+escapeHTML(label)+'</button>';
+   }).join('')+(matched.length>first.length?'<p class="planner-food-more">'+(matched.length-first.length)+' opciones más. Escribí un poco más para filtrar.</p>':'');
+ }
  if(hasQuery&&nextId!==chosenId){
   state.plannerSelections[key]=nextId;
   delete state.plannerDraftGrams[key];
@@ -5019,6 +5034,21 @@ async function showProof(path){
 async function mainClick(event){
  if(state.dualCandidateCoach&&!event.target?.closest?.('[data-act="logout"],[data-act="retry"]')&&!isDualWorkspaceField(event.target))return;
  let el=event.target.closest("button");if(!el)return;
+ // Result clicks update only the planner draft; no diary writes or publication.
+ if(el.dataset.planmatchfood!==undefined){
+  const key=el.dataset.planmatchkey,choice=el.dataset.planmatchfood;
+  if(!parsePlannerKey(key)||el.closest('[data-planmatches]')?.dataset.planmatches!==key)return;
+  const search=[...root.querySelectorAll('[data-plansearch]')].find(x=>x.dataset.plansearch===key);
+  const select=[...root.querySelectorAll('[data-planselect]')].find(x=>x.dataset.planselect===key);
+  const food=selectableFoods().find(f=>f.id===choice);
+  if(!search||!select||!food||![...select.options].some(o=>o.value===choice))return;
+  select.value=choice;search.value=food.name;
+  const list=search.parentElement?.querySelector('[data-planmatches]');
+  if(list){list.hidden=true;list.replaceChildren();}
+  search.setAttribute('aria-expanded','false');
+  state.plannerSelections[key]=choice;delete state.plannerDraftGrams[key];
+  syncPlannerSearchActions(key);updatePlannerPreview();return;
+ }
  if(el.dataset.act&&["scienceNext","sciencePrev","scienceFinish"].includes(el.dataset.act)){
   if(!SCIENCE_WELCOME_ENABLED||!state.scienceWelcomePending||state.scienceWelcomeBusy||
      !["student","coach"].includes(state.profile?.role))return;
@@ -6232,6 +6262,19 @@ document.addEventListener("keydown",event=>{
   const tabs=[...document.querySelectorAll('[data-studentguideslot]')],i=tabs.indexOf(planTab);
   const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(i+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
   event.preventDefault();tabs[next].click();return;
+ }
+ // Keyboard users can explore the same options without native-select popups.
+ const plannerInput=event.target.closest?.('[data-plansearch]');
+ const plannerMatch=event.target.closest?.('[data-planmatchfood]');
+ if(!event.isComposing&&event.keyCode!==229&&(plannerInput||plannerMatch)){
+  const key=plannerInput?.dataset.plansearch||plannerMatch?.dataset.planmatchkey;
+  const field=[...root.querySelectorAll('[data-plansearch]')].find(x=>x.dataset.plansearch===key);
+  const list=field?.parentElement?.querySelector('[data-planmatches]');
+  const choices=list&&!list.hidden?[...list.querySelectorAll('[data-planmatchfood]')]:[];
+  const ix=choices.indexOf(event.target);
+  if(event.key==='Escape'){if(list){list.hidden=true;list.replaceChildren();}field?.setAttribute('aria-expanded','false');if(plannerMatch)field?.focus({preventScroll:true});event.preventDefault();return;}
+  if(event.key==='ArrowDown'&&choices.length){event.preventDefault();choices[Math.min(ix+1,choices.length-1)].focus({preventScroll:true});return;}
+  if(event.key==='ArrowUp'&&ix>=0){event.preventDefault();(ix===0?field:choices[ix-1]).focus({preventScroll:true});return;}
  }
  const planDialog=document.querySelector('.ncc-plan-sheet');
  if(planDialog){

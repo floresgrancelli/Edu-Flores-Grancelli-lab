@@ -2,7 +2,7 @@
   "baseline": "9aaddfe21d77302224f93ea82be3b215c86769d6",
   "status": "RELEASE_CANDIDATE",
   "build": "ncc-pilot-3a40474052be",
-  "assetVersion": "ncc-settings-all-roles-r1-20261115",
+  "assetVersion": "ncc-planner-autocomplete-r1-20261116",
   "noFlagChanges": false,
   "noHostedCalls": true,
   "moduleVersions": {
@@ -108,7 +108,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ncc-guide-compact-r3-20261115",
     "efg-nutrition/pilot/pilot-participation-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-demo.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
-    "efg-nutrition/pilot/pilot.js": "ncc-settings-all-roles-r1-20261115",
+    "efg-nutrition/pilot/pilot.js": "ncc-planner-autocomplete-r1-20261116",
     "efg-nutrition/pilot/planner.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "ncc-whey-prefill-r1-20261115",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "ncc-whey-prefill-r1-20261115",
@@ -329,7 +329,7 @@
     "efg-nutrition/pilot/guided-meal-picker.js": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
     "efg-nutrition/pilot/gut-clinical-workbench.js": "b902cb22c96c3b6ce422e333877706f56a638ee3104ec58c85a4fea12ec55697",
     "efg-nutrition/pilot/habitual-preview.js": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
-    "efg-nutrition/pilot/index.html": "bbf80a45a544e279c7a9a6439f75afc97a8c3bfde64808ff85fef29ca077509e",
+    "efg-nutrition/pilot/index.html": "b87b0b155b6cefc54a4ee9d16e2606735330bd78e91287aa80e7d20e711dc7f8",
     "efg-nutrition/pilot/legal-onboarding.js": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
     "efg-nutrition/pilot/logout-session.js": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
     "efg-nutrition/pilot/macro-engine.js": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
@@ -366,7 +366,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "c006c9211e30da41fc08c8d548c4d57279110637d44c5463d8434b87ec71a4e6",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "2a4aacab660305649314ef3149fc71d93986e5f78cd8073830b81ef5b4cbdee4",
+    "efg-nutrition/pilot/pilot.js": "eb34b9a73be3d47fc5db70e368d7cb34f28faca511de1f15a4103aeaf3540d70",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "e11555e377fbdff508aa65ad98b68f870e3b4348aa754de9e63879851e601923",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "3529955e13e28cd4f77d8735bdffd7cbbf624a1fe3450ec5940a85620af86f2a",
@@ -448,7 +448,8 @@
     "efg-nutrition/pilot/food-restaurants-20261114.js": "bdc0a6fbd8e3d484bbc9eacf29542f1728940616d8d503a80c5bea50b90ae332",
     "efg-nutrition/pilot/micronutrient-expanded-catalog.js": "8f34324c5617e2e95be4513d6ce7b2db949535db9b12a18fbd6bfe8578994604",
     "efg-nutrition/pilot/usual-supplements.js": "2b546565d327395bacec1ce09639d7a5a9133f019f437e51021558977ff01483",
-    "efg-nutrition/pilot/readable-text.js": "f7ebc89eebc05e2387ec31350b8a967fdab0fc7b525682d489c7f5e2e71f8a93"
+    "efg-nutrition/pilot/readable-text.js": "f7ebc89eebc05e2387ec31350b8a967fdab0fc7b525682d489c7f5e2e71f8a93",
+    "efg-nutrition/pilot/pilot.css": "7fe70ff2d31b43e86507110110dfba6b8a66c0529e05abdb29736c90de804a8b"
   },
   "stylesheets": [
     {
@@ -463,8 +464,8 @@
     },
     {
       "path": "efg-nutrition/pilot/pilot.css",
-      "sha256": "3510ba60dabb7c2422898567f60a7ca96d25f4a2e614ac08af51b1e8571a13e4",
-      "url": "./pilot.css?v=ncc-pilot-3a40474052be"
+      "sha256": "7fe70ff2d31b43e86507110110dfba6b8a66c0529e05abdb29736c90de804a8b",
+      "url": "./pilot.css?v=ncc-planner-autocomplete-r1-20261116"
     },
     {
       "path": "efg-nutrition/pilot/guided-meal-picker.css",

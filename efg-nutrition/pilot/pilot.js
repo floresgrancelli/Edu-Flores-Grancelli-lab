@@ -1,4 +1,4 @@
-import {settingsButtonHTML} from './readable-text.js?v=ncc-settings-scoop-combined-r3-20261115';
+import {settingsButtonHTML} from './readable-text.js?v=ncc-settings-gear-only-r4-20261115';
 import {SUPPLEMENT_ROUTINE_KEY,readSupplementRoutine,snapshotSupplementRoutine,planUsualSupplements,newestSupplementRoutine} from './usual-supplements.js?v=ncc-supplement-routine-r1-20261114';
 import {resolveIndependentEntry} from './self-management-entry.js?v=ncc-self-entry-r1-20261113';
 import {createOperationNotices,showSavingFeedback} from './operation-notices.js?v=ncc-save-feedback-r1-20261112';

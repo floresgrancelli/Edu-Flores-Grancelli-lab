@@ -31,7 +31,7 @@ document.addEventListener('click',event=>{const button=event.target.closest('but
 // Also scale styles loaded after authentication, without observing text updates.
 document.addEventListener('load',event=>{if(event.target.tagName==='LINK')scan();},true);
 
-export function settingsButtonHTML(){return '<button type="button" class="ncc-settings-trigger" data-ncc-open-settings aria-haspopup="dialog" aria-label="Configuración">⚙ <span>Configuración</span></button>';}
+export function settingsButtonHTML(){return '<button type="button" class="ncc-settings-trigger" data-ncc-open-settings aria-haspopup="dialog" aria-label="Configuración" title="Configuración"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.7l-1.5 1.5a1.6 1.6 0 0 0-1.7-.3l-1.2.5a1.6 1.6 0 0 0-1 1.4V21h-4v-1.2a1.6 1.6 0 0 0-1-1.4l-1.2-.5a1.6 1.6 0 0 0-1.7.3l-1.5-1.5a1.6 1.6 0 0 0 .3-1.7l-.5-1.2a1.6 1.6 0 0 0-1.4-1H3v-4h1.2a1.6 1.6 0 0 0 1.4-1l.5-1.2a1.6 1.6 0 0 0-.3-1.7l1.5-1.5a1.6 1.6 0 0 0 1.7.3l1.2-.5a1.6 1.6 0 0 0 1-1.4V3h4v1.2a1.6 1.6 0 0 0 1 1.4l1.2.5a1.6 1.6 0 0 0 1.7-.3l1.5 1.5a1.6 1.6 0 0 0-.3 1.7l.5 1.2a1.6 1.6 0 0 0 1.4 1H21v4h-1.2a1.6 1.6 0 0 0-1.4 1z"/></svg></button>';}
 function openSettings(trigger){
  if(document.getElementById('nccSettingsDialog'))return;
  const dialog=document.createElement('dialog');dialog.id='nccSettingsDialog';dialog.className='ncc-settings-dialog';dialog.setAttribute('aria-labelledby','nccSettingsTitle');
@@ -43,8 +43,8 @@ function openSettings(trigger){
 }
 document.addEventListener('click',event=>{const trigger=event.target.closest('[data-ncc-open-settings]');if(trigger)openSettings(trigger);});
 const settingsStyle=document.createElement('style');settingsStyle.textContent=`
-.ncc-settings-trigger{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:44px;padding:8px;border:1px solid #47574b;border-radius:12px;background:#202e27;color:#edf0df;font-family:inherit;font-size:11px;font-weight:600;line-height:1.2;cursor:pointer;white-space:normal;max-width:112px}
-.ncc-settings-trigger span{font-size:11px}.pilot-nav>.ncc-settings-trigger{max-width:none;width:100%;margin-top:10px}
+.ncc-settings-trigger{display:inline-flex;align-items:center;justify-content:center;gap:0;flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;padding:10px;border:1px solid #47574b;border-radius:12px;background:#202e27;color:#edf0df;font-family:inherit;font-size:11px;font-weight:600;line-height:1.2;cursor:pointer;white-space:normal;max-width:44px}
+.ncc-settings-trigger svg{display:block;flex:none;width:22px;height:22px}.pilot-nav>.ncc-settings-trigger{margin-top:10px}
 .efg-mobile-person:has(.ncc-settings-trigger){gap:5px}.efg-mobile-header:has(.ncc-settings-trigger){gap:6px!important}
 .efg-mobile-header:has(.ncc-settings-trigger) .efg-mobile-brand{gap:5px!important}
 .efg-mobile-header:has(.ncc-settings-trigger) .efg-mobile-brand img{width:28px!important;height:auto!important}

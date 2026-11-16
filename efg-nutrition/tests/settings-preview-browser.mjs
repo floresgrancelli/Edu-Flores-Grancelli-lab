@@ -28,12 +28,13 @@ const engines=await import(process.env.NCC_PLAYWRIGHT_MODULE||'playwright');
 
 try{for(const engine of ['chromium','webkit']){
  const browser=await engines[engine].launch({headless:true});
- try{for(const width of [320,390,1280]){
+ try{for(const width of [390,320,1280]){
   const context=await browser.newContext({viewport:{width,height:844},serviceWorkers:'block',isMobile:width<700,hasTouch:true});
   await context.route('**/*',r=>new URL(r.request().url()).origin===origin?r.continue():r.abort());
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(origin+'/efg-nutrition/pilot/');
   await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
+  await page.evaluate(()=>{document.getElementById('ncc-student-day-fixture-controls').hidden=true;window.scrollTo(0,0);});
   for(const [role,actor] of [['alumno',null],['coach','mentor'],['admin','admin']]){
    if(actor)await page.evaluate(async actor=>{const v=window.__NCC_R4_FULLAPP__;await v.fixture.loginAs(actor);v.state.tab=actor==='admin'?'admin':'coach';await v.render();},actor);
    const trigger=page.locator(width<700?'.efg-mobile-header [data-ncc-open-settings]':'.pilot-nav [data-ncc-open-settings]');

@@ -181,7 +181,8 @@
     "efg-nutrition/pilot/food-alcohol-20261114.js": "ncc-micro-restaurants-r1-20261114",
     "efg-nutrition/pilot/food-restaurants-20261114.js": "ncc-micro-restaurants-r1-20261114",
     "efg-nutrition/pilot/micronutrient-expanded-catalog.js": "ncc-micro-bulk169-r1-20261114",
-    "efg-nutrition/pilot/usual-supplements.js": "ncc-supplement-routine-r1-20261114"
+    "efg-nutrition/pilot/usual-supplements.js": "ncc-supplement-routine-r1-20261114",
+    "efg-nutrition/pilot/readable-text.js": "ncc-settings-gear-only-r4-20261115"
   },
   "sha256": {
     "efg-nutrition/pilot/adapted-guide-editor.js": "2192f3a5d69b56bf8436b85170a546a7b61c9f264578957d84b6d55f206cd59d",
@@ -365,7 +366,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "c006c9211e30da41fc08c8d548c4d57279110637d44c5463d8434b87ec71a4e6",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "080519bb13ef6f83294316f8b90a9f0b295bd7aed33dd372813b67b84d8a5544",
+    "efg-nutrition/pilot/pilot.js": "2a4aacab660305649314ef3149fc71d93986e5f78cd8073830b81ef5b4cbdee4",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "e11555e377fbdff508aa65ad98b68f870e3b4348aa754de9e63879851e601923",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "3529955e13e28cd4f77d8735bdffd7cbbf624a1fe3450ec5940a85620af86f2a",
@@ -446,7 +447,8 @@
     "efg-nutrition/pilot/food-alcohol-20261114.js": "eb350cdc65511fdd39d4810afd50126e027da250235329f7be43764f10ab96d4",
     "efg-nutrition/pilot/food-restaurants-20261114.js": "bdc0a6fbd8e3d484bbc9eacf29542f1728940616d8d503a80c5bea50b90ae332",
     "efg-nutrition/pilot/micronutrient-expanded-catalog.js": "8f34324c5617e2e95be4513d6ce7b2db949535db9b12a18fbd6bfe8578994604",
-    "efg-nutrition/pilot/usual-supplements.js": "2b546565d327395bacec1ce09639d7a5a9133f019f437e51021558977ff01483"
+    "efg-nutrition/pilot/usual-supplements.js": "2b546565d327395bacec1ce09639d7a5a9133f019f437e51021558977ff01483",
+    "efg-nutrition/pilot/readable-text.js": "f7ebc89eebc05e2387ec31350b8a967fdab0fc7b525682d489c7f5e2e71f8a93"
   },
   "stylesheets": [
     {

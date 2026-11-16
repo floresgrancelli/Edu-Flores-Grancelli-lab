@@ -6,7 +6,7 @@ import {readFileSync,writeFileSync,mkdirSync,copyFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {resolve,extname} from 'node:path';
 const root=fileURLToPath(new URL('../../',import.meta.url));
-const preview='/workspace/ncc-food-entry-preview-'+process.pid,out=resolve(root,'artifacts/color-system');
+const preview='/workspace/ncc-food-entry-preview-'+process.pid,out=resolve(root,process.env.NCC_TEXT_SIZE?'artifacts/readable-text/full-app':'artifacts/color-system');
 mkdirSync(out,{recursive:true});
 const prepare=spawnSync(process.execPath,['efg-nutrition/tests/prepare-student-day-visual.mjs',preview],{cwd:root,encoding:'utf8'});
 assert.equal(prepare.status,0,prepare.stderr);
@@ -31,6 +31,7 @@ try{for(const engine of ['chromium','webkit']){
  try{for(const width of [390,320,1280]){
  const context=await browser.newContext({viewport:{width,height:844},serviceWorkers:'block',isMobile:width<700,hasTouch:true});
  await context.route('**/*',r=>new URL(r.request().url()).origin===origin?r.continue():r.abort());
+ if(process.env.NCC_TEXT_SIZE)await context.addInitScript(size=>localStorage.setItem('ncc-text-size-v1',size),process.env.NCC_TEXT_SIZE);
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(origin+'/efg-nutrition/pilot/');await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
  const snap=async name=>{
@@ -67,6 +68,18 @@ try{for(const engine of ['chromium','webkit']){
  await page.evaluate(()=>window.scrollTo(0,0));await snap('guide');
  for(const tab of ['home','weight','recipes','nutritionScience','studentMore','supplements','reports','privacy']){
  await page.evaluate(async tab=>{const v=window.__NCC_R4_FULLAPP__;v.state.tab=tab;await v.render();},tab);await snap('student-'+tab);
+ if(process.env.NCC_TEXT_SIZE&&tab==='home'){
+  const trigger=page.locator(width<700?'.efg-mobile-header [data-ncc-open-settings]':'.pilot-nav [data-ncc-open-settings]');
+  await trigger.click();await page.locator('#nccSettingsDialog').waitFor();
+  await page.getByRole('button',{name:'Normal',exact:true}).click();
+  await page.screenshot({path:resolve(out,engine+'-'+width+'-settings-normal.png'),fullPage:false});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  await page.getByRole('button',{name:'Cerrar configuración',exact:true}).click();
+  await snap('settings-location-normal');
+  await trigger.click();await page.getByRole('button',{name:'Extra grande',exact:true}).click();
+  await page.screenshot({path:resolve(out,engine+'-'+width+'-settings-extra.png'),fullPage:false});
+  await page.keyboard.press('Escape');await page.locator('#nccSettingsDialog').waitFor({state:'detached'});
+ }
  }
  // Student's actual versioned form and handlers. No submit/network writes.
  await page.evaluate(async()=>{const {renderCoachRelaunchEntry}=await import('/efg-nutrition/pilot/coach-relaunch-entry-client.js');document.querySelector('.pilot-main').innerHTML=renderCoachRelaunchEntry({route:'intake'},{guided:true});});

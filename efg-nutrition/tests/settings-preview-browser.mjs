@@ -49,7 +49,7 @@ try{for(const engine of ['chromium','webkit']){
    await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-extra.png'),fullPage:false});
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'extra overflow '+width+' '+role);
    await page.getByRole('button',{name:'Normal',exact:true}).click();
-   await page.keyboard.press('Escape');assert.equal(await page.locator('#nccSettingsDialog').count(),0);
+   await page.keyboard.press('Escape');await page.locator('#nccSettingsDialog').waitFor({state:'detached'});
    assert.equal(await trigger.evaluate(el=>el===document.activeElement),true,'focus returns to settings');
   }
   assert.deepEqual(errors,[]);await context.close();

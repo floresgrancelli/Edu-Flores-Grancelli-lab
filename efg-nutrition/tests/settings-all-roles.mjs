@@ -34,3 +34,9 @@ test('Settings card offers explicit on-demand update; no automatic reload',()=>{
  assert.match(app,/data-act="applyAppVersion"/);
  assert.match(app,/versionNotice\.apply\(\{explicitClick:true,discardConfirmed\}\)/);
 });
+
+
+test("Configuración is reachable while student waits for coach",()=>{
+ const guarded=app.split('else if(pilot?.route==="review"||pilot?.route==="private"){')[1]||"";
+ assert.match(guarded,/else if\(state\.tab==="settings"\)frame\(settingsView\(\)\)/);
+});

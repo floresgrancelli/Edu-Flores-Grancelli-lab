@@ -4258,6 +4258,7 @@ async function render(){
     else if(state.tab==="messages"){frame(messagesView());messages.mount();}
     else if(state.tab==="privacy")frame(studentPrivacyView());
     else if(state.tab==="studentMore")frame(studentMoreView());
+    else if(state.tab==="settings")frame(settingsView());
     else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,guided:true,sendOnSave:true}));
     else if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.tab==="privateHealth")
      await renderPrivateHealthDeclaration();

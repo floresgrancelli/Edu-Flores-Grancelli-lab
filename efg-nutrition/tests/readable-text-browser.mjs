@@ -17,7 +17,7 @@ try{for(const engine of [chromium,webkit]){
  await page.goto('http://127.0.0.1:'+server.address().port);
  for(const [name,factor] of [['Grande',1.2],['Extra grande',1.4],['Normal',1]]){
   await page.getByRole('button',{name,exact:true}).click();
-  assert.equal(await page.locator('p').first().evaluate(x=>parseFloat(getComputedStyle(x).fontSize)),12*factor);
+  assert.ok(Math.abs(await page.locator('p').first().evaluate(x=>parseFloat(getComputedStyle(x).fontSize))-12*factor)<.01);
   assert.ok(Math.abs(await page.locator('h3').evaluate(x=>parseFloat(getComputedStyle(x).fontSize))-(width<=500?18:20)*factor)<.01);
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'No horizontal overflow at '+width);
  }

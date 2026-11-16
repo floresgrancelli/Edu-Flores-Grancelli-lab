@@ -1381,11 +1381,12 @@ function studentSecondaryNavigation(){
  ["nutritionScience","","Nutrición Con-Ciencia","lilac"],["privacy","","Privacidad y permisos","cream"]]:[
  ["notifications","","Notificaciones","peach"],["messages","","Mensajes con mi coach","blue"],["recipes","","Mis recetas","mint"],["supplements","","Suplementos","lilac"],["sport","","Actividad física","peach"],["summaries","","Informes semanales","blue"],["nutritionScience","","Nutrición Con-Ciencia","lilac"],["privacy","","Privacidad y permisos","cream"],["payments","","Mis pagos","mint"],
  ["intake","","Mi ficha inicial","cream"]];
+ entries.push(["settings","","Configuración","lilac"]);
  if(studentHealthNavigation())entries.push(["privateHealth","","Mis restricciones (opcional)","mint"]);
  return entries;
 }
 function studentPendingTabAllowed(tab){
- return ["intake","messages","nutritionScience","privacy","notifications","studentMore"].includes(tab)||(tab==="privateHealth"&&studentHealthNavigation())||(tab==="history"&&COACH_STUDENT_JOURNEY_ENABLED&&["private","review"].includes(state.coachPilotEntry?.route));
+ return ["intake","messages","nutritionScience","privacy","notifications","studentMore","settings"].includes(tab)||(tab==="privateHealth"&&studentHealthNavigation())||(tab==="history"&&COACH_STUDENT_JOURNEY_ENABLED&&["private","review"].includes(state.coachPilotEntry?.route));
 }
 function frame(content){
  dualWorkspaceFrame.prepareFrame();
@@ -1398,7 +1399,7 @@ function frame(content){
   :role==="admin"?[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["nutritionScience","✦","Nutrición Con-Ciencia"],["adminMore","☷","Más"]]:[];
  const visibleMenu=["home","recipes"].includes(state.tab)&&!state.dualCandidateCoach?[["home","","Mi Día"],["planner","","Plan"],["weight","","Avance"],["nutritionScience","","Ciencia"],[role==="admin"?"adminMore":"studentMore","","Más"]]:menu;
  const primaryTabs=menu.map(m=>m[0]);
- const activeTab=role==="student"?(primaryTabs.includes(state.tab)?state.tab:"studentMore"):role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
+ const activeTab=role==="student"?(primaryTabs.includes(state.tab)?state.tab:"studentMore"):role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner","settings"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage","settings"].includes(state.tab))?"adminMore":state.tab;
  const backgroundKey=state.tab==="home"?"day":state.tab==="planner"?"plan":state.tab==="weight"?"progress":state.tab==="nutritionScience"?"science":["coach","coachStudents","coachIntake","coachTools","testCoach"].includes(state.tab)?"coach":["admin","adminMore","adminManage"].includes(state.tab)?"admin":"start";
  root.innerHTML='<div '+(state.tab==='recipes'?'data-ncc-recipes="true" ':'')+(state.tab==='planner'&&currentStudentGuide()?'data-ncc-plan="true" ':'')+'data-ncc-background="'+backgroundKey+'" class="pilot-layout efg-role-'+role+(role==="student"&&state.tab==="home"?' ncc-student-day':'')+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>Nutrición Con-Ciencia <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
  visibleMenu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" aria-label="'+escapeHTML(m[0]==="planner"?"Planificar":m[0]==="weight"?"Progreso":m[0]==="nutritionScience"?"Nutrición Con-Ciencia":m[2])+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+(['home','recipes'].includes(state.tab)||(state.tab==='planner'&&currentStudentGuide())?dayNavigationIcon(m[0]):efgNavIcon(m[0]))+'</span><span class="nav-label">'+(m[0]==='nutritionScience'?'Ciencia':m[2])+'</span></button>').join("")+
@@ -1578,6 +1579,7 @@ function efgMenuIcon(kind){
   supplements:'<rect x="3" y="8" width="18" height="8" rx="4" transform="rotate(-38 12 12)"/><path d="m9 10 5 6"/>',
   payments:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h5"/>',
   privacy:'<rect x="5" y="10" width="14" height="12" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v3"/>',
+  settings:'<path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.5 1.5m9.8 9.8 1.5 1.5M18.4 5.6l-1.5 1.5M7.1 16.9l-1.5 1.5"/><circle cx="12" cy="12" r="4"/>',
   coachStudents:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 5"/>',
   coachTools:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8M8 12h2m4 0h2m-8 5h2m4 0h2"/>',
   testCoach:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 5"/>',
@@ -1601,8 +1603,13 @@ function coachPersonalMoreView(){
  ["weight","↗","Mi progreso","mint"],["recipes","🍲","Mis recetas","peach"],
  ["supplements","💊","Mis suplementos","lilac"],["sport","🏃","Mi actividad","blue"],
  ["nutritionScience","🧠","Nutrición Con-Ciencia","mint"],
- ["messages","💬","Mensajería interna","mint"],["payments","💳","Pagos y licencias","cream"]
+ ["messages","💬","Mensajería interna","mint"],["payments","💳","Pagos y licencias","cream"],
+ ["settings","⚙️","Configuración","lilac"]
  ]);
+}
+function settingsView(){
+ return rootText("Configuración","Actualizá la aplicación y administrá tu sesión.")+versionCheckCard()+
+  '<section class="card"><h3>Tu cuenta</h3><p class="pilot-hint">Perfil: '+escapeHTML(roleLabel())+'. Tus datos y los permisos de cada función no cambian al actualizar la app.</p><button type="button" class="btn small light" data-act="logout">Cerrar sesión</button></section>';
 }
 function studentMoreView(){
  return personalSpaceMenuView("Mi espacio","Tus opciones y permisos, en un solo lugar.",(studentRestrictedNavigation()?[]:[["planner","","Mi planificador","cream"]]).concat(studentSecondaryNavigation()));
@@ -1852,7 +1859,7 @@ function studentPlannerView(){
 }
 function adminMoreView(){
  return selfManagementLink()+personalSpaceMenuView("Todas mis herramientas","Como administrador conservás tus accesos personales y de gestión.",[
- ["adminManage","⚙️","Organizaciones","lilac"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajería interna","mint"],["reports","📈","Informes","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["nutritionScience","🧠","Nutrición Con-Ciencia","mint"],["payments","💳","Pagos y licencias","blue"]]);
+ ["adminManage","⚙️","Organizaciones","lilac"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajería interna","mint"],["reports","📈","Informes","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["nutritionScience","🧠","Nutrición Con-Ciencia","mint"],["payments","💳","Pagos y licencias","blue"],["settings","⚙️","Configuración","lilac"]]);
 }
 /* PRO-37: premio separado de la ingesta. La autorización viene exclusivamente
    de una fila RLS creada/aprobada por el coach; sin tabla, permiso = NO. */
@@ -4293,7 +4300,7 @@ async function render(){
  state.renderedDay=today();
  let page={intake:()=>COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"&&state.coachPilotIntake?
    renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,guided:true}):COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"?
-   renderCoachRelaunchEntry(state.coachRelaunchEntry,{editing:true,guided:true}):coachIntakeFlow.view(),notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,nutritionScience:renderScienceVerticalView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
+   renderCoachRelaunchEntry(state.coachRelaunchEntry,{editing:true,guided:true}):coachIntakeFlow.view(),notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,nutritionScience:renderScienceVerticalView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,settings:settingsView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  lastRenderedViewKey=activeViewKey();
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);

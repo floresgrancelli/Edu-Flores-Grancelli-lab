@@ -50,6 +50,9 @@ const settingsStyle=document.createElement('style');settingsStyle.textContent=`
 .efg-mobile-header:has(.ncc-settings-trigger) .efg-mobile-brand img{width:28px!important;height:auto!important}
 .efg-mobile-header:has(.ncc-settings-trigger) .efg-mobile-person{flex-shrink:0}
 .ncc-settings-dialog{box-sizing:border-box;width:min(440px,calc(100% - 28px));max-height:85dvh;overflow:auto;border:1px solid #4b5b46;border-radius:22px;padding:20px;background:#142019;color:#edf0df;box-shadow:0 22px 70px #0008;font-family:inherit}
+@media(max-width:720px){.pilot-nav>.ncc-settings-trigger{display:none!important}}
+.ncc-settings-dialog :is(h2,h3,p){color:#edf0df!important}
+.ncc-settings-dialog [data-text-size-status]{color:#c4cebd!important}
 .ncc-settings-dialog::backdrop{background:#0009;backdrop-filter:blur(3px)}
 .ncc-settings-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
 .ncc-settings-dialog h2{margin:0;font-size:22px}.ncc-settings-dialog h3{font-size:17px;margin:0 0 10px}

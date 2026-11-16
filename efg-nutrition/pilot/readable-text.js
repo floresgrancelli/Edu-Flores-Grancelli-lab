@@ -53,6 +53,7 @@ const settingsStyle=document.createElement('style');settingsStyle.textContent=`
 @media(max-width:720px){.pilot-nav>.ncc-settings-trigger{display:none!important}}
 .ncc-settings-dialog :is(h2,h3,p){color:#edf0df!important}
 .ncc-settings-dialog [data-text-size-status]{color:#c4cebd!important}
+@media(max-width:360px){html.ncc-lime-theme #app .pilot-layout[data-ncc-background] .efg-mobile-header:has(.ncc-settings-trigger){flex-wrap:wrap!important;height:auto!important}html.ncc-lime-theme #app .pilot-layout[data-ncc-background] .efg-mobile-header:has(.ncc-settings-trigger) .efg-mobile-brand{flex-basis:100%!important}html.ncc-lime-theme #app .pilot-layout[data-ncc-background] .efg-mobile-header:has(.ncc-settings-trigger) .efg-mobile-person{margin-left:auto}}
 .ncc-settings-dialog::backdrop{background:#0009;backdrop-filter:blur(3px)}
 .ncc-settings-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
 .ncc-settings-dialog h2{margin:0;font-size:22px}.ncc-settings-dialog h3{font-size:17px;margin:0 0 10px}

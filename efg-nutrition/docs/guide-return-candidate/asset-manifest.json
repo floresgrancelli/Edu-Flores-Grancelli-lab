@@ -182,8 +182,7 @@
     "efg-nutrition/pilot/food-restaurants-20261114.js": "ncc-micro-restaurants-r1-20261114",
     "efg-nutrition/pilot/micronutrient-expanded-catalog.js": "ncc-micro-bulk169-r1-20261114",
     "efg-nutrition/pilot/usual-supplements.js": "ncc-supplement-routine-r1-20261114",
-    "efg-nutrition/pilot/readable-text.js": "ncc-settings-gear-only-r4-20261115",
-    "efg-nutrition/pilot/pilot.css": "ncc-planner-autocomplete-r1-20261116"
+    "efg-nutrition/pilot/readable-text.js": "ncc-settings-gear-only-r4-20261115"
   },
   "sha256": {
     "efg-nutrition/pilot/adapted-guide-editor.js": "2192f3a5d69b56bf8436b85170a546a7b61c9f264578957d84b6d55f206cd59d",
@@ -465,8 +464,8 @@
     },
     {
       "path": "efg-nutrition/pilot/pilot.css",
-      "sha256": "3510ba60dabb7c2422898567f60a7ca96d25f4a2e614ac08af51b1e8571a13e4",
-      "url": "./pilot.css?v=ncc-pilot-3a40474052be"
+      "sha256": "7fe70ff2d31b43e86507110110dfba6b8a66c0529e05abdb29736c90de804a8b",
+      "url": "./pilot.css?v=ncc-planner-autocomplete-r1-20261116"
     },
     {
       "path": "efg-nutrition/pilot/guided-meal-picker.css",

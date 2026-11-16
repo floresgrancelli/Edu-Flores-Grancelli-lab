@@ -6,7 +6,7 @@ import {readFileSync,writeFileSync,mkdirSync,copyFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {resolve,extname} from 'node:path';
 const root=fileURLToPath(new URL('../../',import.meta.url));
-const preview='/workspace/ncc-food-entry-preview-'+process.pid,out=resolve(root,'artifacts/color-system');
+const preview='/workspace/ncc-food-entry-preview-'+process.pid,out=resolve(root,process.env.NCC_TEXT_SIZE?'artifacts/readable-text/full-app':'artifacts/color-system');
 mkdirSync(out,{recursive:true});
 const prepare=spawnSync(process.execPath,['efg-nutrition/tests/prepare-student-day-visual.mjs',preview],{cwd:root,encoding:'utf8'});
 assert.equal(prepare.status,0,prepare.stderr);
@@ -31,6 +31,7 @@ try{for(const engine of ['chromium','webkit']){
  try{for(const width of [390,320,1280]){
  const context=await browser.newContext({viewport:{width,height:844},serviceWorkers:'block',isMobile:width<700,hasTouch:true});
  await context.route('**/*',r=>new URL(r.request().url()).origin===origin?r.continue():r.abort());
+ if(process.env.NCC_TEXT_SIZE)await context.addInitScript(size=>localStorage.setItem('ncc-text-size-v1',size),process.env.NCC_TEXT_SIZE);
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(origin+'/efg-nutrition/pilot/');await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
  const snap=async name=>{

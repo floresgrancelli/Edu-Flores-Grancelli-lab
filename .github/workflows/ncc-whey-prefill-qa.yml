@@ -1,0 +1,22 @@
+name: NCC whey and automatic intake prefill regression
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - 'efg-nutrition/pilot/guided-day-v2.js'
+      - 'efg-nutrition/pilot/pilot.js'
+      - 'efg-nutrition/tests/guide-whey-opt-in.test.mjs'
+      - 'efg-nutrition/tests/coach-intake-prefill.mjs'
+      - '.github/workflows/ncc-whey-prefill-qa.yml'
+permissions:
+  contents: read
+jobs:
+  guide-and-prefill:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test efg-nutrition/tests/guide-whey-opt-in.test.mjs
+      - run: node efg-nutrition/tests/coach-intake-prefill.mjs

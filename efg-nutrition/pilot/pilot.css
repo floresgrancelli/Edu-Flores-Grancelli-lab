@@ -461,3 +461,23 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .efg-guide-add-food button{min-height:42px;white-space:nowrap}
 .efg-guide-meal-head button{white-space:normal;max-width:100%}
 @media(max-width:450px){.efg-guide-add-food{grid-template-columns:1fr}.efg-guide-food{gap:7px}.efg-guide-food>label{width:auto}.efg-guide-add-food button{width:100%}}
+
+/* Planificador: lista filtrada visible y desplazable en Safari iOS y Android. */
+.planner-food-matches:not([hidden]){
+ display:flex;flex-direction:column;gap:5px;max-height:252px;overflow-y:auto;
+ overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+ padding:7px;margin:0 0 11px;border:1px solid #657a6e;border-radius:13px;
+ background:#172521;color:#f5f8f1;box-sizing:border-box
+}
+.planner-food-match{
+ box-sizing:border-box;display:block;width:100%;min-height:45px;
+ padding:10px 12px;text-align:left;line-height:1.4;font-size:15px;font-weight:600;
+ border:1px solid #40594c;border-radius:9px;background:#26362e;color:#f5f8f1;
+ cursor:pointer;white-space:normal;overflow-wrap:anywhere
+}
+.planner-food-match:hover,.planner-food-match:focus-visible{
+ background:#394a32;border-color:#b0c57a;outline:2px solid #b0c57a;outline-offset:1px
+}
+.planner-food-empty,.planner-food-more{
+ margin:4px 7px;padding:3px 2px;color:#e3eadc;font-size:13px;line-height:1.5
+}

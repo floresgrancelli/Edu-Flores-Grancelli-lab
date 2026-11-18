@@ -20,7 +20,12 @@
         "Pachulí",
         "Especias frescas"
       ]
-    }
+    },
+    "highlights": [
+      "Bergamota",
+      "Mandarina",
+      "Maderas"
+    ]
   },
   {
     "id": "dior-homme-sport-edt",
@@ -39,7 +44,12 @@
         "Maderas",
         "Ámbar"
       ]
-    }
+    },
+    "highlights": [
+      "Bergamota de Calabria",
+      "Limón italiano",
+      "Pimienta rosa"
+    ]
   },
   {
     "id": "chanel-chance-eau-fraiche-edt",
@@ -54,7 +64,12 @@
         "Jazmín",
         "Madera de teca"
       ]
-    }
+    },
+    "highlights": [
+      "Cidra",
+      "Jazmín",
+      "Madera de teca"
+    ]
   },
   {
     "id": "lattafa-mayar-natural-intense",
@@ -81,6 +96,287 @@
         "Vainilla",
         "Ambroxan"
       ]
-    }
+    },
+    "highlights": [
+      "Mandarina verde",
+      "Loto",
+      "Sándalo"
+    ]
+  },
+  {
+    "id": "versace-man-eau-fraiche-edt",
+    "option": "hombre",
+    "category": "diseñador",
+    "name": "Versace Man Eau Fraîche EDT",
+    "profile": "Cítrico aromático",
+    "source": "https://www.ulta.com/p/man-eau-fraiche-eau-de-toilette-VP11911",
+    "notes": {
+      "salida": [
+        "Limón blanco",
+        "Palo de rosa",
+        "Carambola"
+      ],
+      "corazon": [
+        "Estragón",
+        "Hojas de cedro",
+        "Salvia esclarea"
+      ],
+      "fondo": [
+        "Almizcle",
+        "Ámbar",
+        "Madera de sicómoro"
+      ]
+    },
+    "highlights": [
+      "Limón blanco",
+      "Carambola",
+      "Hojas de cedro"
+    ]
+  },
+  {
+    "id": "dg-light-blue-pour-homme-new-edt",
+    "option": "hombre",
+    "category": "diseñador",
+    "name": "Dolce & Gabbana Light Blue Pour Homme EDT · versión actual",
+    "profile": "Cítrico aromático",
+    "source": "https://www.dolcegabbana.com/en-us/beauty/perfumes-for-him/light-blue-pour-homme/new-lbph-edt-100ml---158057971188116.html",
+    "notes": {
+      "destacadas": [
+        "Cítricos",
+        "Romero",
+        "Pachulí"
+      ]
+    },
+    "highlights": [
+      "Cítricos",
+      "Romero",
+      "Pachulí"
+    ]
+  },
+  {
+    "id": "armani-acqua-di-gio-edt",
+    "option": "hombre",
+    "category": "diseñador",
+    "name": "Giorgio Armani Acqua di Giò EDT",
+    "profile": "Acuático cítrico",
+    "source": "https://www.giorgioarmanibeauty-usa.com/fragrances/mens-cologne/acqua-di-gio/acqua-di-gio-eau-de-toilette/A005.html",
+    "notes": {
+      "destacadas": [
+        "Acorde marino",
+        "Bergamota",
+        "Cedro"
+      ]
+    },
+    "highlights": [
+      "Acorde marino",
+      "Bergamota",
+      "Cedro"
+    ]
+  },
+  {
+    "id": "lattafa-fakhar-black-edp",
+    "option": "hombre",
+    "category": "árabe",
+    "name": "Lattafa Fakhar Black EDP",
+    "profile": "Aromático amaderado",
+    "source": "https://www.lattafa-usa.com/products/fakhar-men",
+    "notes": {
+      "salida": [
+        "Manzana",
+        "Bergamota",
+        "Jengibre"
+      ],
+      "corazon": [
+        "Lavanda",
+        "Salvia",
+        "Bayas de enebro",
+        "Geranio"
+      ],
+      "fondo": [
+        "Haba tonka",
+        "Cedro",
+        "Madera ambarada",
+        "Vetiver"
+      ]
+    },
+    "highlights": [
+      "Manzana",
+      "Lavanda",
+      "Vetiver"
+    ]
+  },
+  {
+    "id": "afnan-9am-dive-edp",
+    "option": "hombre",
+    "category": "árabe",
+    "name": "Afnan 9 AM Dive EDP · unisex",
+    "profile": "Cítrico acuático",
+    "source": "https://afnan.com/products/9-am-dive",
+    "notes": {
+      "salida": [
+        "Limón",
+        "Pimienta rosa",
+        "Menta",
+        "Grosella negra"
+      ],
+      "corazon": [
+        "Manzana",
+        "Incienso",
+        "Cedro"
+      ],
+      "fondo": [
+        "Pachulí",
+        "Jazmín",
+        "Jengibre",
+        "Sándalo"
+      ]
+    },
+    "highlights": [
+      "Limón",
+      "Menta",
+      "Manzana"
+    ]
+  },
+  {
+    "id": "versace-dylan-turquoise-edt",
+    "option": "mujer",
+    "category": "diseñador",
+    "name": "Versace Dylan Turquoise EDT",
+    "profile": "Cítrico floral frutal",
+    "source": "https://www.versace.com/by/en/women/accessories/fragrances-body-care/dylan-turquoise/SET_Fragrances_DylanTurquoise.html",
+    "notes": {
+      "salida": [
+        "Mandarina",
+        "Limón primofiore",
+        "Pimienta rosa"
+      ],
+      "corazon": [
+        "Absoluto de brotes de grosella negra",
+        "Pétalos de jazmín",
+        "Fresia",
+        "Guayaba"
+      ],
+      "fondo": [
+        "Clearwood",
+        "Maderas",
+        "Almizcle"
+      ]
+    },
+    "highlights": [
+      "Limón primofiore",
+      "Guayaba",
+      "Fresia"
+    ]
+  },
+  {
+    "id": "dg-light-blue-women-edt",
+    "option": "mujer",
+    "category": "diseñador",
+    "name": "Dolce & Gabbana Light Blue EDT · versión actual",
+    "profile": "Cítrico frutal",
+    "source": "https://www.ulta.com/p/light-blue-eau-de-toilette-with-lemon-apple-pimprod2051153",
+    "notes": {
+      "salida": [
+        "Limón siciliano"
+      ],
+      "corazon": [
+        "Manzana Granny Smith"
+      ],
+      "fondo": [
+        "Cedro"
+      ]
+    },
+    "highlights": [
+      "Limón siciliano",
+      "Manzana Granny Smith",
+      "Cedro"
+    ]
+  },
+  {
+    "id": "armani-acqua-di-gioia-edp",
+    "option": "mujer",
+    "category": "diseñador",
+    "name": "Giorgio Armani Acqua di Gioia EDP",
+    "profile": "Floral acuático",
+    "source": "https://www.giorgioarmanibeauty-usa.com/fragrances/womens-perfume/acqua-di-gioia/acqua-di-gioia-eau-de-parfum/3605521172587.html",
+    "notes": {
+      "destacadas": [
+        "Jazmín",
+        "Gardenia",
+        "Maderas cálidas"
+      ]
+    },
+    "highlights": [
+      "Jazmín",
+      "Gardenia",
+      "Maderas cálidas"
+    ]
+  },
+  {
+    "id": "lattafa-haya-edp",
+    "option": "mujer",
+    "category": "árabe",
+    "name": "Lattafa Haya EDP",
+    "profile": "Frutal floral chispeante",
+    "source": "https://lattafairaq.com/en/products/haya",
+    "notes": {
+      "salida": [
+        "Frutilla",
+        "Champán",
+        "Mandarina",
+        "Naranja sanguina",
+        "Rosa"
+      ],
+      "corazon": [
+        "Gardenia",
+        "Jazmín",
+        "Orquídea de vainilla"
+      ],
+      "fondo": [
+        "Ámbar",
+        "Sándalo",
+        "Castaña"
+      ]
+    },
+    "highlights": [
+      "Mandarina",
+      "Gardenia",
+      "Sándalo"
+    ]
+  },
+  {
+    "id": "elizabeth-arden-green-tea-edt",
+    "option": "mujer",
+    "category": "diseñador",
+    "name": "Elizabeth Arden Green Tea EDT",
+    "profile": "Cítrico verde",
+    "source": "https://www.ulta.com/p/green-tea-eau-de-toilette-spray-xlsImpprod15231007",
+    "notes": {
+      "salida": [
+        "Bergamota",
+        "Alcaravea",
+        "Ruibarbo",
+        "Limón",
+        "Cáscara de naranja"
+      ],
+      "corazon": [
+        "Té verde",
+        "Menta piperita",
+        "Jazmín",
+        "Clavel",
+        "Hinojo",
+        "Especias de apio"
+      ],
+      "fondo": [
+        "Ámbar",
+        "Musgo de roble",
+        "Almizcle"
+      ]
+    },
+    "highlights": [
+      "Limón",
+      "Té verde",
+      "Menta piperita"
+    ]
   }
 ]

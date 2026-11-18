@@ -56,14 +56,19 @@ try{for(const engine of ['chromium','webkit']){
   }
   await setup();const before=await page.evaluate(()=>JSON.stringify({payments:window.__NCC_R4_FULLAPP__.state.payments,access:window.__NCC_R4_FULLAPP__.state.coachIntakeAccess,goals:window.__NCC_R4_FULLAPP__.state.coachIntakeGoals}));
   if(role!=='student'){
-   const rows=page.locator('.ncc-roster-person');assert.equal(await rows.count(),7);assert.equal(await rows.locator('.ncc-state-tag').count(),7);
+   const rows=page.locator('.ncc-roster-person');assert.equal(await rows.count(),7);assert.equal(await rows.locator('.coach-roster-person .ncc-state-tag').count(),7);
    for(const [name,tone,label] of [['Ana','pending','Ficha recibida'],['Bruno','complete','Plan publicado'],['Carla','attention','Autorización pendiente'],['Diego','neutral','Baja temporal'],['Elena','neutral','publicación sin confirmar'],['Fabio','pending','Plan por preparar'],['Gabriela','pending','Borrador guardado']]){
-    const card=rows.filter({hasText:name});assert.equal(await card.locator('.ncc-state-tag').getAttribute('data-state-tone'),tone);assert.ok((await card.locator('.ncc-state-tag').innerText()).includes(label));
+    const card=rows.filter({hasText:name});assert.equal(await card.locator('.coach-roster-person .ncc-state-tag').getAttribute('data-state-tone'),tone);assert.ok((await card.locator('.coach-roster-person .ncc-state-tag').innerText()).includes(label));
    }
    assert.equal(await page.locator('.ncc-roster-actions button').count(),15,'Three existing destinations for each of five authorized active students');
+   const followUp=rows.locator('.ncc-roster-follow-up');
+   assert.equal(await followUp.count(),6);
+   assert.match(await rows.filter({hasText:'Ana'}).locator('.ncc-roster-follow-up').innerText(),/Acción pendiente/);
+   assert.match(await rows.filter({hasText:'Bruno'}).locator('.ncc-roster-follow-up').innerText(),/Abrí el seguimiento/);
+   assert.ok(await followUp.evaluateAll(tags=>tags.every(tag=>tag.scrollWidth<=tag.clientWidth+1)));
    await shot('roster');
    await page.locator('[data-rosterfilter=plan]').click();assert.equal(await page.locator('.ncc-roster-person:visible').count(),2);await page.locator('[data-rosterfilter=all]').click();
-   await page.evaluate(async()=>{const a=window.__NCC_R4_FULLAPP__;a.state.coachIntakeVerified=false;await a.render();});assert.equal(await page.locator('.ncc-roster-person[data-rosterstage=unknown] .ncc-state-tag[data-state-tone=neutral]').count(),5);assert.equal(await page.locator('.ncc-roster-person .ncc-state-tag[data-state-tone=complete]').count(),0);await shot('unverified');
+   await page.evaluate(async()=>{const a=window.__NCC_R4_FULLAPP__;a.state.coachIntakeVerified=false;await a.render();});assert.equal(await page.locator('.ncc-roster-person[data-rosterstage=unknown] .coach-roster-person .ncc-state-tag[data-state-tone=neutral]').count(),5);assert.equal(await page.locator('.ncc-roster-person .ncc-state-tag[data-state-tone=complete]').count(),0);await shot('unverified');
   }else assert.equal(await page.locator('.ncc-roster-person').count(),0);
   await payments();await shot('payments');
   const cards=page.locator('.efg-payment-item:visible');assert.equal(await cards.count(),4);

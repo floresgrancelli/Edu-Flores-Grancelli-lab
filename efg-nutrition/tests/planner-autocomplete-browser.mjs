@@ -106,6 +106,39 @@ try{
    assert.ok(!new URL(page.url()).searchParams.has('reminderMeal'));
    assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before,'Opening a reminder never writes the diary');
    await page.screenshot({path:'quick-habitual-evidence/'+engine.name()+'-aviso.png'});
+   await page.evaluate(async()=>{
+    const app=window.__NCC_R4_FULLAPP__;
+    app.state.diary.meals.desayuno=[{id:'qa-energy',name:'Registro ficticio',qty:100,unit:'g',k:5000,p:0,c:0,f:20,fi:0}];
+    app.state.tab='home';
+    await app.render();
+   });
+   await page.locator('.ncc-day-plan-shortcut').click();
+   await page.locator('[data-planmode="dinner"]').click();
+   assert.match(await page.locator('#plannerRealNumbers').textContent(),/Calorías 0(?:[,.]0)? kcal/);
+   assert.match(await page.locator('#plannerPendingDetail').textContent(),/calorías ya están cubiertas.*proteína/i);
+   assert.match(await page.locator('#plannerProjectedNumbers').textContent(),/Total del día/);
+   await page.screenshot({path:'report-catalog-speed-evidence/'+engine.name()+'-saldo-cena.png'});
+   await page.locator('#nccPlanDestinationSections [data-workspace-tab="guide"]').click();
+   await page.locator('.ncc-plan [data-workspace-tab="meals"]').click();
+   await page.evaluate(()=>{
+    window.__nccGuideTabs=document.querySelector('.ncc-plan-tabs');
+    document.querySelector('.ncc-plan-notes').open=true;
+   });
+   const guideTab=page.locator('[data-studentguideslot="almuerzo"]');
+   await guideTab.click();
+   assert.equal(await guideTab.getAttribute('aria-pressed'),'true');
+   assert.match(await page.locator('#nccPlanMeal h3').textContent(),/Almuerzo/);
+   assert.ok(await page.evaluate(()=>window.__nccGuideTabs===document.querySelector('.ncc-plan-tabs')&&document.querySelector('.ncc-plan-notes').open));
+   await page.locator('[data-studentguideregister="almuerzo"]').click();
+   const qty=page.locator('[data-guideentryqty="0"]');
+   await qty.fill('123');
+   await page.getByRole('button',{name:'Cerrar revisión'}).click();
+   await page.locator('[data-studentguideslot="cena"]').click();
+   await guideTab.click();
+   await page.locator('[data-studentguideregister="almuerzo"]').click();
+   assert.equal(await qty.inputValue(),'123');
+   await page.getByRole('button',{name:'Cerrar revisión'}).click();
+   await page.screenshot({path:'report-catalog-speed-evidence/'+engine.name()+'-guia-horarios.png'});
    await context.close();console.log('PASS '+engine.name()+' iPhone-sized planner food suggestions: protein, carbs, extras, no mutation');
   }finally{await browser.close();}
  }

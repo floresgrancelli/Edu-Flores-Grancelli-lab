@@ -4,7 +4,7 @@ import {SUPPLEMENT_ROUTINE_KEY,readSupplementRoutine,snapshotSupplementRoutine,p
 import {resolveIndependentEntry} from './self-management-entry.js?v=ncc-self-entry-r1-20261113';
 import {createOperationNotices,showSavingFeedback} from './operation-notices.js?v=ncc-save-feedback-r1-20261112';
 import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-micro-restaurants-r1-20261114';
-import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-supplement-tabs-r2-20261114';
+import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-planner-guide-tabs-r4-20261118';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
 import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-report-gaps-r1-20261112';document.head.append(studentGuideStyles);
@@ -1925,6 +1925,26 @@ function currentStudentGuide(){
 }
 function studentGuideBrand(){return '<div class="ncc-plan-brand"><img src="./assets/serotonina-acuarela.avif" alt="" width="38" height="30"><strong>NUTRICIÓN<br>CON-CIENCIA</strong></div>';}
 function studentGuideKey(){return [state.session?.user?.id,state.authContextEpoch||0,state.foodPlan?.guided_goal_id].join('|');}
+function studentGuideMealHTML(meal,mt){
+ return meal?'<article id="nccPlanMeal" class="ncc-plan-meal"><h3>'+escapeHTML(meal.label)+' · '+num(mt.k)+' kcal</h3>'+meal.items.map(f=>'<div class="ncc-plan-food"><span class="ncc-plan-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><div><strong>'+escapeHTML(f.name)+'</strong><span>'+num(f.qty,2)+' '+escapeHTML(f.unit)+(guidePortion(f)?' · '+escapeHTML(guideQuantityLabel(f)):'')+'</span></div></div>').join('')+'<p class="ncc-plan-macros">P '+num(mt.p,1)+' g · HC '+num(mt.c,1)+' g · G '+num(mt.f,1)+' g</p></article><button type="button" class="ncc-plan-primary" data-studentguideregister="'+escapeHTML(meal.slot)+'" '+(!meal.items.length?'disabled':'')+'>Revisar y registrar</button>':'<p>No hay comidas en esta guía.</p>';
+}
+function selectStudentGuideMeal(button){
+ const current=currentStudentGuide(),slot=button.dataset.studentguideslot;
+ const meal=current?.plan.meals.find(item=>item.slot===slot);
+ const view=button.closest('.ncc-plan'),host=view?.querySelector('[data-student-guide-meal]');
+ if(!meal||!host||button.getAttribute('aria-pressed')==="true")return;
+ const totals=guideTotals(current.plan).perMeal.find(entry=>entry.slot===slot)?.totals;
+ if(!totals)return;
+ state.studentGuideSlots={...state.studentGuideSlots,[studentGuideKey()]:slot};
+ for(const tab of view.querySelectorAll('[data-studentguideslot]')){
+  const active=tab===button;
+  tab.setAttribute('aria-pressed',String(active));
+  tab.querySelector('i')?.remove();
+  if(active)tab.insertAdjacentHTML('beforeend','<i aria-hidden="true">✓</i>');
+ }
+ host.innerHTML=studentGuideMealHTML(meal,totals);
+ button.focus({preventScroll:true});
+}
 function studentGuideView(){
  const {plan,goal}=currentStudentGuide(),key=studentGuideKey();
  const slot=plan.meals.some(m=>m.slot===state.studentGuideSlots?.[key])?state.studentGuideSlots[key]:plan.meals[0]?.slot;
@@ -1934,7 +1954,8 @@ function studentGuideView(){
  '<div class="ncc-plan-target"><div><b>Objetivo diario</b><strong>'+num(goal.kcal)+' kcal</strong></div><span data-ncc-macro="p">P<b>'+num(goal.protein_g)+' g</b></span><span data-ncc-macro="c">HC<b>'+num(goal.carb_g)+' g</b></span><span data-ncc-macro="f">G<b>'+num(goal.fat_g)+' g</b></span></div>'+
  (stale?'<p role="status">Pedile al coach una guía actualizada. Conservamos este ejemplo como referencia.</p>':'')+
  '<h2>Tus comidas</h2><nav class="ncc-plan-tabs" aria-label="Horarios de mi Dieta Guía">'+plan.meals.map(m=>'<button type="button" data-studentguideslot="'+escapeHTML(m.slot)+'" aria-pressed="'+(m.slot===slot)+'" aria-controls="nccPlanMeal">'+dayMealIcon(m.slot)+'<span>'+escapeHTML(m.label)+'</span>'+(m.slot===slot?'<i aria-hidden="true">✓</i>':'')+'</button>').join('')+'</nav>'+
- (meal?'<article id="nccPlanMeal" class="ncc-plan-meal"><h3>'+escapeHTML(meal.label)+' · '+num(mt.k)+' kcal</h3>'+meal.items.map(f=>'<div class="ncc-plan-food"><span class="ncc-plan-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><div><strong>'+escapeHTML(f.name)+'</strong><span>'+num(f.qty,2)+' '+escapeHTML(f.unit)+(guidePortion(f)?' · '+escapeHTML(guideQuantityLabel(f)):'')+'</span></div></div>').join('')+'<p class="ncc-plan-macros">P '+num(mt.p,1)+' g · HC '+num(mt.c,1)+' g · G '+num(mt.f,1)+' g</p></article><button type="button" class="ncc-plan-primary" data-studentguideregister="'+escapeHTML(slot)+'" '+(!meal.items.length?'disabled':'')+'>Revisar y registrar</button>':'<p>No hay comidas en esta guía.</p>')+
+ '<div data-student-guide-meal>'+studentGuideMealHTML(meal,mt)+'</div>'+
+
  '<details class="ncc-plan-notes"><summary>Indicaciones del coach</summary><p>'+escapeHTML(plan.supplementNote||'No hay indicaciones de suplementos en esta guía.')+'</p>'+(plan.profileReviewNotes||[]).map(n=>'<p>'+escapeHTML(n)+'</p>').join('')+'<p>Guía orientativa, no ingesta registrada. Las imágenes son ilustrativas; las cantidades corresponden al plan.</p><details><summary>Ver explicación y resumen del plan</summary>'+guidedDayContents(plan,goal)+'</details></details>'+
  '<details class="ncc-plan-notes"><summary>Totales de mi Dieta Guía</summary><p>Valores del menú de referencia, sin registrar alimentos.</p><p>'+num(totals.totals.k)+' kcal · P '+num(totals.totals.p,1)+' g · HC '+num(totals.totals.c,1)+' g · G '+num(totals.totals.f,1)+' g</p></details><div id="mealDialogContainer"></div></section>';
 }
@@ -2228,9 +2249,16 @@ function plannerCard(){
  plannerPreferencesNote()+'<p class="pilot-hint">Elegí qué querés comer. Primero calculamos proteína, después hidratos y, solo si los elegís, extras para completar calorías. Las grasas se contabilizan, pero no se imponen.</p>'+
  '<div class="planner-mode"><button class="'+(mode==="both"?"on":"")+'" data-planmode="both">Merienda + cena</button><button class="'+(mode==="dinner"?"on":"")+'" data-planmode="dinner">Solo cena</button></div>';
  if(!goal)return out+'<div class="pilot-alert">Para sugerir cantidades necesitamos un objetivo nutricional definido. '+(state.profile.role==="student"?"Tu entrenador debe aprobarlo.":"Configurá tus objetivos personales desde Mi día.")+'</div></section>';
- const left=plan.remaining||{};
- out+='<div class="planner-remaining"><b>Saldo REAL · lo que falta hoy</b><span>'+num(left.k,1)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span><small>Los mismos valores de Mi alimentación: solo lo que ya registraste.</small></div>';
- if(!plan.ready)return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';
+ if(!plan.ready){
+  const left=plan.remaining||{};
+  out+='<div class="planner-remaining"><b>Saldo REAL · lo que falta hoy</b><span>'+num(left.k,1)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span><small>Los mismos valores de Mi alimentación: solo lo que ya registraste.</small></div>';
+ return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';
+ }
+ out+='<section class="planner-balance-compare" id="plannerPendingNotice" aria-live="polite" aria-label="Saldo real y balance simulado">'+
+ '<div class="planner-real-balance"><b>Saldo de hoy · antes de planificar</b>'+
+ '<p id="plannerRealNumbers"></p><small>Solo incluye lo que ya registraste.</small></div>'+
+ '<div class="planner-left planner-simulated-balance"><b id="plannerSimulationHeading">SIMULACIÓN · si comieras lo seleccionado</b>'+
+ '<p id="plannerPlannedNumbers"></p><p id="plannerProjectedNumbers"></p><p id="plannerPendingNumbers"></p><small id="plannerPendingDetail"></small></div></section>';
  const all=allPlannerFoods(selectableFoods(),allowedFoods());
  // Same full catalog, annotated by the SAME semaphore used by daily meal search.
  // No user-specific second catalog; no hidden foods for uncertain evidence.
@@ -2309,11 +2337,7 @@ function plannerCard(){
   out+='</details>';
   out+='<p class="pilot-hint">La sugerencia inicial aporta aprox. P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g. Todas las cantidades son orientativas.</p></details>';
  }
- out+='<section class="planner-balance-compare" id="plannerPendingNotice" aria-live="polite" aria-label="Saldo real y balance simulado">'+
- '<div class="planner-real-balance"><b>Saldo REAL · solo lo registrado</b>'+
- '<p id="plannerRealNumbers"></p><small>Coincide con los valores de Mi alimentación. No incluye ningún alimento simulado.</small></div>'+
- '<div class="planner-left planner-simulated-balance"><b id="plannerSimulationHeading">SIMULACIÓN · si comieras lo seleccionado</b>'+
- '<p id="plannerPlannedNumbers"></p><p id="plannerPendingNumbers"></p><small id="plannerPendingDetail"></small></div></section>'+
+ out+=
  '<p class="pilot-hint">La simulación NO registra alimentos. El saldo real solo cambia cuando guardás lo que efectivamente comiste. Estas sugerencias no sustituyen las indicaciones de tu coach.</p></section>';
  return out;
 }
@@ -2453,7 +2477,9 @@ function updatePlannerPreview(){
  const balanceView=projectNutritionBalance({consumed:balance,goals:goal,selected:chosenFoods});
  const fmt=(obj)=>"Calorías "+num(obj.k,1)+" kcal · Proteínas "+num(obj.p,1)+" g · Hidratos "+num(obj.c,1)+" g · Grasas "+num(obj.f,1)+" g";
  if(realNumbers)realNumbers.textContent=fmt(balanceView.remaining);
- if(plannedNumbers)plannedNumbers.textContent="Las porciones seleccionadas aportarían: "+fmt(balanceView.planned);
+ if(plannedNumbers)plannedNumbers.textContent="Comidas seleccionadas: "+fmt(balanceView.planned);
+ const projectedNumbers=document.getElementById("plannerProjectedNumbers");
+ if(projectedNumbers)projectedNumbers.textContent="Total del día si las comieras: "+fmt(balanceView.projected);
  const remain=balanceView.projectedRemaining,excess=balanceView.projectedExceeded;
  const pendingMain=remain.k>2||remain.p>.4||remain.c>.4;
  const fatOnly=!pendingMain&&remain.f>.4;
@@ -2463,6 +2489,7 @@ function updatePlannerPreview(){
  numbers.textContent="Si comieras todas estas porciones, quedarían: "+fmt(remain);
  const excessParts=[["k","kcal",5],["p","g de proteína",.8],["c","g de hidratos",.8],["f","g de grasas",.8]].filter(([key,,limit])=>excess[key]>limit).map(([key,label])=>num(excess[key],1)+" "+label);
  details.textContent="Esto todavía NO se registró. "+(excessParts.length?"La combinación superaría algunos objetivos: "+excessParts.join(" · ")+". ":"")+
+  (remain.k<=2&&remain.p>.4?"Las calorías ya están cubiertas, pero aún faltan "+num(remain.p,1)+" g de proteína. Podés revisar las porciones elegidas. ":"")+
   (remain.k>2?"Si querés sumar alimentos para acercarte a las calorías pendientes, usá un extra opcional. ":"")+
   (hasUnsupported?"Para bebidas con leche, completá sus ingredientes antes de contabilizarlas. ":"")+
   "El saldo real solo cambia cuando registrás efectivamente lo consumido.";
@@ -3166,6 +3193,24 @@ function coachRosterNext(p){
  if(state.coachIntakeForms[p.user_id]?.shared_at)return {stage:'intake',label:'Ficha recibida · sin objetivo',action:'Revisar ficha',section:'coachStudentIntake'};
  return {stage:'plan',label:'Plan por preparar',action:'Preparar plan',section:'coachStudentGoals'};
 }
+function coachRosterFollowUp(p,next){
+ if(next.stage==="inactive")return null;
+ if(["intake","draft","plan","consent"].includes(next.stage))
+  return {label:"Acción pendiente",tone:"pending"};
+ if(next.label!=="Plan publicado")return {label:"Revisar seguimiento",tone:"attention"};
+ if(state.selectedStudent!==p.user_id||state.consent?.accepted!==true||
+    state.coachReportGoals?.studentId!==p.user_id)
+  return {label:"Revisar seguimiento",tone:"neutral",reason:"Abrí el seguimiento para revisar los registros."};
+ const todayKey=today(),start=new Date(todayKey+"T12:00:00Z");
+ start.setUTCDate(start.getUTCDate()-6);
+ const from=start.toISOString().slice(0,10);
+ const days=new Set((state.coachLogs||[]).filter(log=>
+  log.student_id===p.user_id&&log.log_day>=from&&log.log_day<=todayKey&&
+  Object.entries(log.meals||{}).some(([slot,items])=>!log.skipped?.[slot]&&Array.isArray(items)&&items.length)
+ ).map(log=>log.log_day)).size;
+ const reason=days+" de 7 días con comidas registradas.";
+ return days===7?{label:"Al día",tone:"complete",reason}:{label:"Revisar seguimiento",tone:"attention",reason};
+}
 function coachRosterMatches(stage,filter){
  return filter==='all'||(filter==='active'&&stage!=='inactive')||
   (filter==='pending'&&['intake','draft','plan','consent'].includes(stage))||
@@ -3202,9 +3247,11 @@ function coachRosterStatus(next){
  return clearStatusTag(next.label,tone);
 }
 function coachRosterCard(p){
- const next=coachRosterNext(p);
+ const next=coachRosterNext(p),followUp=coachRosterFollowUp(p,next);
  return '<div class="pilot-record ncc-roster-person" data-rosterstage="'+next.stage+'" data-rosteractive="'+(p.active?'yes':'no')+'" data-rosterconsent="'+(coachRosterConsent[p.user_id]===true?'yes':'no')+'" data-rostername="'+escapeHTML([coachDisplayName(p),p.nickname,p.email||''].join(' ').toLocaleLowerCase('es-AR'))+'">'+
  '<div class="coach-roster-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+safePhoneEmail(p.email)+'</small>'+coachRosterStatus(next)+'</div></div>'+
+ (followUp?'<div class="ncc-roster-follow-up">'+clearStatusTag(followUp.label,followUp.tone)+
+  (followUp.reason?'<small>'+escapeHTML(followUp.reason)+'</small>':'')+'</div>':'')+
  coachRosterActions(p,next)+
  '<details class="ncc-roster-options"><summary>Más opciones<span class="sr-only"> de '+escapeHTML(coachDisplayName(p))+'</span></summary><div class="pilot-toolbar"><button class="btn small ghost" data-coachname="'+p.user_id+'">Nombre preferido</button><button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button><button class="btn small ghost ncc-remove-student" data-removestudent="'+p.user_id+'">Eliminar</button></div></details></div>';
 }
@@ -5370,10 +5417,7 @@ async function mainClick(event){
   selectDayMeal(slot);
   return;
  }
- if(el.dataset.studentguideslot){
-  const current=currentStudentGuide(),slot=el.dataset.studentguideslot;if(!current?.plan.meals.some(m=>m.slot===slot))return;
-  state.studentGuideSlots={...state.studentGuideSlots,[studentGuideKey()]:slot};await render();document.querySelector('[data-studentguideslot="'+CSS.escape(slot)+'"]')?.focus({preventScroll:true});return;
- }
+ if(el.dataset.studentguideslot){selectStudentGuideMeal(el);return;}
  if(el.dataset.studentguideregister){openStudentGuideSheet(el.dataset.studentguideregister);return;}
  if(el.dataset.guideclose){closeStudentGuideSheet();return;}
  if(el.dataset.guidesave){await saveStudentGuideSelection();return;}

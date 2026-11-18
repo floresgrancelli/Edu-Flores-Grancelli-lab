@@ -1,3 +1,4 @@
+import {subscribeMealReminderDevice,createMealReminderPreferencesClient} from './meal-reminder-preferences.js?v=ncc-meal-reminder-settings-r1-20261118';
 import {settingsButtonHTML} from './readable-text.js?v=ncc-settings-gear-only-r4-20261115';
 import {SUPPLEMENT_ROUTINE_KEY,readSupplementRoutine,snapshotSupplementRoutine,planUsualSupplements,newestSupplementRoutine} from './usual-supplements.js?v=ncc-supplement-routine-r1-20261114';
 import {resolveIndependentEntry} from './self-management-entry.js?v=ncc-self-entry-r1-20261113';
@@ -930,7 +931,17 @@ function habitualPreviewWithPhotos(habitual){
  let index=0;
  return habitualPreviewHTML(habitual,escapeHTML).replace(/<li>/g,()=>'<li><span class="ncc-habitual-photo" aria-hidden="true">'+foodFamilyPhoto(habitual.items[index++])+'</span>');
 }
-function habitualPickerHTML(slot){
+function quickHabitualQuantities(items){
+ return '<p class="pilot-hint">Si hoy comiste una porción distinta, ajustala acá. Tu habitual guardado se conserva.</p>'+
+  items.map((item,index)=>{
+   const units=Number(item.displayQty)>0,quantity=Number(units?item.displayQty:item.qty);
+   if(!Number.isFinite(quantity)||quantity<=0)return '';
+   return '<label class="field">'+escapeHTML(item.name)+' · '+escapeHTML(units?item.displayUnit:item.unit)+
+    '<input type="number" inputmode="decimal" min="'+(units?'0.5':'0.1')+'" step="'+(units?'0.5':'any')+
+    '" data-habitual-quantity="'+index+'" value="'+quantity+'"></label>';
+  }).join('');
+}
+function habitualPickerHTML(slot,quick=false){
  const list=getHabitualList(slot);
  if(!list.length)return '<p class="pilot-hint efg-no-habitual" aria-live="polite">Todavía no guardaste habituales en este horario. Registrá una comida y tocá «Guardar habitual» para verla acá todos los días.</p>';
  const requested=state.habitualSelection[slot]||"";
@@ -942,9 +953,9 @@ function habitualPickerHTML(slot){
  return '<div class="efg-habitual-picker"><label for="habitualChoice_'+slot+'">Mis habituales de '+escapeHTML(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'</label>'+
  '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" '+(!selected?'selected':'')+'>Elegí una de tus '+list.length+' comidas habituales</option>'+
  list.map((item,i)=>'<option value="'+escapeHTML(habitualEntryKey(item,i))+'" '+(i===choice?'selected':'')+'>'+escapeHTML(habitualShortLabel(item)+(item.pendingLocal?' · pendiente de sincronizar':''))+'</option>').join('')+'</select>'+
- '<div id="habitualPreview_'+slot+'" class="efg-habitual-preview-host" aria-live="polite">'+habitualPreviewWithPhotos(selected)+'</div>'+
- '<div class="efg-habitual-controls"><button type="button" class="btn small light" data-habitualapply="'+slot+'">↻ Registrar habitual</button>'+
- '<button type="button" class="btn small ghost" data-habitualdelete="'+slot+'">Eliminar habitual</button></div>'+
+ '<div id="habitualPreview_'+slot+'" class="efg-habitual-preview-host" aria-live="polite">'+habitualPreviewWithPhotos(selected)+(quick?quickHabitualQuantities(selected.items):'')+'</div>'+
+ '<div class="efg-habitual-controls"><button type="button" class="btn small light" data-habitualapply="'+slot+'" '+(quick?'data-quick-habitual="true"':'')+'>↻ Registrar habitual</button>'+
+ (quick?'':'<button type="button" class="btn small ghost" data-habitualdelete="'+slot+'">Eliminar habitual</button>')+'</div>'+
  '<small>Podés revisar el menú completo sin agregarlo. Solo se registrará al tocar «Registrar habitual».</small></div>';
 }
 function updateHabitualPreview(slot){
@@ -952,7 +963,7 @@ function updateHabitualPreview(slot){
  state.habitualSelection[slot]=id;
  const current=getHabitualList(slot).find((item,index)=>habitualEntryKey(item,index)===id);
  const host=document.getElementById('mealEntryHabitualPreview_'+slot)||document.getElementById('habitualPreview_'+slot);
- if(host)host.innerHTML=habitualPreviewWithPhotos(current);
+ if(host)host.innerHTML=habitualPreviewWithPhotos(current)+(current&&host.closest('.efg-habitual-picker')?.querySelector('[data-quick-habitual]')?quickHabitualQuantities(current.items):'');
 }
 function validateHabitualCatalog(habitual){
  // Older favorites stay visible as historical records, but a recognized catalog
@@ -1014,17 +1025,25 @@ async function deleteChosenHabitual(slot){
  await render();notify('Habitual eliminado. Tus diarios históricos están intactos.',{kind:'success',slot});
  });
 }
-async function applyChosenHabitual(slot){
+async function applyChosenHabitual(slot,{onlyEmpty=false,quantities=[]}={}){
  if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
  return runHabitualSlotAction(slot,async()=>{
  const fav=chosenHabitual(slot);
  validateHabitualCatalog(fav);
  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
+ if(onlyEmpty&&d.meals[slot].length)throw Error('Este horario ya tiene alimentos registrados. Podés revisarlos en Mi Día.');
  if(d.meals[slot].length&&!confirm('Esta comida ya tiene alimentos. ¿Reemplazarlos por «'+fav.name+'»?'))return;
  const previousItems=structuredClone(d.meals[slot]);
  const previousSkipped=d.skipped[slot],previousClosed=d.skipped._closed;
  const previousEdited=state.lastEditedMeal;
- d.meals[slot]=structuredClone(fav.items);
+ const items=structuredClone(fav.items);
+ for(const [index,value] of quantities){
+  const item=items[index];
+  if(!item)throw Error('El habitual cambió. Volvé a elegirlo antes de registrar.');
+  const original=Number(item.displayQty)>0?item.displayQty:item.qty;
+  if(Number(value)!==Number(original))items[index]=resizeDiaryFood(item,value);
+ }
+ d.meals[slot]=items;
  d.skipped[slot]=false;d.skipped._closed=false;state.lastEditedMeal=slot;
  const feedback=showSavingFeedback(null,{mealSlot:slot});let failed=false;
  try{await saveDiary();}
@@ -1409,6 +1428,7 @@ function frame(content){
  dualWorkspaceFrame.mountFrame(root);
  professionalReleaseFrame.mountFrame(root);
  pilotGuideLifecycle.mountStudent(root);
+ if(state.tab==='settings')void loadMealReminderSettings();
 }
 // Bienvenida institucional, exclusivamente en el primer acceso del alumno nuevo.
 function welcomeView(){
@@ -1608,8 +1628,80 @@ function coachPersonalMoreView(){
  ["settings","⚙️","Configuración","lilac"]
  ]);
 }
+function quickHabitualSettings(){
+ if(state.profile.role==="student"&&studentRestrictedNavigation())return "";
+ const diary=activeDiary();
+ return '<section class="card"><h3>Comidas habituales</h3><p class="pilot-hint">Revisá una comida guardada y registrala en el día de hoy.</p>'+
+  mealSlots.map(([slot,label])=>'<details><summary>'+escapeHTML(label)+'</summary>'+
+   (diary.meals?.[slot]?.length?'<p class="pilot-hint">Ya registraste alimentos en este horario.</p>':habitualPickerHTML(slot,true))+
+   '</details>').join('')+'</section>';
+}
+const reminderPublicKey=()=>document.querySelector('meta[name="ncc-web-push-key"]')?.content.trim()||"";
+function mealReminderSettings(){
+ if(!reminderPublicKey()||(state.profile.role==="student"&&studentRestrictedNavigation()))return "";
+ return '<section class="card" data-meal-reminder-settings><h3>Recordatorios de comidas</h3>'+
+  '<p class="pilot-hint">Elegí los horarios que querés recordar y activá los avisos en este celular.</p>'+
+  '<p data-reminder-status role="status"></p><button type="button" class="btn small light" data-act="enableMealReminderDevice">Activar avisos en este celular</button>'+
+  '<fieldset disabled data-reminder-hours><legend>Horarios</legend>'+mealSlots.map(([meal,label])=>
+   '<div class="field" data-reminder-meal="'+meal+'"><label><input type="checkbox" data-reminder-enabled> '+escapeHTML(label)+'</label>'+
+   '<label>Hora<input type="time" step="60" data-reminder-time></label>'+
+   '<button type="button" class="btn small light" data-act="saveMealReminder">Guardar '+escapeHTML(label.toLowerCase())+'</button></div>').join('')+
+  '</fieldset></section>';
+}
+async function loadMealReminderSettings(){
+ const panel=root.querySelector('[data-meal-reminder-settings]');
+ if(!panel)return;
+ const owner=state.session?.user?.id;
+ const status=panel.querySelector('[data-reminder-status]');
+ try{
+  const rows=await createMealReminderPreferencesClient(sb).list();
+  if(!panel.isConnected||state.session?.user?.id!==owner)return;
+  for(const row of rows||[]){
+   const entry=[...panel.querySelectorAll('[data-reminder-meal]')].find(el=>el.dataset.reminderMeal===row.meal);
+   if(!entry)continue;
+   entry.querySelector('[data-reminder-enabled]').checked=row.enabled;
+   entry.querySelector('[data-reminder-time]').value=row.remind_at.slice(0,5);
+  }
+  panel.querySelector('[data-reminder-hours]').disabled=false;
+ }catch{
+  status.textContent="No pudimos cargar tus horarios. Volvé a abrir Configuración para reintentar.";
+ }
+}
+async function handleMealReminderSettings(button,action){
+ const panel=button.closest('[data-meal-reminder-settings]'),key=reminderPublicKey();
+ if(!panel||!key||state.tab!=="settings")return;
+ const owner=state.session?.user?.id,epoch=state.authContextEpoch;
+ const current=()=>panel.isConnected&&state.session?.user?.id===owner&&state.authContextEpoch===epoch;
+ const status=panel.querySelector('[data-reminder-status]');
+ const client=createMealReminderPreferencesClient(sb);
+ button.disabled=true;
+ try{
+  if(action==="enableMealReminderDevice"){
+   if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window))
+    throw Error("Este navegador no admite avisos. En iPhone abrí la app desde la pantalla de inicio.");
+   if(await Notification.requestPermission()!=="granted")throw Error("Los avisos necesitan permiso en este celular.");
+   if(!current())return;
+   await navigator.serviceWorker.register('./meal-reminder-worker.js');
+   const registration=await navigator.serviceWorker.ready;
+   if(!current())return;
+   const base64=key.replace(/-/g,'+').replace(/_/g,'/');
+   const device=await subscribeMealReminderDevice(registration,Uint8Array.from(atob(base64),c=>c.charCodeAt(0)));
+   if(!current())return;
+   await client.addDevice(device);
+   if(current())status.textContent="Avisos activados en este celular.";
+  }else{
+   const entry=button.closest('[data-reminder-meal]'),time=entry.querySelector('[data-reminder-time]').value;
+   if(!time)throw Error("Elegí una hora para esta comida.");
+   await client.save({meal:entry.dataset.reminderMeal,remindAt:time,
+    timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone,enabled:entry.querySelector('[data-reminder-enabled]').checked});
+   if(current())status.textContent="Horario guardado.";
+  }
+ }catch(error){
+  if(current())status.textContent=error instanceof Error?error.message:"No pudimos guardar el recordatorio. Volvé a intentar.";
+ }finally{button.disabled=false;}
+}
 function settingsView(){
- return rootText("Configuración","Actualizá la aplicación y administrá tu sesión.")+versionCheckCard()+
+ return rootText("Configuración","Actualizá la aplicación y administrá tu sesión.")+versionCheckCard()+quickHabitualSettings()+mealReminderSettings()+
   '<section class="card"><h3>Tu cuenta</h3><p class="pilot-hint">Perfil: '+escapeHTML(roleLabel())+'. Tus datos y los permisos de cada función no cambian al actualizar la app.</p><button type="button" class="btn small light" data-act="logout">Cerrar sesión</button></section>';
 }
 function studentMoreView(){
@@ -1940,6 +2032,26 @@ function dayMealIcon(slot){
  };
  return '<svg class="ncc-meal-icon" data-meal-icon="'+escapeHTML(slot)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths[slot]+'</svg>';
 }
+function reminderMealIsCurrent(slot){
+ const reminder=state.openedMealReminder;
+ return !!reminder&&reminder.slot===slot&&reminder.owner===state.session?.user?.id&&reminder.day===today()&&
+  reminder.epoch===(state.authContextEpoch||0);
+}
+function openMealReminderFromUrl(){
+ if(!state.session?.user?.id||studentPlanPending()||
+    (state.profile.role==="student"&&studentRestrictedNavigation()))return;
+ const url=new URL(location.href),slot=url.searchParams.get('reminderMeal');
+ if(slot===null)return;
+ const template=url.searchParams.get('habitual');
+ url.searchParams.delete('reminderMeal');url.searchParams.delete('habitual');
+ history.replaceState(history.state,'',url);
+ if(!mealSlots.some(([key])=>key===slot))return;
+ state.openedMealReminder={slot,owner:state.session.user.id,day:today(),epoch:state.authContextEpoch||0};
+ const fav=getHabitualList(slot).find(item=>item.id&&String(item.id)===template);
+ if(fav)state.habitualSelection[slot]=String(fav.id);
+ state.lastEditedMeal=slot;
+ state.tab="home";
+}
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
  const motivation=motivationOfTheDay();
@@ -1967,11 +2079,12 @@ function homeView(){
    return '<div class="meal-food-line"><span class="ncc-food-thumb" aria-hidden="true">'+foodFamilyPhoto(i)+'</span><div class="meal-food-label"><strong>'+escapeHTML(i.name)+'</strong><span class="ncc-diary-quantity" title="'+portion+'">'+num(i.qty,1)+' '+escapeHTML(i.unit)+'</span></div>'+
    '<div class="ncc-food-actions"><button type="button" class="btn small ghost" data-editfood="'+key+':'+index+'" aria-label="Editar cantidad de '+escapeHTML(i.name)+'">Editar</button></div></div>';
   }).join("")+'</div>':'<small class="meal-food-empty">Todavía no hay alimentos registrados.</small>';
+  const quick=reminderMealIsCurrent(key)&&!items.length;
   const marks=guidedMealMarks(d.skipped,key),fat=guidedMealTotals(items).f;
   const omissions=[marks.protein?"Sin proteína adicional":null,marks.carb?"Sin hidrato adicional":null].filter(Boolean);
   const guidanceStatus=isGuidedMealSlot(key)?'<p class="efg-guided-meal-summary">Grasas calculadas: '+num(fat,1)+' g'+(omissions.length?' · '+omissions.join(" · "):"")+'. Los platos preparados cuentan todos sus macros.</p>':"";
   return '<section class="pilot-record meal-day-section student-meal-card ncc-day-meal-panel" id="ncc-day-meal-'+key+'" data-daymealpanel="'+key+'" aria-label="'+escapeHTML(title)+'" '+(selectedMeal===key?'':'hidden')+'><div class="student-meal-heading"><strong>✓ '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':items.length?num(values(items).k)+' kcal':'Sin cargar')+'</span></div><div class="student-meal-details">'+
-  detail+'<div class="meal-actions"><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button></div><details class="ncc-meal-more"><summary>Más opciones <span aria-hidden="true">⌄</span></summary>'+guidanceStatus+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+habitualPickerHTML(key)+'</details></div></section>';
+  detail+'<div class="meal-actions"><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button></div><details class="ncc-meal-more"><summary>Más opciones <span aria-hidden="true">⌄</span></summary>'+guidanceStatus+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+(quick?'':habitualPickerHTML(key))+'</details>'+(quick?habitualPickerHTML(key,true):'')+'</div></section>';
  }).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
  const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint">Tu coach asignado puede consultar registros de alimentación, peso, actividad y suplementos solo si elegís «Autorizar seguimiento del coach» en esta sección. Ingresar con un código no concede permiso. Podés revocarlo cuando quieras.</p><small style="display:block;margin:10px 0;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'No autorizado')+'</small>'+(cons?.accepted?'<button class="btn small ghost" data-act="revokeConsent">Revocar acceso del coach</button>':'<button class="btn small light" data-act="grantConsent">Autorizar seguimiento del coach</button>')+'</section>':'';
@@ -4310,9 +4423,10 @@ async function render(){
  if(state.welcomePending)return welcomeView();
  if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED&&PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.tab==="privateHealth")return renderPrivateHealthDeclaration();
  if(studentPlanPending()&&!studentPendingTabAllowed(state.tab))state.tab="intake";
- const viewKey=activeViewKey(),snapshot=captureViewContinuity(viewKey);
  await ensureCurrentDay();
  if((state.authContextEpoch||0)!==renderEpoch)return;
+ openMealReminderFromUrl();
+ const viewKey=activeViewKey(),snapshot=captureViewContinuity(viewKey);
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
  let page={intake:()=>COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"&&state.coachPilotIntake?
@@ -5364,7 +5478,15 @@ if(el.dataset.foodbulk){
  if(el.dataset.act==="confirmRecipeRegistration"){await confirmRecipeRegistration();return;}
  if(el.dataset.act==="closeRecipeRegistration"){closeRecipeRegistration();return;}
  if(el.dataset.habitualsave){await habitualAction(el.dataset.habitualsave,"save");return;}
- if(el.dataset.habitualapply){await applyChosenHabitual(el.dataset.habitualapply);return;}
+ if(el.dataset.habitualapply){
+  const onlyEmpty=el.dataset.quickHabitual==="true";
+  if(onlyEmpty&&((state.tab!=="settings"&&!(state.tab==="home"&&reminderMealIsCurrent(el.dataset.habitualapply)))||(state.profile.role==="student"&&studentRestrictedNavigation())))return;
+  const quantities=onlyEmpty?[...el.closest('.efg-habitual-picker').querySelectorAll('[data-habitual-quantity]')]
+   .map(input=>[Number(input.dataset.habitualQuantity),input.value]):[];
+  await applyChosenHabitual(el.dataset.habitualapply,{onlyEmpty,quantities});
+  if(onlyEmpty)await render();
+  return;
+ }
  if(el.dataset.habitualdelete){await deleteChosenHabitual(el.dataset.habitualdelete);return;}
  if(el.dataset.habitualuse){await habitualAction(el.dataset.habitualuse,"use");return;}
  if(el.dataset.act==='registerDayFood'){
@@ -6068,6 +6190,7 @@ if(el.dataset.foodbulk){
    if(!result.updated)notify(result.reason==='offline'?"No pudimos comprobar la actualización. Revisá tu conexión.":result.reason==='unsaved'?"Guardá tus cambios antes de actualizar.":"Ya tenés la última versión disponible.");
   }finally{el.disabled=false;}return;
  }
+ if(action==="enableMealReminderDevice"||action==="saveMealReminder")return handleMealReminderSettings(el,action);
  if(action==="checkAppVersion"){
   document.querySelectorAll('[data-version-status]').forEach(label=>{label.textContent="Comprobando la versión publicada…";});
   el.disabled=true;

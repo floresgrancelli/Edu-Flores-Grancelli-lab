@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'efg-nutrition/android/**'
+      - 'efg-nutrition/ios/**'
       - '.github/workflows/ncc-android-build.yml'
   workflow_dispatch:
 permissions:
@@ -77,3 +78,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+
+  ios-reader-typecheck:
+    runs-on: macos-15
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Type-check the HealthKit reader with the iOS SDK
+        run: xcrun --sdk iphoneos swiftc -typecheck -target arm64-apple-ios17.0 -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" efg-nutrition/ios/DailyHealthActivityReader.swift

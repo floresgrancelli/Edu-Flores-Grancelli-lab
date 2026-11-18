@@ -454,12 +454,17 @@
     "efg-nutrition/pilot/readable-text.js": "f7ebc89eebc05e2387ec31350b8a967fdab0fc7b525682d489c7f5e2e71f8a93",
     "efg-nutrition/pilot/pilot.css": "7fe70ff2d31b43e86507110110dfba6b8a66c0529e05abdb29736c90de804a8b",
     "efg-nutrition/pilot/meal-reminder-preferences.js": "ca110b18a4f8cea3f4bf3a7fc8cc2654ce39c78806b3a72f72537369bd9e1610",
-    "efg-nutrition/pilot/activity-atlas-preview.js": "1b98b6b91bbdb17759679e5ebae1bfe0483902b0e486b858234553ece09499a3",
-    "efg-nutrition/pilot/activity-atlas-preview.css": "e93b897aadf5303a222be1280690c02a77f4a94e9afdaf7eb09f7feb9516bfee",
+    "efg-nutrition/pilot/activity-atlas-preview.js": "5f84acfa177779065c3105c5040c06b6841894fa3a75be4cba51de25ec420b16",
+    "efg-nutrition/pilot/activity-atlas-preview.css": "e6caae220b10a50ceeae820ca47bfc7e3e2724c4d975236d805db3d85763ea43",
     "efg-nutrition/pilot/assets/activity-atlas-reference.webp": "a03f312875437739b6fa26223e8b9e32a0d296dcfca6a9be0ed626f223976658",
     "efg-nutrition/activity-perfume/catalog.seed.json": "f5471254ba02b9d68c0147078cb6f08fb209c584faf42ccd73fd5dde59cdc9ca",
     "efg-nutrition/activity-perfume/rotation.mjs": "b257668ec1b771eb7d032c3469676959c63882e4bed1f9304f9a52f613817ddc",
-    "efg-nutrition/pilot/assets/activity-workout-notes.webp": "c489b5d648c7566513750e3b2a53692d2810310dec2ac28c2d3406664f9fff86"
+    "efg-nutrition/pilot/assets/activity-workout-notes.webp": "c489b5d648c7566513750e3b2a53692d2810310dec2ac28c2d3406664f9fff86",
+    "efg-nutrition/pilot/assets/activity-note-atlas-1.webp": "12478ad6d1630374099ba89d3aafbed6826c10dec8c2f0855e2eeae503ee0cba",
+    "efg-nutrition/pilot/assets/activity-note-atlas-2.webp": "e2818e331fc5921f0d2fc4bf63ca57c7019342db64b2dc10f28e020b28c73195",
+    "efg-nutrition/pilot/assets/activity-note-atlas-3.webp": "65a8e6fd640c7e923c0764bd4fe12e318d9057bae3feeec764e7446e216b9f9e",
+    "efg-nutrition/pilot/assets/activity-note-atlas-4.webp": "2939f1d98d73876539d8c278d2966c3704ff9120c424b5e2fe368c010fe05cdb",
+    "efg-nutrition/pilot/assets/activity-note-atlas-5.webp": "6446a9be4c02696ce00c79fd4a27ee0ffd06269fda2e8022403800844fff0746"
   },
   "stylesheets": [
     {
@@ -634,7 +639,7 @@
     },
     {
       "path": "efg-nutrition/pilot/activity-atlas-preview.css",
-      "sha256": "e93b897aadf5303a222be1280690c02a77f4a94e9afdaf7eb09f7feb9516bfee",
+      "sha256": "e6caae220b10a50ceeae820ca47bfc7e3e2724c4d975236d805db3d85763ea43",
       "url": "./activity-atlas-preview.css?v=ncc-activity-atlas-r1-20261118"
     }
   ],

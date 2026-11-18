@@ -40,3 +40,30 @@
 .ncc-scent-photo[data-workout-note=lotus]{background-position:0% 100%}
 .ncc-scent-photo[data-workout-note=ginger]{background-position:50% 100%}
 .ncc-scent-photo[data-workout-note=verbena]{background-position:100% 100%}
+
+.ncc-scent-photo[data-note-sheet]{aspect-ratio:1;background-size:400% 400%}
+.ncc-scent-photo[data-note-sheet="1"]{background-image:url('./assets/activity-note-atlas-1.webp')}
+.ncc-scent-photo[data-note-sheet="2"]{background-image:url('./assets/activity-note-atlas-2.webp')}
+.ncc-scent-photo[data-note-sheet="3"]{background-image:url('./assets/activity-note-atlas-3.webp')}
+.ncc-scent-photo[data-note-sheet="4"]{background-image:url('./assets/activity-note-atlas-4.webp')}
+.ncc-scent-photo[data-note-sheet="5"]{background-image:url('./assets/activity-note-atlas-5.webp');background-size:200% 200%}
+.ncc-scent-photo[data-note-slot="0"]{background-position:0% 0%}
+.ncc-scent-photo[data-note-slot="1"]{background-position:33.333333333333336% 0%}
+.ncc-scent-photo[data-note-slot="2"]{background-position:66.66666666666667% 0%}
+.ncc-scent-photo[data-note-slot="3"]{background-position:100% 0%}
+.ncc-scent-photo[data-note-slot="4"]{background-position:0% 33.333333333333336%}
+.ncc-scent-photo[data-note-slot="5"]{background-position:33.333333333333336% 33.333333333333336%}
+.ncc-scent-photo[data-note-slot="6"]{background-position:66.66666666666667% 33.333333333333336%}
+.ncc-scent-photo[data-note-slot="7"]{background-position:100% 33.333333333333336%}
+.ncc-scent-photo[data-note-slot="8"]{background-position:0% 66.66666666666667%}
+.ncc-scent-photo[data-note-slot="9"]{background-position:33.333333333333336% 66.66666666666667%}
+.ncc-scent-photo[data-note-slot="10"]{background-position:66.66666666666667% 66.66666666666667%}
+.ncc-scent-photo[data-note-slot="11"]{background-position:100% 66.66666666666667%}
+.ncc-scent-photo[data-note-slot="12"]{background-position:0% 100%}
+.ncc-scent-photo[data-note-slot="13"]{background-position:33.333333333333336% 100%}
+.ncc-scent-photo[data-note-slot="14"]{background-position:66.66666666666667% 100%}
+.ncc-scent-photo[data-note-slot="15"]{background-position:100% 100%}
+.ncc-scent-photo[data-note-sheet="5"][data-note-slot="0"]{background-position:0% 0%}
+.ncc-scent-photo[data-note-sheet="5"][data-note-slot="1"]{background-position:100% 0%}
+.ncc-scent-photo[data-note-sheet="5"][data-note-slot="2"]{background-position:0% 100%}
+.ncc-scent-photo[data-note-sheet="5"][data-note-slot="3"]{background-position:100% 100%}

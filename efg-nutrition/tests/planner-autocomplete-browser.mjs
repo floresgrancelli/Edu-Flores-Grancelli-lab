@@ -106,6 +106,18 @@ try{
    assert.ok(!new URL(page.url()).searchParams.has('reminderMeal'));
    assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before,'Opening a reminder never writes the diary');
    await page.screenshot({path:'quick-habitual-evidence/'+engine.name()+'-aviso.png'});
+   await page.evaluate(async()=>{
+    const app=window.__NCC_R4_FULLAPP__;
+    app.state.diary.meals.desayuno=[{id:'qa-energy',name:'Registro ficticio',qty:100,unit:'g',k:5000,p:0,c:0,f:20,fi:0}];
+    app.state.tab='home';
+    await app.render();
+   });
+   await page.locator('.ncc-day-plan-shortcut').click();
+   await page.locator('[data-planmode="dinner"]').click();
+   assert.match(await page.locator('#plannerRealNumbers').textContent(),/Calorías 0(?:[,.]0)? kcal/);
+   assert.match(await page.locator('#plannerPendingDetail').textContent(),/calorías ya están cubiertas.*proteína/i);
+   assert.match(await page.locator('#plannerProjectedNumbers').textContent(),/Total del día/);
+   await page.screenshot({path:'report-catalog-speed-evidence/'+engine.name()+'-saldo-cena.png'});
    await context.close();console.log('PASS '+engine.name()+' iPhone-sized planner food suggestions: protein, carbs, extras, no mutation');
   }finally{await browser.close();}
  }

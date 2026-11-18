@@ -2228,9 +2228,16 @@ function plannerCard(){
  plannerPreferencesNote()+'<p class="pilot-hint">Elegí qué querés comer. Primero calculamos proteína, después hidratos y, solo si los elegís, extras para completar calorías. Las grasas se contabilizan, pero no se imponen.</p>'+
  '<div class="planner-mode"><button class="'+(mode==="both"?"on":"")+'" data-planmode="both">Merienda + cena</button><button class="'+(mode==="dinner"?"on":"")+'" data-planmode="dinner">Solo cena</button></div>';
  if(!goal)return out+'<div class="pilot-alert">Para sugerir cantidades necesitamos un objetivo nutricional definido. '+(state.profile.role==="student"?"Tu entrenador debe aprobarlo.":"Configurá tus objetivos personales desde Mi día.")+'</div></section>';
- const left=plan.remaining||{};
- out+='<div class="planner-remaining"><b>Saldo REAL · lo que falta hoy</b><span>'+num(left.k,1)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span><small>Los mismos valores de Mi alimentación: solo lo que ya registraste.</small></div>';
- if(!plan.ready)return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';
+ if(!plan.ready){
+  const left=plan.remaining||{};
+  out+='<div class="planner-remaining"><b>Saldo REAL · lo que falta hoy</b><span>'+num(left.k,1)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span><small>Los mismos valores de Mi alimentación: solo lo que ya registraste.</small></div>';
+ return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';
+ }
+ out+='<section class="planner-balance-compare" id="plannerPendingNotice" aria-live="polite" aria-label="Saldo real y balance simulado">'+
+ '<div class="planner-real-balance"><b>Saldo de hoy · antes de planificar</b>'+
+ '<p id="plannerRealNumbers"></p><small>Solo incluye lo que ya registraste.</small></div>'+
+ '<div class="planner-left planner-simulated-balance"><b id="plannerSimulationHeading">SIMULACIÓN · si comieras lo seleccionado</b>'+
+ '<p id="plannerPlannedNumbers"></p><p id="plannerProjectedNumbers"></p><p id="plannerPendingNumbers"></p><small id="plannerPendingDetail"></small></div></section>';
  const all=allPlannerFoods(selectableFoods(),allowedFoods());
  // Same full catalog, annotated by the SAME semaphore used by daily meal search.
  // No user-specific second catalog; no hidden foods for uncertain evidence.
@@ -2309,11 +2316,7 @@ function plannerCard(){
   out+='</details>';
   out+='<p class="pilot-hint">La sugerencia inicial aporta aprox. P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g. Todas las cantidades son orientativas.</p></details>';
  }
- out+='<section class="planner-balance-compare" id="plannerPendingNotice" aria-live="polite" aria-label="Saldo real y balance simulado">'+
- '<div class="planner-real-balance"><b>Saldo REAL · solo lo registrado</b>'+
- '<p id="plannerRealNumbers"></p><small>Coincide con los valores de Mi alimentación. No incluye ningún alimento simulado.</small></div>'+
- '<div class="planner-left planner-simulated-balance"><b id="plannerSimulationHeading">SIMULACIÓN · si comieras lo seleccionado</b>'+
- '<p id="plannerPlannedNumbers"></p><p id="plannerPendingNumbers"></p><small id="plannerPendingDetail"></small></div></section>'+
+ out+=
  '<p class="pilot-hint">La simulación NO registra alimentos. El saldo real solo cambia cuando guardás lo que efectivamente comiste. Estas sugerencias no sustituyen las indicaciones de tu coach.</p></section>';
  return out;
 }
@@ -2453,7 +2456,9 @@ function updatePlannerPreview(){
  const balanceView=projectNutritionBalance({consumed:balance,goals:goal,selected:chosenFoods});
  const fmt=(obj)=>"Calorías "+num(obj.k,1)+" kcal · Proteínas "+num(obj.p,1)+" g · Hidratos "+num(obj.c,1)+" g · Grasas "+num(obj.f,1)+" g";
  if(realNumbers)realNumbers.textContent=fmt(balanceView.remaining);
- if(plannedNumbers)plannedNumbers.textContent="Las porciones seleccionadas aportarían: "+fmt(balanceView.planned);
+ if(plannedNumbers)plannedNumbers.textContent="Comidas seleccionadas: "+fmt(balanceView.planned);
+ const projectedNumbers=document.getElementById("plannerProjectedNumbers");
+ if(projectedNumbers)projectedNumbers.textContent="Total del día si las comieras: "+fmt(balanceView.projected);
  const remain=balanceView.projectedRemaining,excess=balanceView.projectedExceeded;
  const pendingMain=remain.k>2||remain.p>.4||remain.c>.4;
  const fatOnly=!pendingMain&&remain.f>.4;
@@ -2463,6 +2468,7 @@ function updatePlannerPreview(){
  numbers.textContent="Si comieras todas estas porciones, quedarían: "+fmt(remain);
  const excessParts=[["k","kcal",5],["p","g de proteína",.8],["c","g de hidratos",.8],["f","g de grasas",.8]].filter(([key,,limit])=>excess[key]>limit).map(([key,label])=>num(excess[key],1)+" "+label);
  details.textContent="Esto todavía NO se registró. "+(excessParts.length?"La combinación superaría algunos objetivos: "+excessParts.join(" · ")+". ":"")+
+  (remain.k<=2&&remain.p>.4?"Las calorías ya están cubiertas, pero aún faltan "+num(remain.p,1)+" g de proteína. Podés revisar las porciones elegidas. ":"")+
   (remain.k>2?"Si querés sumar alimentos para acercarte a las calorías pendientes, usá un extra opcional. ":"")+
   (hasUnsupported?"Para bebidas con leche, completá sus ingredientes antes de contabilizarlas. ":"")+
   "El saldo real solo cambia cuando registrás efectivamente lo consumido.";

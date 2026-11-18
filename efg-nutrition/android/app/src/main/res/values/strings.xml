@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Nutrición Con-Ciencia</string>
+    <string name="launch_url">https://efg-nutrition.onrender.com/pilot/</string>
+    <string name="asset_statements" translatable="false">[{\"relation\":[\"delegate_permission/common.handle_all_urls\"],\"target\":{\"namespace\":\"web\",\"site\":\"https://efg-nutrition.onrender.com\"}}]</string>
+    <color name="brand_background">#090d0a</color>
+</resources>

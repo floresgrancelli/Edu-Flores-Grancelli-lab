@@ -1,0 +1,28 @@
+name: NutricionActivity
+options:
+  deploymentTarget:
+    iOS: "17.0"
+targets:
+  NutricionActivity:
+    type: application
+    platform: iOS
+    sources:
+      - NutricionActivityApp.swift
+      - DailyHealthActivityReader.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ar.com.nutricionconciencia.activity
+        SWIFT_VERSION: "5.0"
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: NCC Mi Actividad
+        UILaunchScreen: {}
+        NCCActivityURL: $(NCC_ACTIVITY_URL)
+        NSHealthShareUsageDescription: Usamos los pasos y las calorías activas que autorices para mostrarlos en tu cuenta de Nutrición Con-Ciencia.
+    entitlements:
+      path: HealthKit.entitlements
+      properties:
+        com.apple.developer.healthkit: true

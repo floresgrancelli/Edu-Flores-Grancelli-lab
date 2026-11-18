@@ -1,3 +1,4 @@
+import {mountDeviceActivity} from './device-activity-sync.js?v=ncc-device-activity-r2-20261118';
 const headline = 'Para realizar actividades al aire libre se usan perfumes con un perfil fresco, cítrico, verde o acuático, porque suelen dar una sensación más liviana cuando hace calor o estás en movimiento.';
 const catalogURL = new URL('../activity-perfume/catalog.seed.json?v=468ef689',import.meta.url);
 const rotationURL = new URL('../activity-perfume/rotation.mjs?v=468ef689',import.meta.url);
@@ -200,7 +201,7 @@ export function activityAtlasHTML() {
   '<div class="ncc-activity-metrics" aria-label="Actividad de hoy">'+
   '<div><small>Pasos de hoy</small><strong data-atlas-steps>—</strong></div>'+
   '<div><small>Calorías activas</small><strong data-atlas-energy>—</strong></div></div>'+
-  '<small class="ncc-activity-source" data-atlas-source>Sin datos sincronizados</small></div>'+
+  '<small class="ncc-activity-source" data-atlas-source role="status">Sin datos sincronizados</small></div><div class="ncc-activity-connect"><button type="button" class="btn" data-atlas-connect hidden>Conectar actividad del dispositivo</button></div>'+
   '<section class="ncc-activity-perfume"><h2>Perfume del día para entrenar</h2>'+
   '<fieldset class="ncc-scent-switch"><legend class="sr-only">Opción de perfume</legend>'+
   '<label><input type="radio" name="activity-scent" value="hombre"><span>Hombre</span></label>'+
@@ -211,24 +212,11 @@ export function activityAtlasHTML() {
   '</section></section>';
 }
 
-export async function mountActivityAtlas(root, { db, day, isCurrent, enabled }) {
- const section=root.querySelector('.ncc-activity-atlas');
- if(!section)return;
+export function mountActivityAtlas(root,{db,owner,isCurrent,enabled}) {
+ const section = root.querySelector('.ncc-activity-atlas');
+ if (!section) return;
  void mountPerfumes(section,isCurrent);
- if(!enabled)return;
- try{
-  const {data,error}=await db.from('efg_daily_device_activity')
-   .select('steps,active_kcal,source').eq('activity_day',day).maybeSingle();
-  if(error)throw error;
-  if(!section.isConnected||!isCurrent())return;
-  if(!data)return;
-  const format=new Intl.NumberFormat('es-AR',{maximumFractionDigits:0});
-  section.querySelector('[data-atlas-steps]').textContent=data.steps==null?'—':format.format(data.steps);
-  section.querySelector('[data-atlas-energy]').textContent=data.active_kcal==null?'—':format.format(data.active_kcal)+' kcal';
-  section.querySelector('[data-atlas-source]').textContent=data.source==='apple_health'?'Apple Salud · calorías estimadas':'Health Connect · calorías estimadas';
- }catch{
-  if(section.isConnected&&isCurrent())section.querySelector('[data-atlas-source]').textContent='No se pudo sincronizar la actividad.';
- }
+ if (enabled) mountDeviceActivity(section,{db,owner,isCurrent});
 }
 
 let dismissedActivityNotice;

@@ -73,3 +73,6 @@
 .ncc-activity-release p{margin:.4rem 0 .65rem}
 .ncc-activity-release-actions{display:flex;flex-wrap:wrap;gap:.5rem}
 .ncc-activity-release-actions button{min-height:44px}
+
+.ncc-activity-connect:has(button:not([hidden])){position:relative;text-align:center;padding:.35rem .75rem 1.35rem;background:#152618}
+.ncc-activity-connect [hidden]{display:none}

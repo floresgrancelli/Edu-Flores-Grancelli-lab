@@ -930,6 +930,16 @@ function habitualPreviewWithPhotos(habitual){
  let index=0;
  return habitualPreviewHTML(habitual,escapeHTML).replace(/<li>/g,()=>'<li><span class="ncc-habitual-photo" aria-hidden="true">'+foodFamilyPhoto(habitual.items[index++])+'</span>');
 }
+function quickHabitualQuantities(items){
+ return '<p class="pilot-hint">Si hoy comiste una porción distinta, ajustala acá. Tu habitual guardado se conserva.</p>'+
+  items.map((item,index)=>{
+   const units=Number(item.displayQty)>0,quantity=Number(units?item.displayQty:item.qty);
+   if(!Number.isFinite(quantity)||quantity<=0)return '';
+   return '<label class="field">'+escapeHTML(item.name)+' · '+escapeHTML(units?item.displayUnit:item.unit)+
+    '<input type="number" inputmode="decimal" min="'+(units?'0.5':'0.1')+'" step="'+(units?'0.5':'any')+
+    '" data-habitual-quantity="'+index+'" value="'+quantity+'"></label>';
+  }).join('');
+}
 function habitualPickerHTML(slot,quick=false){
  const list=getHabitualList(slot);
  if(!list.length)return '<p class="pilot-hint efg-no-habitual" aria-live="polite">Todavía no guardaste habituales en este horario. Registrá una comida y tocá «Guardar habitual» para verla acá todos los días.</p>';
@@ -942,7 +952,7 @@ function habitualPickerHTML(slot,quick=false){
  return '<div class="efg-habitual-picker"><label for="habitualChoice_'+slot+'">Mis habituales de '+escapeHTML(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'</label>'+
  '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" '+(!selected?'selected':'')+'>Elegí una de tus '+list.length+' comidas habituales</option>'+
  list.map((item,i)=>'<option value="'+escapeHTML(habitualEntryKey(item,i))+'" '+(i===choice?'selected':'')+'>'+escapeHTML(habitualShortLabel(item)+(item.pendingLocal?' · pendiente de sincronizar':''))+'</option>').join('')+'</select>'+
- '<div id="habitualPreview_'+slot+'" class="efg-habitual-preview-host" aria-live="polite">'+habitualPreviewWithPhotos(selected)+'</div>'+
+ '<div id="habitualPreview_'+slot+'" class="efg-habitual-preview-host" aria-live="polite">'+habitualPreviewWithPhotos(selected)+(quick?quickHabitualQuantities(selected.items):'')+'</div>'+
  '<div class="efg-habitual-controls"><button type="button" class="btn small light" data-habitualapply="'+slot+'" '+(quick?'data-quick-habitual="true"':'')+'>↻ Registrar habitual</button>'+
  (quick?'':'<button type="button" class="btn small ghost" data-habitualdelete="'+slot+'">Eliminar habitual</button>')+'</div>'+
  '<small>Podés revisar el menú completo sin agregarlo. Solo se registrará al tocar «Registrar habitual».</small></div>';
@@ -952,7 +962,7 @@ function updateHabitualPreview(slot){
  state.habitualSelection[slot]=id;
  const current=getHabitualList(slot).find((item,index)=>habitualEntryKey(item,index)===id);
  const host=document.getElementById('mealEntryHabitualPreview_'+slot)||document.getElementById('habitualPreview_'+slot);
- if(host)host.innerHTML=habitualPreviewWithPhotos(current);
+ if(host)host.innerHTML=habitualPreviewWithPhotos(current)+(current&&host.closest('.efg-habitual-picker')?.querySelector('[data-quick-habitual]')?quickHabitualQuantities(current.items):'');
 }
 function validateHabitualCatalog(habitual){
  // Older favorites stay visible as historical records, but a recognized catalog
@@ -1014,7 +1024,7 @@ async function deleteChosenHabitual(slot){
  await render();notify('Habitual eliminado. Tus diarios históricos están intactos.',{kind:'success',slot});
  });
 }
-async function applyChosenHabitual(slot,{onlyEmpty=false}={}){
+async function applyChosenHabitual(slot,{onlyEmpty=false,quantities=[]}={}){
  if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
  return runHabitualSlotAction(slot,async()=>{
  const fav=chosenHabitual(slot);
@@ -1025,7 +1035,14 @@ async function applyChosenHabitual(slot,{onlyEmpty=false}={}){
  const previousItems=structuredClone(d.meals[slot]);
  const previousSkipped=d.skipped[slot],previousClosed=d.skipped._closed;
  const previousEdited=state.lastEditedMeal;
- d.meals[slot]=structuredClone(fav.items);
+ const items=structuredClone(fav.items);
+ for(const [index,value] of quantities){
+  const item=items[index];
+  if(!item)throw Error('El habitual cambió. Volvé a elegirlo antes de registrar.');
+  const original=Number(item.displayQty)>0?item.displayQty:item.qty;
+  if(Number(value)!==Number(original))items[index]=resizeDiaryFood(item,value);
+ }
+ d.meals[slot]=items;
  d.skipped[slot]=false;d.skipped._closed=false;state.lastEditedMeal=slot;
  const feedback=showSavingFeedback(null,{mealSlot:slot});let failed=false;
  try{await saveDiary();}
@@ -5376,7 +5393,9 @@ if(el.dataset.foodbulk){
  if(el.dataset.habitualapply){
   const onlyEmpty=el.dataset.quickHabitual==="true";
   if(onlyEmpty&&(state.tab!=="settings"||(state.profile.role==="student"&&studentRestrictedNavigation())))return;
-  await applyChosenHabitual(el.dataset.habitualapply,{onlyEmpty});
+  const quantities=onlyEmpty?[...el.closest('.efg-habitual-picker').querySelectorAll('[data-habitual-quantity]')]
+   .map(input=>[Number(input.dataset.habitualQuantity),input.value]):[];
+  await applyChosenHabitual(el.dataset.habitualapply,{onlyEmpty,quantities});
   if(onlyEmpty)await render();
   return;
  }

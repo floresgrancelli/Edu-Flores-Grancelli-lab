@@ -64,14 +64,19 @@ try{
    assert.ok(!errors.length,JSON.stringify(errors));
    await page.evaluate(()=>{
     const {state}=window.__NCC_R4_FULLAPP__;
-    localStorage.setItem('efg-nutrition-habitual-v2:'+state.session.user.id+':desayuno',JSON.stringify([{name:'Desayuno de prueba',items:[{name:'Avena',grams:40,k:150,p:5,c:25,f:3}]}]));
+    localStorage.setItem('efg-nutrition-habitual-v2:'+state.session.user.id+':desayuno',JSON.stringify([{name:'Desayuno de prueba',items:[{name:'Avena',qty:40,unit:'g',k:150,p:5,c:25,f:3}]}]));
    });
    await page.locator('button.navitem[data-tab="studentMore"]').click();
    await page.locator('button.efg-menu-card[data-tab="settings"]').evaluate(el=>el.click());
    const card=page.locator('section.card').filter({has:page.getByRole('heading',{name:'Comidas habituales',exact:true})});
    await card.locator('summary').filter({hasText:/^Desayuno$/}).click();
    await card.getByRole('button',{name:'Registrar habitual'}).waitFor();
-   assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before,'Preview never writes the diary');
+   const quantity=card.getByRole('spinbutton',{name:'Avena · g'});
+   assert.equal(await quantity.inputValue(),'40');
+   await quantity.fill('60');
+   assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before,'Editing the preview never writes the diary');
+   const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('efg-nutrition-habitual-v2:'+window.__NCC_R4_FULLAPP__.state.session.user.id+':desayuno')));
+   assert.equal(saved[0].items[0].qty,40,'Adjusting the portion leaves the template intact');
    mkdirSync('quick-habitual-evidence',{recursive:true});
    await page.screenshot({path:'quick-habitual-evidence/'+engine.name()+'.png'});
    await context.close();console.log('PASS '+engine.name()+' iPhone-sized planner food suggestions: protein, carbs, extras, no mutation');

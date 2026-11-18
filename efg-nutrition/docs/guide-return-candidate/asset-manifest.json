@@ -184,7 +184,8 @@
     "efg-nutrition/pilot/usual-supplements.js": "ncc-supplement-routine-r1-20261114",
     "efg-nutrition/pilot/readable-text.js": "ncc-settings-gear-only-r4-20261115",
     "efg-nutrition/pilot/meal-reminder-preferences.js": "ncc-meal-reminder-settings-r1-20261118",
-    "efg-nutrition/pilot/activity-atlas-preview.js": "ncc-activity-atlas-r1-20261118"
+    "efg-nutrition/pilot/activity-atlas-preview.js": "ncc-activity-atlas-r1-20261118",
+    "efg-nutrition/activity-perfume/rotation.mjs": "468ef689"
   },
   "sha256": {
     "efg-nutrition/pilot/adapted-guide-editor.js": "2192f3a5d69b56bf8436b85170a546a7b61c9f264578957d84b6d55f206cd59d",
@@ -453,7 +454,7 @@
     "efg-nutrition/pilot/readable-text.js": "f7ebc89eebc05e2387ec31350b8a967fdab0fc7b525682d489c7f5e2e71f8a93",
     "efg-nutrition/pilot/pilot.css": "7fe70ff2d31b43e86507110110dfba6b8a66c0529e05abdb29736c90de804a8b",
     "efg-nutrition/pilot/meal-reminder-preferences.js": "ca110b18a4f8cea3f4bf3a7fc8cc2654ce39c78806b3a72f72537369bd9e1610",
-    "efg-nutrition/pilot/activity-atlas-preview.js": "df63477a4ab8621e086b7b5d012087aefd09eae378471533281603969f814b85",
+    "efg-nutrition/pilot/activity-atlas-preview.js": "1b98b6b91bbdb17759679e5ebae1bfe0483902b0e486b858234553ece09499a3",
     "efg-nutrition/pilot/activity-atlas-preview.css": "e93b897aadf5303a222be1280690c02a77f4a94e9afdaf7eb09f7feb9516bfee",
     "efg-nutrition/pilot/assets/activity-atlas-reference.webp": "a03f312875437739b6fa26223e8b9e32a0d296dcfca6a9be0ed626f223976658",
     "efg-nutrition/activity-perfume/catalog.seed.json": "f5471254ba02b9d68c0147078cb6f08fb209c584faf42ccd73fd5dde59cdc9ca",
@@ -633,7 +634,7 @@
     },
     {
       "path": "efg-nutrition/pilot/activity-atlas-preview.css",
-      "sha256": "122b9d0f664cb2497fab208f11465cef6df00bb3443a7c8a90cfab980b4842bf",
+      "sha256": "e93b897aadf5303a222be1280690c02a77f4a94e9afdaf7eb09f7feb9516bfee",
       "url": "./activity-atlas-preview.css?v=ncc-activity-atlas-r1-20261118"
     }
   ],
@@ -767,5 +768,8 @@
       "efg-nutrition/pilot/assets/food-specific/identity-r3/sesame_oil-r1.webp",
       "efg-nutrition/pilot/assets/food-specific/identity-r3/tahini_roasted-r1.webp"
     ]
+  },
+  "resourceVersions": {
+    "efg-nutrition/activity-perfume/catalog.seed.json": "468ef689"
   }
 }

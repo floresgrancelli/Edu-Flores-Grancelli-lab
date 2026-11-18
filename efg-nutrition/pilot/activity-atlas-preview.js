@@ -1,7 +1,6 @@
 const headline = 'Para realizar actividades al aire libre se usan perfumes con un perfil fresco, cítrico, verde o acuático, porque suelen dar una sensación más liviana cuando hace calor o estás en movimiento.';
-const catalogVersion = '468ef689';
-const catalogURL = new URL('../activity-perfume/catalog.seed.json?v=' + catalogVersion, import.meta.url);
-const rotationURL = new URL('../activity-perfume/rotation.mjs?v=' + catalogVersion, import.meta.url);
+const catalogURL = new URL('../activity-perfume/catalog.seed.json?v=468ef689', import.meta.url);
+const rotationURL = new URL('../activity-perfume/rotation.mjs?v=468ef689', import.meta.url);
 const photoNotes = new Map([['Cidra','citron'],['Jazmín','jasmine'],['Madera de teca','teak']]);
 const workoutPhotos = new Map([
  ['Pomelo','grapefruit'],['Menta','mint'],['Cedro','cedar'],

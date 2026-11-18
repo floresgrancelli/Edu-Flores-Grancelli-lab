@@ -53,11 +53,15 @@ test('all module URLs use the exact pinned target version; immutable old assets 
  assert.throws(()=>verifyModuleEdges('efg-nutrition/pilot/pilot.js',"import './missing-asset-qa.js?v=never';\nimport {missing} from './missing-asset-qa.js?v=never';"),'A missing dependency file must fail');
 });
 test('same-origin PDF worker and new CSS are pinned; period PDF assets remain immutable',()=>{
- assert.equal(m.moduleResources.length,1);
+ assert.deepEqual(m.moduleResources.map(resource=>resource.path).sort(),[
+  'efg-nutrition/activity-perfume/catalog.seed.json',
+  'efg-nutrition/activity-perfume/rotation.mjs',
+  'efg-nutrition/pilot/vendor/pdfjs-5.6.205/pdf.worker.min.mjs',
+ ]);
  for(const resource of m.moduleResources){
   assert.ok(read(resource.owner).includes("new URL('"+resource.url+"',import.meta.url)"));
   assert.equal(resolve(dirname(resolve(root,resource.owner)),resource.url.split('?')[0]),resolve(root,resource.path));
-  assert.equal(new URL(resource.url,'https://example.invalid/').searchParams.get('v'),m.moduleVersions[resource.path]);
+  assert.equal(new URL(resource.url,'https://example.invalid/').searchParams.get('v'),m.moduleVersions[resource.path]??m.resourceVersions[resource.path]);
   assert.equal(hash(readFileSync(resolve(root,resource.path))),m.sha256[resource.path]);
  }
  assert.ok(m.stylesheets.some(x=>x.path==='efg-nutrition/pilot/weekly-pdf-review.css'&&x.url.endsWith('?v=ncc-weekly-preview-r11-20261106')));

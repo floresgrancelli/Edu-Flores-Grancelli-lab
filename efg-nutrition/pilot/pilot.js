@@ -1428,7 +1428,7 @@ function frame(content){
  dualWorkspaceFrame.mountFrame(root);
  professionalReleaseFrame.mountFrame(root);
  pilotGuideLifecycle.mountStudent(root);
- if(state.tab==='settings')void loadMealReminderSettings();
+ if(state.tab==='settings'){void loadMealReminderSettings();void loadHabitualAutomationSettings();}
 }
 // Bienvenida institucional, exclusivamente en el primer acceso del alumno nuevo.
 function welcomeView(){
@@ -1628,12 +1628,74 @@ function coachPersonalMoreView(){
  ["settings","⚙️","Configuración","lilac"]
  ]);
 }
+const habitualAutomationEnabled=()=>document.querySelector('meta[name="ncc-habitual-automation"]')?.content==="enabled";
+const habitualAutomationDays=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+function habitualAutomationControls(slot){
+ if(!habitualAutomationEnabled())return "";
+ const templates=getHabitualList(slot).filter(item=>item.id);
+ if(!templates.length)return '<p class="pilot-hint">Guardá un habitual sincronizado para poder programarlo.</p>';
+ return '<fieldset disabled data-habitual-automation="'+slot+'"><legend>Carga automática</legend>'+
+  '<label><input type="checkbox" data-auto-enabled> Activar carga automática</label>'+
+  '<label>Habitual<select data-auto-template>'+templates.map(item=>
+   '<option value="'+escapeHTML(item.id)+'">'+escapeHTML(item.name)+'</option>').join('')+'</select></label>'+
+  '<label>Hora de Argentina<input type="time" max="23:58" step="60" data-auto-time></label>'+
+  '<div aria-label="Días">'+habitualAutomationDays.map((day,index)=>
+   '<label><input type="checkbox" data-auto-day="'+(index+1)+'"> '+day+'</label>').join(' ')+'</div>'+
+  '<button type="button" class="btn small light" data-act="saveHabitualAutomation">Guardar programación</button>'+
+  '<p role="status" data-auto-status></p></fieldset>';
+}
+async function loadHabitualAutomationSettings(){
+ const panels=[...root.querySelectorAll('[data-habitual-automation]')];
+ if(!panels.length)return;
+ const owner=state.session?.user?.id,epoch=state.authContextEpoch;
+ try{
+  const {data,error}=await sb.from('efg_habitual_automation').select('meal,habitual_id,days,run_at,enabled');
+  if(error)throw error;
+  if(owner!==state.session?.user?.id||epoch!==state.authContextEpoch)return;
+  for(const panel of panels.filter(el=>el.isConnected)){
+   const rule=data.find(row=>row.meal===panel.dataset.habitualAutomation);
+   if(rule){
+    panel.querySelector('[data-auto-enabled]').checked=rule.enabled;
+    panel.querySelector('[data-auto-template]').value=rule.habitual_id;
+    panel.querySelector('[data-auto-time]').value=rule.run_at.slice(0,5);
+    for(const day of panel.querySelectorAll('[data-auto-day]'))day.checked=rule.days.includes(Number(day.dataset.autoDay));
+   }
+   panel.disabled=false;
+  }
+ }catch{
+  for(const panel of panels.filter(el=>el.isConnected))
+   panel.querySelector('[data-auto-status]').textContent="No pudimos cargar la programación.";
+ }
+}
+async function saveHabitualAutomation(button){
+ const panel=button.closest('[data-habitual-automation]');
+ if(!panel||!habitualAutomationEnabled()||state.tab!=="settings"||
+    (state.profile.role==="student"&&studentRestrictedNavigation()))return;
+ const status=panel.querySelector('[data-auto-status]');
+ const owner=state.session?.user?.id,epoch=state.authContextEpoch;
+ const current=()=>panel.isConnected&&owner===state.session?.user?.id&&epoch===state.authContextEpoch;
+ const meal=panel.dataset.habitualAutomation,enabled=panel.querySelector('[data-auto-enabled]').checked;
+ const habitual=panel.querySelector('[data-auto-template]').value,runAt=panel.querySelector('[data-auto-time]').value;
+ const days=[...panel.querySelectorAll('[data-auto-day]:checked')].map(el=>Number(el.dataset.autoDay));
+ if(enabled&&(!habitual||!runAt||runAt>="23:59"||!days.length)){
+  status.textContent="Elegí un habitual, al menos un día y una hora anterior a las 23:59.";return;
+ }
+ panel.disabled=true;
+ try{
+  const table=sb.from('efg_habitual_automation');
+  const {error}=await (enabled?table.upsert({meal,habitual_id:habitual,days,run_at:runAt,enabled:true},{onConflict:'user_id,meal'}):table.delete().eq('meal',meal));
+  if(error)throw error;
+  if(current())status.textContent=enabled?"Programación guardada. Solo se carga si la comida está vacía.":"Carga automática desactivada.";
+ }catch{
+  if(current())status.textContent="No pudimos guardar la programación.";
+ }finally{if(current())panel.disabled=false;}
+}
 function quickHabitualSettings(){
  if(state.profile.role==="student"&&studentRestrictedNavigation())return "";
  const diary=activeDiary();
  return '<section class="card"><h3>Comidas habituales</h3><p class="pilot-hint">Revisá una comida guardada y registrala en el día de hoy.</p>'+
   mealSlots.map(([slot,label])=>'<details><summary>'+escapeHTML(label)+'</summary>'+
-   (diary.meals?.[slot]?.length?'<p class="pilot-hint">Ya registraste alimentos en este horario.</p>':habitualPickerHTML(slot,true))+
+   (diary.meals?.[slot]?.length?'<p class="pilot-hint">Ya registraste alimentos en este horario.</p>':habitualPickerHTML(slot,true))+habitualAutomationControls(slot)+
    '</details>').join('')+'</section>';
 }
 const reminderPublicKey=()=>document.querySelector('meta[name="ncc-web-push-key"]')?.content.trim()||"";
@@ -1676,7 +1738,8 @@ async function handleMealReminderSettings(button,action){
  const client=createMealReminderPreferencesClient(sb);
  button.disabled=true;
  try{
-  if(action==="enableMealReminderDevice"){
+  if(action==="saveHabitualAutomation")return saveHabitualAutomation(el);
+ if(action==="enableMealReminderDevice"){
    if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window))
     throw Error("Este navegador no admite avisos. En iPhone abrí la app desde la pantalla de inicio.");
    if(await Notification.requestPermission()!=="granted")throw Error("Los avisos necesitan permiso en este celular.");

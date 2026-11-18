@@ -118,6 +118,8 @@ try{
    assert.match(await page.locator('#plannerPendingDetail').textContent(),/calorías ya están cubiertas.*proteína/i);
    assert.match(await page.locator('#plannerProjectedNumbers').textContent(),/Total del día/);
    await page.screenshot({path:'report-catalog-speed-evidence/'+engine.name()+'-saldo-cena.png'});
+   await page.locator('#nccPlanDestinationSections [data-workspace-tab="guide"]').click();
+   await page.locator('.ncc-plan [data-workspace-tab="meals"]').click();
    await page.evaluate(()=>{
     window.__nccGuideTabs=document.querySelector('.ncc-plan-tabs');
     document.querySelector('.ncc-plan-notes').open=true;

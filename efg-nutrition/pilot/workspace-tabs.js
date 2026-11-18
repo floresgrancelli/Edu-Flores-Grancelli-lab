@@ -101,7 +101,7 @@ export function mountWorkspaceTabs(root,{key,tab,role}){
   const plan=main.querySelector('.ncc-plan');if(!plan)return;
   const notes=[...plan.querySelectorAll(':scope > .ncc-plan-notes')].map(n=>{const section=document.createElement('section');section.className=n.className;const summary=n.querySelector(':scope > summary');if(summary){const h=document.createElement('h2');h.textContent=summary.textContent;summary.replaceWith(h);}n.replaceWith(section);section.append(...n.childNodes);return section;});
   group(plan,'nccGuideSections',[
-   ['meals','Comidas',[plan.querySelector(':scope > h2'),plan.querySelector('.ncc-plan-tabs'),plan.querySelector('.ncc-plan-meal'),plan.querySelector('[data-studentguideregister]')]],
+   ['meals','Comidas',[plan.querySelector(':scope > h2'),plan.querySelector('.ncc-plan-tabs'),plan.querySelector('[data-student-guide-meal]')||plan.querySelector('.ncc-plan-meal'),plan.querySelector('[data-student-guide-meal]')?null:plan.querySelector('[data-studentguideregister]')]],
    ['notes','Indicaciones',[notes[0]]],['balance','Mi balance',[notes[1]]]
   ]);
  }

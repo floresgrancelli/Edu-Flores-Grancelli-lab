@@ -7,7 +7,7 @@ import {DIET_PATTERNS,EATING_WINDOWS,evaluatePattern,evaluateEatingWindow,distri
 const src=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const pull=readFileSync(new URL("../pilot/pull-refresh.js",import.meta.url),"utf8");
 assert.match(src,/data-habitualsave/,'The meal accordion must retain Save habitual');
-assert.match(src,/\+habitualPickerHTML\(key\)\+/, 'Existing habitual picker must render under each meal');
+assert.match(src,/habitualPickerHTML\(key\).*habitualPickerHTML\(key,true\)/, 'Existing habitual picker must render under each meal');
 assert.match(src,/const choice=selectedIndex>=0\?selectedIndex:0;/, 'Saved habitual must be previewed by default, including multiple saved variants');
 assert.match(src,/getHabitualList\(slot\)/,'Pick only the current meal slot');
 assert.match(src,/cloudHabituales=data\|\|\[\]/,'Previously saved meals must be fetched');

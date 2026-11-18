@@ -61,7 +61,7 @@ assert.match(source,/holder\.innerHTML=choice==="cake"\?budinRecipeHTML\(\)/,
 
 // An old habitual must not notify B or restore B's last edited slot if A's
 // existing diary write resolves/rejects after switching account.
-const habitualBody=slice('async function applyChosenHabitual(slot){','async function habitualAction(slot,action){');
+const habitualBody=slice('async function applyChosenHabitual(slot,','async function habitualAction(slot,action){');
 for(const fails of [false,true]){
  const a=initialDiary(),b=nextDiary(),state={session:{user:{id:'A'}},diary:a,lastEditedMeal:'old-A'};
  const alerts=[],hold=deferred(),old=structuredClone(a);

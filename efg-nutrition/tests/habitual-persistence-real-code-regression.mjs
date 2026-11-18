@@ -127,7 +127,7 @@ assert.equal(diaryWrites,prevWrites+3,
  'Legacy student without a guide keeps habitual behavior');
 
 // Both picker paths must restore the previous diary if the remote write fails.
-assert.match(subsystem,/async function applyChosenHabitual\(slot\)/);
+assert.match(subsystem,/async function applyChosenHabitual\(slot,/);
 assert.match(subsystem,/const previousItems=structuredClone\(d\.meals\[slot\]\)/);
 assert.equal((subsystem.match(/catch\(error\)\{\s*(?:failed=true;\s*)?d\.meals\[slot\]=previousItems/g)||[]).length,2,
  'Both the selected habitual and legacy action must roll back in-memory meals');

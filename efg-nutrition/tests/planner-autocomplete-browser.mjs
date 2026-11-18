@@ -53,6 +53,16 @@ try{
     assert.equal(await results.isHidden(),true,'Result list closes after selection');
     assert.equal(await input.getAttribute('aria-expanded'),'false');
    }
+   const balance=page.locator('#plannerPendingNotice');
+   assert.ok(await balance.evaluate(el=>Boolean(el.compareDocumentPosition(document.querySelector('[data-suggestionpanel]'))&Node.DOCUMENT_POSITION_FOLLOWING)));
+   assert.match(await page.locator('#plannerProjectedNumbers').textContent(),/Total del día si las comieras:.*kcal/);
+   const previousProjection=await page.locator('#plannerProjectedNumbers').textContent();
+   const carbsQuantity=page.locator('[id="planQty_cena|carbs"]');
+   await page.locator('#nccPlannerFood-cena [data-workspace-tab="carbs"]').click();
+   await carbsQuantity.fill('123');
+   assert.notEqual(await page.locator('#plannerProjectedNumbers').textContent(),previousProjection,'Quantity updates daily projection');
+   mkdirSync('planner-balance-evidence',{recursive:true});
+   await page.screenshot({path:'planner-balance-evidence/'+engine.name()+'-cena.png'});
    const search=page.locator('[data-plansearch="cena|protein"]');
    await page.locator('#nccPlannerFood-cena [data-workspace-tab="protein"]').click();
    await search.fill('zzx-no-existe-zzx');

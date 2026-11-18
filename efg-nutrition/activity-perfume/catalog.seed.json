@@ -1,0 +1,86 @@
+[
+  {
+    "id": "afnan-turathi-blue-edp",
+    "option": "hombre",
+    "category": "árabe",
+    "name": "Afnan Turathi Blue EDP",
+    "profile": "Cítrico amaderado",
+    "source": "https://afnan.com/products/turathi-blue-homme",
+    "notes": {
+      "salida": [
+        "Bergamota",
+        "Mandarina"
+      ],
+      "corazon": [
+        "Ámbar",
+        "Maderas"
+      ],
+      "fondo": [
+        "Almizcle",
+        "Pachulí",
+        "Especias frescas"
+      ]
+    }
+  },
+  {
+    "id": "dior-homme-sport-edt",
+    "option": "hombre",
+    "category": "diseñador",
+    "name": "Dior Homme Sport EDT",
+    "profile": "Cítrico amaderado",
+    "source": "https://www.dior.com/en_us/beauty/products/dior-homme-sport-Y0996476.html",
+    "notes": {
+      "destacadas": [
+        "Bergamota de Calabria",
+        "Limón italiano",
+        "Pimienta rosa",
+        "Elemí",
+        "Incienso de olíbano",
+        "Maderas",
+        "Ámbar"
+      ]
+    }
+  },
+  {
+    "id": "chanel-chance-eau-fraiche-edt",
+    "option": "mujer",
+    "category": "diseñador",
+    "name": "Chanel Chance Eau Fraîche EDT",
+    "profile": "Cítrico floral",
+    "source": "https://www.chanel.com/us/fragrance/p/136410/chance-eau-fraiche-eau-de-toilette-spray/",
+    "notes": {
+      "destacadas": [
+        "Cidra",
+        "Jazmín",
+        "Madera de teca"
+      ]
+    }
+  },
+  {
+    "id": "lattafa-mayar-natural-intense",
+    "option": "mujer",
+    "category": "árabe",
+    "name": "Lattafa Mayar Natural Intense",
+    "profile": "Frutal floral acuático",
+    "source": "https://lattafa.com/product/mayar-natural-intense/",
+    "notes": {
+      "salida": [
+        "Higo",
+        "Agua de coco",
+        "Mandarina verde",
+        "Melón"
+      ],
+      "corazon": [
+        "Loto",
+        "Jazmín",
+        "Nenúfar"
+      ],
+      "fondo": [
+        "Almizcle",
+        "Sándalo",
+        "Vainilla",
+        "Ambroxan"
+      ]
+    }
+  }
+]

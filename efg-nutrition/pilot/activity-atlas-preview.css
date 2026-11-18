@@ -24,3 +24,8 @@
 .ncc-scent-photo[data-note=teak]{background-position:92.82% 89.7%}
 .ncc-scent-notes figcaption{margin-top:.25rem;font-size:clamp(.72rem,3vw,1.2rem)}
 .ncc-activity-perfume details{font-size:.8rem;margin-top:.9rem;text-align:left}
+
+.ncc-scent-notes figure{display:flex;flex-direction:column;justify-content:center;align-self:end;overflow-wrap:anywhere}
+.ncc-scent-notes img.ncc-scent-photo{width:100%;object-fit:cover;background-image:none}
+.ncc-scent-notes figure>.ncc-scent-photo+figcaption{min-height:2.5em}
+.ncc-scent-notes figure>figcaption:only-child{height:100%;min-height:2.5em;padding:.35rem .2rem;border:1px solid #75835b;border-radius:.55rem;background:#182a1c}

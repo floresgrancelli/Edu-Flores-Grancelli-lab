@@ -62,6 +62,17 @@ try{
    assert.equal(await page.locator('[data-planselect="cena|protein"]').inputValue(),'none');
    assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before,'Search and select never write to diary');
    assert.ok(!errors.length,JSON.stringify(errors));
+   await page.evaluate(()=>{
+    const {state}=window.__NCC_R4_FULLAPP__;
+    localStorage.setItem('efg-nutrition-habitual-v2:'+state.session.user.id+':desayuno',JSON.stringify([{name:'Desayuno de prueba',items:[{name:'Avena',grams:40,k:150,p:5,c:25,f:3}]}]));
+   });
+   await page.locator('[data-act="openVersionSettings"],[data-tab="settings"]').first().evaluate(el=>el.click()).catch(async()=>{await page.getByRole('button',{name:'Configuración',exact:true}).first().click();});
+   const card=page.locator('section.card').filter({has:page.getByRole('heading',{name:'Comidas habituales',exact:true})});
+   await card.locator('summary').filter({hasText:/^Desayuno$/}).click();
+   await card.getByRole('button',{name:'Registrar habitual'}).waitFor();
+   assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before,'Preview never writes the diary');
+   mkdirSync('quick-habitual-evidence',{recursive:true});
+   await page.screenshot({path:'quick-habitual-evidence/'+engine.name()+'.png'});
    await context.close();console.log('PASS '+engine.name()+' iPhone-sized planner food suggestions: protein, carbs, extras, no mutation');
   }finally{await browser.close();}
  }

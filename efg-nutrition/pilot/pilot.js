@@ -930,7 +930,7 @@ function habitualPreviewWithPhotos(habitual){
  let index=0;
  return habitualPreviewHTML(habitual,escapeHTML).replace(/<li>/g,()=>'<li><span class="ncc-habitual-photo" aria-hidden="true">'+foodFamilyPhoto(habitual.items[index++])+'</span>');
 }
-function habitualPickerHTML(slot){
+function habitualPickerHTML(slot,quick=false){
  const list=getHabitualList(slot);
  if(!list.length)return '<p class="pilot-hint efg-no-habitual" aria-live="polite">Todavía no guardaste habituales en este horario. Registrá una comida y tocá «Guardar habitual» para verla acá todos los días.</p>';
  const requested=state.habitualSelection[slot]||"";
@@ -943,8 +943,8 @@ function habitualPickerHTML(slot){
  '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" '+(!selected?'selected':'')+'>Elegí una de tus '+list.length+' comidas habituales</option>'+
  list.map((item,i)=>'<option value="'+escapeHTML(habitualEntryKey(item,i))+'" '+(i===choice?'selected':'')+'>'+escapeHTML(habitualShortLabel(item)+(item.pendingLocal?' · pendiente de sincronizar':''))+'</option>').join('')+'</select>'+
  '<div id="habitualPreview_'+slot+'" class="efg-habitual-preview-host" aria-live="polite">'+habitualPreviewWithPhotos(selected)+'</div>'+
- '<div class="efg-habitual-controls"><button type="button" class="btn small light" data-habitualapply="'+slot+'">↻ Registrar habitual</button>'+
- '<button type="button" class="btn small ghost" data-habitualdelete="'+slot+'">Eliminar habitual</button></div>'+
+ '<div class="efg-habitual-controls"><button type="button" class="btn small light" data-habitualapply="'+slot+'" '+(quick?'data-quick-habitual="true"':'')+'>↻ Registrar habitual</button>'+
+ (quick?'':'<button type="button" class="btn small ghost" data-habitualdelete="'+slot+'">Eliminar habitual</button>')+'</div>'+
  '<small>Podés revisar el menú completo sin agregarlo. Solo se registrará al tocar «Registrar habitual».</small></div>';
 }
 function updateHabitualPreview(slot){
@@ -1014,12 +1014,13 @@ async function deleteChosenHabitual(slot){
  await render();notify('Habitual eliminado. Tus diarios históricos están intactos.',{kind:'success',slot});
  });
 }
-async function applyChosenHabitual(slot){
+async function applyChosenHabitual(slot,{onlyEmpty=false}={}){
  if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
  return runHabitualSlotAction(slot,async()=>{
  const fav=chosenHabitual(slot);
  validateHabitualCatalog(fav);
  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
+ if(onlyEmpty&&d.meals[slot].length)throw Error('Este horario ya tiene alimentos registrados. Podés revisarlos en Mi Día.');
  if(d.meals[slot].length&&!confirm('Esta comida ya tiene alimentos. ¿Reemplazarlos por «'+fav.name+'»?'))return;
  const previousItems=structuredClone(d.meals[slot]);
  const previousSkipped=d.skipped[slot],previousClosed=d.skipped._closed;
@@ -1608,8 +1609,16 @@ function coachPersonalMoreView(){
  ["settings","⚙️","Configuración","lilac"]
  ]);
 }
+function quickHabitualSettings(){
+ if(state.profile.role==="student"&&studentRestrictedNavigation())return "";
+ const diary=activeDiary();
+ return '<section class="card"><h3>Comidas habituales</h3><p class="pilot-hint">Revisá una comida guardada y registrala en el día de hoy.</p>'+
+  mealSlots.map(([slot,label])=>'<details><summary>'+escapeHTML(label)+'</summary>'+
+   (diary.meals?.[slot]?.length?'<p class="pilot-hint">Ya registraste alimentos en este horario.</p>':habitualPickerHTML(slot,true))+
+   '</details>').join('')+'</section>';
+}
 function settingsView(){
- return rootText("Configuración","Actualizá la aplicación y administrá tu sesión.")+versionCheckCard()+
+ return rootText("Configuración","Actualizá la aplicación y administrá tu sesión.")+versionCheckCard()+quickHabitualSettings()+
   '<section class="card"><h3>Tu cuenta</h3><p class="pilot-hint">Perfil: '+escapeHTML(roleLabel())+'. Tus datos y los permisos de cada función no cambian al actualizar la app.</p><button type="button" class="btn small light" data-act="logout">Cerrar sesión</button></section>';
 }
 function studentMoreView(){
@@ -5364,7 +5373,13 @@ if(el.dataset.foodbulk){
  if(el.dataset.act==="confirmRecipeRegistration"){await confirmRecipeRegistration();return;}
  if(el.dataset.act==="closeRecipeRegistration"){closeRecipeRegistration();return;}
  if(el.dataset.habitualsave){await habitualAction(el.dataset.habitualsave,"save");return;}
- if(el.dataset.habitualapply){await applyChosenHabitual(el.dataset.habitualapply);return;}
+ if(el.dataset.habitualapply){
+  const onlyEmpty=el.dataset.quickHabitual==="true";
+  if(onlyEmpty&&(state.tab!=="settings"||(state.profile.role==="student"&&studentRestrictedNavigation())))return;
+  await applyChosenHabitual(el.dataset.habitualapply,{onlyEmpty});
+  if(onlyEmpty)await render();
+  return;
+ }
  if(el.dataset.habitualdelete){await deleteChosenHabitual(el.dataset.habitualdelete);return;}
  if(el.dataset.habitualuse){await habitualAction(el.dataset.habitualuse,"use");return;}
  if(el.dataset.act==='registerDayFood'){

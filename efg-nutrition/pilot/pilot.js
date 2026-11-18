@@ -619,7 +619,7 @@ const weeklyPdfReview=createWeeklyPdfReview({root});
 const periodPdfReview=createWeeklyPdfReview({root,mode:'period',buildPdf:buildPeriodReportPdf});
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
-const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,pendingDiaryDraft:null,diaryWritePending:false,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachReportGoals:null,coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachGuideHealth:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={guardedDiaryWrites:document.querySelector('meta[name="ncc-guarded-diary-writes"]')?.content==="enabled",foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,pendingDiaryDraft:null,diaryWritePending:false,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachReportGoals:null,coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachGuideHealth:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const authHydration=createAuthHydrationGate({
  readIdentity:()=>state.session?.user?.id||null,
  invalidate:invalidateAuthContext,
@@ -4649,8 +4649,16 @@ async function saveDiary(){
  state.diaryWriteOwner=studentId;
  state.diaryWriteRevision=(state.diaryWriteRevision||0)+1;
  try{
-  const {data,error}=await sb.from("efg_daily_logs").upsert(payload,{onConflict:"student_id,log_day"}).select().single();
-  if(error)throw error;
+  const result=state.guardedDiaryWrites?
+   await sb.rpc("efg_save_diary_if_current",{
+    p_day:payload.log_day,p_expected:d.updated_at??null,p_meals:payload.meals,
+    p_sports:payload.sports,p_skipped:payload.skipped,p_totals:payload.totals
+   }):
+   await sb.from("efg_daily_logs").upsert(payload,{onConflict:"student_id,log_day"}).select().single();
+  if(result.error)throw result.error;
+  const data=Array.isArray(result.data)?result.data[0]:result.data;
+  if(!data||data.student_id!==studentId||data.log_day!==payload.log_day)
+   throw Error("No pudimos confirmar el guardado. Actualizá Mi Día antes de volver a intentar.");
   // The server has committed, but the user may have logged out or midnight
   // may have passed. Never rehydrate the previous user's/day's row into UI.
   if(state.session?.user?.id!==studentId||(state.authContextEpoch||0)!==contextEpoch||today()!==payload.log_day)return;

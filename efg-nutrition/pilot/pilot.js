@@ -2980,9 +2980,8 @@ function movementCard(){
 }
 const activityAtlasPreview=()=>document.querySelector('meta[name="ncc-activity-atlas-preview"]')?.content==="enabled";
 function sportView(){
- if(!activityAtlasPreview())return rootText("Hidratación y deporte","Registrá tus pasos y ritmo de caminata. La hidratación y los productos de entrenamiento se administran por separado.")+activityRegistrationTools();
- return activityAtlasHTML()+
-  '<details class="ncc-activity-manual"><summary>Registro manual y caminata</summary>'+activityRegistrationTools()+'</details>';
+ if(activityAtlasPreview())return activityAtlasHTML();
+ return rootText("Hidratación y deporte","Registrá tus pasos y ritmo de caminata. La hidratación y los productos de entrenamiento se administran por separado.")+activityRegistrationTools();
 }
 function activityRegistrationTools(){
  let d=activeDiary(),entries=(d.sports||[]).map((e,index)=>({...e,_originalIndex:index})).filter(e=>!supplementRecord(e));

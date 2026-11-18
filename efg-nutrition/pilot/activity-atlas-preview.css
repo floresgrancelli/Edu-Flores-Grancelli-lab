@@ -67,3 +67,9 @@
 .ncc-scent-photo[data-note-sheet="5"][data-note-slot="1"]{background-position:100% 0%}
 .ncc-scent-photo[data-note-sheet="5"][data-note-slot="2"]{background-position:0% 100%}
 .ncc-scent-photo[data-note-sheet="5"][data-note-slot="3"]{background-position:100% 100%}
+
+.ncc-activity-release{max-width:44rem;margin:0 auto 1rem;padding:1rem;border:1px solid #75835b;border-radius:.9rem;background:#17291b;color:#f0e7d0}
+.ncc-activity-release h2{margin:0 0 .5rem;color:inherit;font-size:1.2rem}
+.ncc-activity-release p{margin:.4rem 0 .65rem}
+.ncc-activity-release-actions{display:flex;flex-wrap:wrap;gap:.5rem}
+.ncc-activity-release-actions button{min-height:44px}

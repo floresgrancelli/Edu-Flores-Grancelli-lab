@@ -230,3 +230,32 @@ export async function mountActivityAtlas(root, { db, day, isCurrent, enabled }) 
   if(section.isConnected&&isCurrent())section.querySelector('[data-atlas-source]').textContent='No se pudo sincronizar la actividad.';
  }
 }
+
+let dismissedActivityNotice;
+export function mountActivityReleaseNotice(root,{owner,epoch}) {
+ if (!owner) return;
+ const sessionKey = JSON.stringify([owner,epoch]);
+ const main = root.querySelector('.pilot-main');
+ if (!main || dismissedActivityNotice === sessionKey || main.querySelector('.ncc-activity-release')) return;
+
+ const notice = document.createElement('section');
+ notice.className = 'ncc-activity-release';
+ notice.setAttribute('aria-labelledby','ncc-activity-release-title');
+ notice.innerHTML =
+  '<h2 id="ncc-activity-release-title">Novedades de Mi Actividad</h2>'+
+  '<p>Ahora tenés un resumen del día junto al sendero y el <strong>Perfume del día para entrenar</strong>. Elegí Hombre o Mujer para ver una recomendación diaria con tres notas ilustradas y su ficha olfativa.</p>'+
+  '<p>Cuando conectes una fuente compatible, vas a poder consultar tus pasos y calorías activas del día en esta pantalla.</p>'+
+  '<div class="ncc-activity-release-actions">'+
+  '<button type="button" class="btn btn-primary" data-tab="sport">Ir a Mi Actividad</button>'+
+  '<button type="button" class="btn" data-activity-notice-dismiss>Cerrar</button></div>';
+ function dismiss() {
+  dismissedActivityNotice = sessionKey;
+  notice.remove();
+ }
+ notice.querySelector('[data-activity-notice-dismiss]').addEventListener('click',dismiss);
+ // Keep the navigation button attached until the app's delegated handler reads it.
+ notice.querySelector('[data-tab="sport"]').addEventListener('click',() => {
+  dismissedActivityNotice = sessionKey;
+ });
+ main.prepend(notice);
+}

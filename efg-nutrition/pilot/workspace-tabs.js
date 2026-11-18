@@ -32,6 +32,14 @@ export function mountWorkspaceTabs(root,{key,tab,role}){
   const goals=main.querySelector('.ncc-space-goals');if(goals)sections[0][2].push(goals);
   personal.classList.remove('efg-menu-grid');group(personal,'nccPersonalSections',sections);
  }
+ if(tab==='settings'){
+  const host=main.querySelector('.ncc-habitual-settings');
+  if(host){
+   group(host,'nccHabitualSections',[...host.querySelectorAll(':scope > [data-habitual-slot]')]
+    .map(panel=>[panel.dataset.habitualSlot,panel.dataset.habitualLabel,[panel]]));
+   host.querySelector('#nccHabitualSections')?.setAttribute('aria-label','Horarios de comidas habituales');
+  }
+ }
  if(tab==='supplements'){
   const host=main.querySelector('#supplementsToday');
   if(host){

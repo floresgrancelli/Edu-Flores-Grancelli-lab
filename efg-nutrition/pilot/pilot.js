@@ -5,7 +5,7 @@ import {SUPPLEMENT_ROUTINE_KEY,readSupplementRoutine,snapshotSupplementRoutine,p
 import {resolveIndependentEntry} from './self-management-entry.js?v=ncc-self-entry-r1-20261113';
 import {createOperationNotices,showSavingFeedback} from './operation-notices.js?v=ncc-save-feedback-r1-20261112';
 import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-micro-restaurants-r1-20261114';
-import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-supplement-tabs-r2-20261114';
+import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-habitual-tabs-r1-20261118';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
 import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-report-gaps-r1-20261112';document.head.append(studentGuideStyles);
@@ -1643,14 +1643,14 @@ function habitualAutomationControls(slot){
  if(!habitualAutomationEnabled())return "";
  const templates=getHabitualList(slot).filter(item=>item.id);
  if(!templates.length)return '<p class="pilot-hint">Guardá un habitual sincronizado para poder programarlo.</p>';
- return '<fieldset disabled data-habitual-automation="'+slot+'"><legend>Carga automática</legend>'+
-  '<label><input type="checkbox" data-auto-enabled> Activar carga automática</label>'+
+ return '<fieldset class="ncc-habitual-schedule" disabled data-habitual-automation="'+slot+'"><legend>Carga automática</legend>'+
+  '<label class="ncc-habitual-toggle"><input type="checkbox" data-auto-enabled> Activar carga automática</label>'+
   '<label>Habitual<select data-auto-template>'+templates.map(item=>
    '<option value="'+escapeHTML(item.id)+'">'+escapeHTML(item.name)+'</option>').join('')+'</select></label>'+
   '<label>Hora de Argentina<input type="time" max="23:58" step="60" data-auto-time></label>'+
-  '<div aria-label="Días">'+habitualAutomationDays.map((day,index)=>
+  '<div class="ncc-habitual-days" role="group" aria-label="Días">'+habitualAutomationDays.map((day,index)=>
    '<label><input type="checkbox" data-auto-day="'+(index+1)+'"> '+day+'</label>').join(' ')+'</div>'+
-  '<button type="button" class="btn small light" data-act="saveHabitualAutomation">Guardar programación</button>'+
+  '<button type="button" class="btn btn-primary ncc-habitual-save" data-act="saveHabitualAutomation">Guardar programación</button>'+
   '<p role="status" data-auto-status></p></fieldset>';
 }
 async function loadHabitualAutomationSettings(){
@@ -1702,10 +1702,14 @@ async function saveHabitualAutomation(button){
 function quickHabitualSettings(){
  if(state.profile.role==="student"&&studentRestrictedNavigation())return "";
  const diary=activeDiary();
- return '<section class="card"><h3>Comidas habituales</h3><p class="pilot-hint">Revisá una comida guardada y registrala en el día de hoy.</p>'+
-  mealSlots.map(([slot,label])=>'<details><summary>'+escapeHTML(label)+'</summary>'+
-   (diary.meals?.[slot]?.length?'<p class="pilot-hint">Ya registraste alimentos en este horario.</p>':habitualPickerHTML(slot,true))+habitualAutomationControls(slot)+
-   '</details>').join('')+'</section>';
+ const instructions=habitualAutomationEnabled()
+  ?"Programá tus comidas habituales para que se registren automáticamente en Mi Día. Elegí la comida, los días y el horario."
+  :"Elegí una comida habitual para registrarla hoy en Mi Día.";
+ return '<section class="card ncc-habitual-settings"><h3>Comidas habituales</h3><p class="pilot-hint">'+instructions+'</p>'+
+  mealSlots.map(([slot,label])=>'<div data-habitual-slot="'+slot+'" data-habitual-label="'+escapeHTML(label)+'">'+
+   habitualAutomationControls(slot)+
+   (diary.meals?.[slot]?.length?'<p class="pilot-hint">Ya registraste alimentos en este horario hoy.</p>':habitualPickerHTML(slot,true))+
+   '</div>').join('')+'</section>';
 }
 const reminderPublicKey=()=>document.querySelector('meta[name="ncc-web-push-key"]')?.content.trim()||"";
 function mealReminderSettings(){
@@ -1747,8 +1751,7 @@ async function handleMealReminderSettings(button,action){
  const client=createMealReminderPreferencesClient(sb);
  button.disabled=true;
  try{
-  if(action==="saveHabitualAutomation")return saveHabitualAutomation(el);
- if(action==="enableMealReminderDevice"){
+  if(action==="enableMealReminderDevice"){
    if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window))
     throw Error("Este navegador no admite avisos. En iPhone abrí la app desde la pantalla de inicio.");
    if(await Notification.requestPermission()!=="granted")throw Error("Los avisos necesitan permiso en este celular.");
@@ -6320,6 +6323,7 @@ if(el.dataset.foodbulk){
    if(!result.updated)notify(result.reason==='offline'?"No pudimos comprobar la actualización. Revisá tu conexión.":result.reason==='unsaved'?"Guardá tus cambios antes de actualizar.":"Ya tenés la última versión disponible.");
   }finally{el.disabled=false;}return;
  }
+ if(action==="saveHabitualAutomation")return saveHabitualAutomation(el);
  if(action==="enableMealReminderDevice"||action==="saveMealReminder")return handleMealReminderSettings(el,action);
  if(action==="checkAppVersion"){
   document.querySelectorAll('[data-version-status]').forEach(label=>{label.textContent="Comprobando la versión publicada…";});

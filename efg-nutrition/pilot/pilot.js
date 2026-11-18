@@ -3193,6 +3193,24 @@ function coachRosterNext(p){
  if(state.coachIntakeForms[p.user_id]?.shared_at)return {stage:'intake',label:'Ficha recibida · sin objetivo',action:'Revisar ficha',section:'coachStudentIntake'};
  return {stage:'plan',label:'Plan por preparar',action:'Preparar plan',section:'coachStudentGoals'};
 }
+function coachRosterFollowUp(p,next){
+ if(next.stage==="inactive")return null;
+ if(["intake","draft","plan","consent"].includes(next.stage))
+  return {label:"Acción pendiente",tone:"pending"};
+ if(next.label!=="Plan publicado")return {label:"Revisar seguimiento",tone:"attention"};
+ if(state.selectedStudent!==p.user_id||state.consent?.accepted!==true||
+    state.coachReportGoals?.studentId!==p.user_id)
+  return {label:"Revisar seguimiento",tone:"neutral",reason:"Abrí el seguimiento para revisar los registros."};
+ const todayKey=today(),start=new Date(todayKey+"T12:00:00Z");
+ start.setUTCDate(start.getUTCDate()-6);
+ const from=start.toISOString().slice(0,10);
+ const days=new Set((state.coachLogs||[]).filter(log=>
+  log.student_id===p.user_id&&log.log_day>=from&&log.log_day<=todayKey&&
+  Object.entries(log.meals||{}).some(([slot,items])=>!log.skipped?.[slot]&&Array.isArray(items)&&items.length)
+ ).map(log=>log.log_day)).size;
+ const reason=days+" de 7 días con comidas registradas.";
+ return days===7?{label:"Al día",tone:"complete",reason}:{label:"Revisar seguimiento",tone:"attention",reason};
+}
 function coachRosterMatches(stage,filter){
  return filter==='all'||(filter==='active'&&stage!=='inactive')||
   (filter==='pending'&&['intake','draft','plan','consent'].includes(stage))||
@@ -3229,9 +3247,11 @@ function coachRosterStatus(next){
  return clearStatusTag(next.label,tone);
 }
 function coachRosterCard(p){
- const next=coachRosterNext(p);
+ const next=coachRosterNext(p),followUp=coachRosterFollowUp(p,next);
  return '<div class="pilot-record ncc-roster-person" data-rosterstage="'+next.stage+'" data-rosteractive="'+(p.active?'yes':'no')+'" data-rosterconsent="'+(coachRosterConsent[p.user_id]===true?'yes':'no')+'" data-rostername="'+escapeHTML([coachDisplayName(p),p.nickname,p.email||''].join(' ').toLocaleLowerCase('es-AR'))+'">'+
  '<div class="coach-roster-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+safePhoneEmail(p.email)+'</small>'+coachRosterStatus(next)+'</div></div>'+
+ (followUp?'<div class="ncc-roster-follow-up">'+clearStatusTag(followUp.label,followUp.tone)+
+  (followUp.reason?'<small>'+escapeHTML(followUp.reason)+'</small>':'')+'</div>':'')+
  coachRosterActions(p,next)+
  '<details class="ncc-roster-options"><summary>Más opciones<span class="sr-only"> de '+escapeHTML(coachDisplayName(p))+'</span></summary><div class="pilot-toolbar"><button class="btn small ghost" data-coachname="'+p.user_id+'">Nombre preferido</button><button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button><button class="btn small ghost ncc-remove-student" data-removestudent="'+p.user_id+'">Eliminar</button></div></details></div>';
 }

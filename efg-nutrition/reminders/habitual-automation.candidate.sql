@@ -35,10 +35,12 @@ declare
  owner_id uuid := auth.uid();
  local_now timestamp := clock_timestamp() at time zone 'America/Argentina/Buenos_Aires';
  saved public.efg_daily_logs;
+ previous_guard text := current_setting('ncc.guarded_diary_write',true);
 begin
  if owner_id is null or p_day is distinct from local_now::date or local_now::time >= time '23:59' then
   raise exception using errcode='42501', message='Diario fuera del día vigente';
  end if;
+ perform set_config('ncc.guarded_diary_write','on',true);
  if p_expected is null then
   insert into public.efg_daily_logs(student_id,log_day,meals,sports,skipped,totals)
    values(owner_id,p_day,p_meals,p_sports,p_skipped,p_totals)
@@ -49,6 +51,7 @@ begin
    where student_id=owner_id and log_day=p_day and updated_at=p_expected
    returning * into saved;
  end if;
+ perform set_config('ncc.guarded_diary_write',coalesce(previous_guard,''),true);
  if saved.student_id is null then
   raise exception using errcode='40001', message='El diario cambió. Actualizá Mi Día antes de guardar.';
  end if;

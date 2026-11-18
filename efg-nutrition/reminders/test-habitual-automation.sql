@@ -34,6 +34,11 @@ begin
   or after_write.totals->>'k' is distinct from '570' then raise exception 'Unexpected diary merge or totals'; end if;
  perform set_config('request.jwt.claim.sub',owner::text,true);
  begin
+  update public.efg_daily_logs set meals='{}' where student_id=owner and log_day=day;
+  raise exception 'Legacy client overwrote an automated diary';
+ exception when serialization_failure then null;
+ end;
+ begin
   perform public.efg_save_diary_if_current(day,before_write,'{}','[]','{}','{}');
   raise exception 'Stale client overwrote diary';
  exception when serialization_failure then null;

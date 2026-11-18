@@ -19,7 +19,7 @@ import {createLuxuryWeeklyEditor} from '/efg-nutrition/pilot/weekly-luxury-edito
 import {createWeeklyReportDelivery} from '/efg-nutrition/pilot/weekly-report-delivery.js';
 import {createWeeklyPdfReview} from '/efg-nutrition/pilot/weekly-pdf-review.js';
 import {buildWeeklyReportPdf,WEEKLY_PDF_RENDERER_VERSION} from '/efg-nutrition/pilot/weekly-report-pdf.js';
-import {withReportTrendGoals} from '/efg-nutrition/pilot/report-trend-snapshot.js';
+import {withReportTrendGoals,reportTrendGoals} from '/efg-nutrition/pilot/report-trend-snapshot.js';
 import {withReportFoodFrequency} from '/efg-nutrition/pilot/report-food-frequency.js';
 const root=document.getElementById('app'),today=()=> '2026-11-06';
 const coach='coach-ficticio',student='alumna-ficticia';
@@ -44,7 +44,7 @@ ${between('function weeklyStudentPanel(){','const luxuryWeeklyEditor=createLuxur
 ${between('function buildCurrentLuxuryModel(){','function periodReportContext(){')}
 async function render(){weeklyPdfReview.close(true);root.innerHTML=state.profile.role==='student'?weeklyStudentPanel():weeklyCoachDraft()+coachLuxuryHistoryPanel();}
 async function act(el){
-${between(' if(el.dataset.act==="previewLuxuryReport"){',' if(el.dataset.coachsection)')}
+${between(' if(el.dataset.act==="insertWeeklyAction"){',' if(el.dataset.coachsection)')}
 }
 root.addEventListener('click',event=>{const el=event.target.closest('[data-act]');if(el)act(el).catch(e=>trace.errors.push(e.message));});
 root.addEventListener('input',e=>{
@@ -72,6 +72,16 @@ try{
   const external=[];await context.route('**/*',route=>{if((route.request().url().startsWith(origin+'/')||route.request().url().startsWith('blob:'+origin+'/')))return route.continue();external.push(route.request().url());return route.abort();});
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
   await page.goto(origin);await page.locator('[data-act="previewLuxuryReport"]').waitFor();
+  const conclusionField=page.locator('#weeklyCoachConclusion');
+  const originalConclusion=await conclusionField.inputValue();
+  const nextAction=page.getByRole('button',{name:'Agregar a mi devolución'});
+  await nextAction.tap();
+  const updatedConclusion=await conclusionField.inputValue();
+  assert.match(updatedConclusion,/Próximo paso:/);
+  assert.ok(updatedConclusion.startsWith(originalConclusion));
+  await nextAction.tap();
+  assert.equal(await conclusionField.inputValue(),updatedConclusion);
+  await conclusionField.fill(originalConclusion);
   await page.evaluate(()=>document.addEventListener('click',e=>{if(e.target.closest('[data-act="previewLuxuryReport"]'))window.__returnOriginY=scrollY;},true));
   const open=async()=>{await page.locator('[data-act="previewLuxuryReport"]').tap();await page.locator('.weekly-pdf-stage canvas').waitFor();await page.waitForFunction(()=>qa.view().ready);};
   const review=async()=>{while(await page.locator('[data-weekly-next]').isEnabled()){await page.locator('[data-weekly-next]').tap();await page.waitForFunction(()=>qa.view().ready&&!qa.view().rendering);}await page.locator('#weeklyPdfReviewed').check();assert.equal(await page.locator('#weeklyLuxuryPublishButton').isEnabled(),true);};

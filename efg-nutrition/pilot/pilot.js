@@ -24,7 +24,7 @@ import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-micro
 import {loadCoachCatalogGuide as loadPilotReviewedGuide} from "./coach-catalog-guide.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-weekly-preview-r11-20261106";
 import {loadReportTrendGoals as loadPeriodReportGoals} from "./report-trend-goals.js?v=ncc-weekly-preview-r11-20261106";
-import {normalizeReportTrendGoals,withReportTrendGoals} from "./report-trend-snapshot.js?v=ncc-weekly-preview-r11-20261106";
+import {normalizeReportTrendGoals,withReportTrendGoals,reportTrendGoals} from "./report-trend-snapshot.js?v=ncc-weekly-preview-r11-20261106";
 import {PERIOD_PDF_RENDERER_VERSION} from "./period-report-pdf-version.js?v=ncc-report-gaps-r1-20261112";
 async function buildPeriodReportPdf(model){
  const pdf=await import("./period-report-pdf.js?v=ncc-color-system-r1-20261112");
@@ -2654,7 +2654,7 @@ function openMealDialog(slot,initialGroup="protein"){
  '<div id="mealQuantityHome"></div><section id="mealQuantityCard" class="ncc-quantity-card" aria-label="Alimento y cantidad" hidden><div id="mealEntrySelected" class="ncc-meal-selected" role="status" hidden></div>'+
  '<div class="field ncc-quantity-field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><div class="ncc-qty-controls"><button type="button" class="btn ghost" data-act="mealQtyDown" aria-label="Disminuir cantidad">−</button><input id="mealEditorQty" inputmode="decimal" type="number" min=".1" max="5000" step="any" value="100"><button type="button" class="btn ghost" data-act="mealQtyUp" aria-label="Aumentar cantidad">+</button><span id="mealQtyUnit">g</span></div></div>'+
  '<details class="ncc-quantity-options"><summary>Unidad y estado del alimento</summary><div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div></details>'+
- '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div class="note" id="mealEditorHint"></div></section><div id="mealCompatibilityStatus" class="efg-compat-status" role="status" aria-live="polite"></div>'+
+ '<div id="mealFoodSource"></div><div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div class="note" id="mealEditorHint"></div></section><div id="mealCompatibilityStatus" class="efg-compat-status" role="status" aria-live="polite"></div>'+
  '<details class="ncc-meal-catalog"><summary>Ver catálogo por categorías</summary><div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(displayedWithSignals,slot)+'</select></div></details>'+
 (guided?'<details class="ncc-meal-guidance-details"><summary>Organizar por grupos de alimentos</summary>'+guidedPanel+'</details>':'')+'</div><div class="ncc-entry-footer">'+
 '<p class="ncc-entry-destination">Se agregará a <strong id="mealEntryDestination">'+escapeHTML(meal[1])+'</strong></p>'+
@@ -2783,6 +2783,21 @@ function filterMealFoods(){
  // When a typed query keeps the same selection, do not reset its custom quantity.
  updateMealEntryMode(previous!==selector.value);
 }
+function foodSourceDetails(food){
+ if(!food)return "";
+ const types={manufacturer_web_label:"Etiqueta publicada por el fabricante",manufacturer_label:"Etiqueta del fabricante",
+  etiqueta_fabricante:"Etiqueta del fabricante",user_provided_label:"Etiqueta informada",
+  usda_fdc:"Tabla de composición USDA",usda_fdc_converted:"Tabla USDA con conversión",
+  recipe_estimate:"Estimación por ingredientes",generic_estimate:"Estimación genérica"};
+ const sourceLabel=types[food.sourceType]||"Referencia del catálogo";
+ const portion=food.servingGrams>0?num(food.servingGrams,1)+" "+(food.unit==="ml"?"ml":"g"):
+  food.unit==="porción"?"1 porción":food.unit==="ml"?"100 ml":"100 g";
+ const link=typeof food.sourceUrl==="string"&&/^https:\/\//i.test(food.sourceUrl)?
+  '<p><a target="_blank" rel="noopener noreferrer" href="'+escapeHTML(food.sourceUrl)+'">'+
+   (food.sourceType==="recipe_estimate"?'Ver carta del producto':'Ver fuente original')+'</a></p>':"";
+ return '<details><summary>Fuente y porción de referencia</summary><p>'+escapeHTML(sourceLabel+" · "+portion)+'</p>'+
+  (food.source?'<p>'+escapeHTML(food.source)+'</p>':'')+link+'</details>';
+}
 function updateMealEntryMode(foodChanged=false){
  const id=document.getElementById("mealEditorFood")?.value;
  const f=selectableFoods().find(x=>x.id===id);
@@ -2805,6 +2820,11 @@ function updateMealEntryMode(foodChanged=false){
  if(stateWrap)stateWrap.style.display=f&&Object.values(FOOD_STATE_PAIRS).some(ids=>ids.includes(f.id))?"":"none";
  if(stateInput&&stateHint){const id=f?.id||"";const pair=Object.entries(FOOD_STATE_PAIRS).find(([key,ids])=>ids.includes(id));const raw=pair?pair[1]===id:/\b(crud[oa]|sec[oa])\b/i.test(f?.name||"");stateInput.value=raw?"raw":"cooked";stateInput.disabled=!pair;stateHint.textContent=pair?"Podés cambiar de estado: los valores por 100 g se actualizarán usando su ficha nutricional específica. No convertimos automáticamente los gramos.":"Para este alimento no contamos con dos fichas equivalentes verificadas. Usá el estado indicado en el nombre del alimento.";}
 
+ const source=document.getElementById("mealFoodSource");
+ if(source&&(foodChanged||source.dataset.foodSource!==(f?.id||""))){
+  source.dataset.foodSource=f?.id||"";
+  source.innerHTML=foodSourceDetails(f);
+ }
  const selected=document.getElementById("mealEntrySelected");
  if(selected){selected.hidden=!f;selected.innerHTML=f?'<span class="ncc-selected-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><strong><span aria-hidden="true">✓ </span>'+escapeHTML(f.name)+'</strong>':"";}
  const quantityCard=document.getElementById('mealQuantityCard'),quantityHome=document.getElementById('mealQuantityHome');
@@ -3285,6 +3305,20 @@ function coachLuxuryHistoryPanel(){
  return '<section class="card"><h2>📚 Historial de informes por alumno y fecha</h2><p class="pilot-hint">Solo informes que ya fueron aprobados y compartidos. Los anteriores se conservan en su formato original.</p>'+
   '<div class="lux-report-history">'+(items||'<p class="pilot-hint">Este alumno todavía no tiene informes compartidos.</p>')+'</div></section>';
 }
+function weeklyActionCard(model){
+ const comparable=reportTrendGoals(model).days.flatMap((targets,index)=>{
+  const day=model.days[index],target=targets[1];
+  return day.hasData&&target>0?[day.p<target*.9]:[];
+ });
+ const below=comparable.filter(Boolean).length;
+ const evidence=model.evidence?.grade==="orientativa"&&comparable.length&&below?
+  below+" de "+comparable.length+" días comparables quedaron por debajo del 90 % de la meta de proteína.":
+  "Hay registros en "+model.daysRecorded+" de los 7 días de la semana.";
+ const action=model.focus?.[0];
+ if(!action)return "";
+ return '<aside class="pilot-notice"><strong>Próximo paso sugerido</strong><p>'+escapeHTML(evidence)+
+  '</p><p>'+escapeHTML(action)+'</p><button type="button" class="btn small light" data-act="insertWeeklyAction">Agregar a mi devolución</button></aside>';
+}
 function weeklyCoachDraft(){
  const window=weeklyReportWindow();
  const attempt=weeklyReportDelivery.get(weeklyPublicationKey());
@@ -3299,6 +3333,7 @@ function weeklyCoachDraft(){
  const previewModel=published?model:{...generated,conclusion,flexibleNote};
  return '<section class="card" id="coachReportWeek"><div class="eyebrow">LUXURY PRO · INFORME SEMANAL</div><h2>Informe del viernes '+escapeHTML(window.friday)+'</h2>'+
  '<p class="pilot-hint">Período '+escapeHTML(window.from)+' a '+escapeHTML(window.to)+'. Medias solamente sobre los días registrados. Texto sugerido a partir de los registros. Revisalo y adaptalo antes de compartir.</p>'+
+ (published||attempt?'':weeklyActionCard(generated))+
  '<div class="field"><label for="weeklyCoachConclusion">Mi devolución · revisá y editá antes de enviar</label>'+
  '<textarea id="weeklyCoachConclusion" rows="6" maxlength="2200" '+(published||attempt?'disabled':'')+'>'+escapeHTML(conclusion)+'</textarea></div>'+
  '<div class="field"><label for="weeklyCoachFlexibleNote">Mensaje de flexibilidad · opcional y editable</label>'+
@@ -5467,6 +5502,17 @@ if(el.dataset.foodbulk){
     throw Error("No se encontró un informe compartido válido.");
   state.tab="messages";await render();
   await messages.replyToWeeklyReport(state.session.user.id,week);
+  return;
+ }
+ if(el.dataset.act==="insertWeeklyAction"){
+  const field=document.getElementById("weeklyCoachConclusion");
+  const action=buildCurrentLuxuryModel().focus?.[0];
+  if(!field||field.disabled||!action||field.value.includes(action))return;
+  const next=field.value.trim()+"\n\nPróximo paso: "+action;
+  if(next.length>field.maxLength)throw Error("Acortá la devolución antes de agregar el próximo paso.");
+  field.value=next;
+  field.dispatchEvent(new Event("input",{bubbles:true}));
+  field.focus();
   return;
  }
  if(el.dataset.act==="previewLuxuryReport"){

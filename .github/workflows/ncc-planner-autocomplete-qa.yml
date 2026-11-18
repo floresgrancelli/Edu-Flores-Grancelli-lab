@@ -30,3 +30,10 @@ jobs:
           name: quick-habitual-screenshots
           path: quick-habitual-evidence
           if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-catalog-speed-evidence
+          path: report-catalog-speed-evidence
+          if-no-files-found: warn

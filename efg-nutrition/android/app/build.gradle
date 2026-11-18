@@ -1,0 +1,41 @@
+import java.net.URI
+
+plugins { id 'com.android.application'; id 'org.jetbrains.kotlin.android' }
+def activityOrigin = providers.gradleProperty('nccActivityOrigin').orElse('https://efg-nutrition.onrender.com').get()
+def activityUri = new URI(activityOrigin)
+assert activityUri.scheme == 'https' && activityUri.host && activityUri.userInfo == null &&
+    activityUri.rawPath == '' && activityUri.rawQuery == null && activityUri.rawFragment == null
+
+android {
+    namespace 'ar.com.nutricionconciencia.app'
+    compileSdk 36
+    defaultConfig {
+        applicationId 'ar.com.nutricionconciencia.app'
+        minSdk 26
+        targetSdk 36
+        versionCode 1
+        versionName '0.1.0'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildFeatures { buildConfig true }
+    buildTypes {
+        debug { buildConfigField "String", "ACTIVITY_ORIGIN", '"' + activityOrigin + '"' }
+        release {
+            minifyEnabled false
+            buildConfigField 'String', 'ACTIVITY_ORIGIN', '"https://efg-nutrition.onrender.com"'
+        }
+    }
+}
+kotlin {
+    jvmToolchain(17)
+}
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+    implementation 'androidx.activity:activity-ktx:1.10.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.7'
+    implementation 'androidx.health.connect:connect-client:1.1.0'
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.4'
+}

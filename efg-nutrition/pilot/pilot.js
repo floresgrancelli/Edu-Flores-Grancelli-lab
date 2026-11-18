@@ -1,3 +1,4 @@
+import {activityAtlasHTML,mountActivityAtlas,mountActivityReleaseNotice} from './activity-atlas-preview.js?v=ncc-activity-screen-r3-20261118';
 import {subscribeMealReminderDevice,createMealReminderPreferencesClient} from './meal-reminder-preferences.js?v=ncc-meal-reminder-settings-r1-20261118';
 import {settingsButtonHTML} from './readable-text.js?v=ncc-settings-gear-only-r4-20261115';
 import {SUPPLEMENT_ROUTINE_KEY,readSupplementRoutine,snapshotSupplementRoutine,planUsualSupplements,newestSupplementRoutine} from './usual-supplements.js?v=ncc-supplement-routine-r1-20261114';
@@ -1428,6 +1429,14 @@ function frame(content){
  dualWorkspaceFrame.mountFrame(root);
  professionalReleaseFrame.mountFrame(root);
  pilotGuideLifecycle.mountStudent(root);
+ if(activityAtlasPreview()&&(!studentPlanPending()||studentPendingTabAllowed('sport'))){
+  mountActivityReleaseNotice(root,{owner:state.session?.user?.id,epoch:state.authContextEpoch});
+ }
+ if(state.tab==='sport'&&activityAtlasPreview()){
+  const owner=state.session?.user?.id,epoch=state.authContextEpoch;
+  void mountActivityAtlas(root,{db:sb,owner,enabled:document.querySelector('meta[name="ncc-device-activity"]')?.content==="enabled",
+   isCurrent:()=>state.session?.user?.id===owner&&state.authContextEpoch===epoch});
+ }
  if(state.tab==='settings'){void loadMealReminderSettings();void loadHabitualAutomationSettings();}
 }
 // Bienvenida institucional, exclusivamente en el primer acceso del alumno nuevo.
@@ -2969,13 +2978,17 @@ function movementCard(){
  const latestWeight=(state.weights||[]).find(w=>Number.isFinite(Number(w.kg))&&Number(w.kg)>0)?.kg??null;
  return renderWalkingActivityCard({todayActivity:todaySaved,lastWeightKg:latestWeight});
 }
+const activityAtlasPreview=()=>document.querySelector('meta[name="ncc-activity-atlas-preview"]')?.content==="enabled";
 function sportView(){
+ if(activityAtlasPreview())return activityAtlasHTML();
+ return rootText("Hidratación y deporte","Registrá tus pasos y ritmo de caminata. La hidratación y los productos de entrenamiento se administran por separado.")+activityRegistrationTools();
+}
+function activityRegistrationTools(){
  let d=activeDiary(),entries=(d.sports||[]).map((e,index)=>({...e,_originalIndex:index})).filter(e=>!supplementRecord(e));
  const walks=(state.activities||[]).filter(a=>Number(a.steps)>0||Number(a.walking_distance_km)>0||Number(a.walking_duration_minutes)>0).slice(0,4);
  const recentWalks='<section class="card efg-walk-recent"><h3>Mis últimos pasos registrados</h3>'+
   (walks.length?walks.map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+(Number(a.steps)>0?num(a.steps)+' pasos':'Caminata registrada')+'</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<p class="pilot-hint">Tu primer registro de pasos aparecerá acá.</p>')+'</section>';
- return rootText("Hidratación y deporte","Registrá tus pasos y ritmo de caminata. La hidratación y los productos de entrenamiento se administran por separado.")+
-  movementCard()+recentWalks+
+ return movementCard()+recentWalks+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Registrar bebida o producto de entrenamiento</h2><p class="pilot-hint">Creatina, colágeno, magnesio y omega-3 están en Suplementos del día, debajo de Cena.</p><div class="pilot-form"><div class="field"><label>Producto</label><select id="sportItem">'+option(sports.filter(x=>!supplementRecord(x)&&x.id!=="whey"))+'</select></div><div class="field-row"><div class="field"><label>Momento</label><select id="sportTime">'+sportTimes.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join("")+'</select></div><div class="field"><label id="sportQtyLabel">Cantidad</label><input id="sportQty" type="number" min=".1" max="3000" step="any" value="30"></div></div><div class="note" id="sportInfo">Consultar etiqueta.</div><button class="btn block" data-act="addSport">Registrar consumo</button></div></div>'+
  '<div class="card"><h2>Consumos de hoy</h2>'+(entries.length?entries.map((x,i)=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(x.name)+'</strong><small>'+num(x.qty,1)+' '+escapeHTML(x.unit)+' · '+escapeHTML(x.when||"")+'</small></div><span class="pilot-pill">'+num(x.k)+' kcal</span></div><button class="btn small ghost" style="margin-top:8px" data-removesport="'+x._originalIndex+'">Eliminar</button></div>').join(""):'<div class="empty">No registraste suplementos ni bebidas.</div>')+'</div></div>'+
  '<div class="pilot-stack"><div class="card"><h2>¿Qué conviene tomar?</h2><div class="pilot-notice"><strong>💧 Agua o agua gasificada</strong><small>Ambas hidratan; elegí según tolerancia y preferencia.</small></div><div class="pilot-notice" style="margin-top:10px"><strong>🥤 Bebidas zero</strong><small>Pueden sustituir bebidas azucaradas cuando se busca reducir calorías, pero no son superiores al agua.</small></div><div class="pilot-notice" style="margin-top:10px"><strong>🏃 Geles e isotónicas</strong><small>Más relevantes en entrenamientos prolongados o con necesidades específicas de hidratos y electrolitos.</small></div><p class="pilot-hint" style="margin-top:15px">El scoop no equivale siempre a 30 g. Omega-3 y magnesio necesitan datos reales de etiqueta y pertinencia individual.</p></div></div></div>';

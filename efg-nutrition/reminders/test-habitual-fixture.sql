@@ -1,3 +1,4 @@
+truncate public.efg_daily_logs;
 alter table public.efg_daily_logs
  add primary key(student_id,log_day),
  alter column meals set default '{}',

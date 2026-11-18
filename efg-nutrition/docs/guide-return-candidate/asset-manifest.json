@@ -453,9 +453,11 @@
     "efg-nutrition/pilot/readable-text.js": "f7ebc89eebc05e2387ec31350b8a967fdab0fc7b525682d489c7f5e2e71f8a93",
     "efg-nutrition/pilot/pilot.css": "7fe70ff2d31b43e86507110110dfba6b8a66c0529e05abdb29736c90de804a8b",
     "efg-nutrition/pilot/meal-reminder-preferences.js": "ca110b18a4f8cea3f4bf3a7fc8cc2654ce39c78806b3a72f72537369bd9e1610",
-    "efg-nutrition/pilot/activity-atlas-preview.js": "bf4123cc40e745320cb9a85b7f84b22f8e9b1a02be2f4be9fa9f8369e09be749",
-    "efg-nutrition/pilot/activity-atlas-preview.css": "122b9d0f664cb2497fab208f11465cef6df00bb3443a7c8a90cfab980b4842bf",
-    "efg-nutrition/pilot/assets/activity-atlas-reference.webp": "a03f312875437739b6fa26223e8b9e32a0d296dcfca6a9be0ed626f223976658"
+    "efg-nutrition/pilot/activity-atlas-preview.js": "7f3c8ddba5be674ef448f46207d105d266354bee246df705c5575665106ecb78",
+    "efg-nutrition/pilot/activity-atlas-preview.css": "04ea7366cafcb187ab564a256e5896c1c3d40c7fc6674a2ee8ccbedb5a44d16e",
+    "efg-nutrition/pilot/assets/activity-atlas-reference.webp": "a03f312875437739b6fa26223e8b9e32a0d296dcfca6a9be0ed626f223976658",
+    "efg-nutrition/activity-perfume/catalog.seed.json": "f5471254ba02b9d68c0147078cb6f08fb209c584faf42ccd73fd5dde59cdc9ca",
+    "efg-nutrition/activity-perfume/rotation.mjs": "b257668ec1b771eb7d032c3469676959c63882e4bed1f9304f9a52f613817ddc"
   },
   "stylesheets": [
     {
@@ -639,6 +641,16 @@
       "owner": "efg-nutrition/pilot/weekly-pdf-review.js",
       "url": "./vendor/pdfjs-5.6.205/pdf.worker.min.mjs?v=ncc-weekly-preview-r11-20261106",
       "path": "efg-nutrition/pilot/vendor/pdfjs-5.6.205/pdf.worker.min.mjs"
+    },
+    {
+      "owner": "efg-nutrition/pilot/activity-atlas-preview.js",
+      "url": "../activity-perfume/catalog.seed.json?v=468ef689",
+      "path": "efg-nutrition/activity-perfume/catalog.seed.json"
+    },
+    {
+      "owner": "efg-nutrition/pilot/activity-atlas-preview.js",
+      "url": "../activity-perfume/rotation.mjs?v=468ef689",
+      "path": "efg-nutrition/activity-perfume/rotation.mjs"
     }
   ],
   "immutablePeriodPdfAssets": {

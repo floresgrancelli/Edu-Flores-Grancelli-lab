@@ -66,7 +66,8 @@ try{
     const {state}=window.__NCC_R4_FULLAPP__;
     localStorage.setItem('efg-nutrition-habitual-v2:'+state.session.user.id+':desayuno',JSON.stringify([{name:'Desayuno de prueba',items:[{name:'Avena',grams:40,k:150,p:5,c:25,f:3}]}]));
    });
-   await page.locator('[data-act="openVersionSettings"],[data-tab="settings"]').first().evaluate(el=>el.click()).catch(async()=>{await page.getByRole('button',{name:'Configuración',exact:true}).first().click();});
+   await page.locator('button.navitem[data-tab="studentMore"]').click();
+   await page.locator('button.efg-menu-card[data-tab="settings"]').click();
    const card=page.locator('section.card').filter({has:page.getByRole('heading',{name:'Comidas habituales',exact:true})});
    await card.locator('summary').filter({hasText:/^Desayuno$/}).click();
    await card.getByRole('button',{name:'Registrar habitual'}).waitFor();

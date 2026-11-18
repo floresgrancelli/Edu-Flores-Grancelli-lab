@@ -1,7 +1,7 @@
 // Shared Web/Android engine. No coach authorization, network or diary mutations.
 import { estimateMacros } from './macro-engine.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import { generateFlexibleGuidedDay, guideFoodSignal } from './guided-day-v2.js?v=ncc-whey-prefill-r1-20261115';
-import { guideTotals, guideDeviation, validateGuidedDay } from './guided-day.js?v=ncc-guide-compact-r2-20261115';
+import { guideTotals, guideDeviation, validateGuidedDay, rebalanceGuidedDay } from './guided-day.js?v=ncc-guide-compact-r2-20261115';
 
 export const SELF_MANAGEMENT_VERSION = 'self-management-r1-20261113';
 export const SELF_PATTERNS = Object.freeze(['omnivore', 'vegetarian', 'vegan']);
@@ -58,7 +58,24 @@ export function generateSelfManagedPlan(input, snapshot) {
     carb_g: estimate.carbs, fat_g: estimate.fat, fiber_g: estimate.fiber };
   const profile = { patternId: input.dietary_pattern, restrictionStatus: 'none_declared',
     restrictions: [], dislikedIds: [...input.disliked_food_ids], windowId: 'regular' };
-  const plan = generateFlexibleGuidedDay(catalog, goal, profile);
+  let plan = generateFlexibleGuidedDay(catalog, goal, profile);
+  const fits = candidate => Object.values(guideDeviation(candidate, goal))
+    .every(d => d.percent !== null && Math.abs(d.percent) < 2);
+  // Try removing one repeated template ingredient before rejecting the menu.
+  if (!fits(plan)) {
+    const seen = new Set();
+    repair: for (const [mealIndex, meal] of plan.meals.entries()) {
+      for (const [itemIndex, item] of meal.items.entries()) {
+        const repeated = seen.has(item.id);
+        seen.add(item.id);
+        if (!repeated || item.locked || meal.items.length < 2) continue;
+        const seed = structuredClone(plan);
+        seed.meals[mealIndex].items.splice(itemIndex, 1);
+        const candidate = rebalanceGuidedDay(seed, goal, { targetTolerance: .0199 });
+        if (fits(candidate)) { plan = candidate; break repair; }
+      }
+    }
+  }
   if (plan.profileReviewNotes?.length || plan.meals.flatMap(m => m.items)
     .some(item => guideFoodSignal(item, profile).status !== 'possible'))
     reject('composition_unavailable', 'No conseguimos una guía compatible con tu ficha. No se envió ningún plan.');

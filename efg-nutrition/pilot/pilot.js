@@ -1639,6 +1639,19 @@ function coachPersonalMoreView(){
 }
 const habitualAutomationEnabled=()=>document.querySelector('meta[name="ncc-habitual-automation"]')?.content==="enabled";
 const habitualAutomationDays=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+function habitualAutomationPreview(template){
+ if(!template)return '<p class="pilot-hint">Elegí un habitual para ver qué incluye.</p>';
+ return '<ul aria-label="Alimentos que se van a registrar">'+template.items.map(item=>
+  '<li>'+escapeHTML(item.name||"Alimento sin nombre")+
+  (Number.isFinite(item.qty)&&item.qty>0?' · '+num(item.qty,1)+' '+escapeHTML(item.unit||"g"):'')+'</li>'
+ ).join('')+'</ul>';
+}
+function refreshHabitualAutomationPreview(panel){
+ if(!panel)return;
+ const id=panel.querySelector('[data-auto-template]').value;
+ const template=getHabitualList(panel.dataset.habitualAutomation).find(item=>item.id===id);
+ panel.querySelector('[data-auto-preview]').innerHTML=habitualAutomationPreview(template);
+}
 function habitualAutomationControls(slot){
  if(!habitualAutomationEnabled())return "";
  const templates=getHabitualList(slot).filter(item=>item.id);
@@ -1646,7 +1659,8 @@ function habitualAutomationControls(slot){
  return '<fieldset class="ncc-habitual-schedule" disabled data-habitual-automation="'+slot+'"><legend>Carga automática</legend>'+
   '<label class="ncc-habitual-toggle"><input type="checkbox" data-auto-enabled> Activar carga automática</label>'+
   '<label>Habitual<select data-auto-template>'+templates.map(item=>
-   '<option value="'+escapeHTML(item.id)+'">'+escapeHTML(item.name)+'</option>').join('')+'</select></label>'+
+   '<option value="'+escapeHTML(item.id)+'">'+escapeHTML(habitualShortLabel(item))+'</option>').join('')+'</select></label>'+
+  '<div data-auto-preview aria-live="polite">'+habitualAutomationPreview(templates[0])+'</div>'+
   '<label>Hora de Argentina<input type="time" max="23:58" step="60" data-auto-time></label>'+
   '<div class="ncc-habitual-days" role="group" aria-label="Días">'+habitualAutomationDays.map((day,index)=>
    '<label><input type="checkbox" data-auto-day="'+(index+1)+'"> '+day+'</label>').join(' ')+'</div>'+
@@ -1669,6 +1683,7 @@ async function loadHabitualAutomationSettings(){
     panel.querySelector('[data-auto-time]').value=rule.run_at.slice(0,5);
     for(const day of panel.querySelectorAll('[data-auto-day]'))day.checked=rule.days.includes(Number(day.dataset.autoDay));
    }
+   refreshHabitualAutomationPreview(panel);
    panel.disabled=false;
   }
  }catch{
@@ -6385,6 +6400,10 @@ async function saveSkippedMealChoice(slot,checked,checkbox){
  }finally{pendingMealRegistrations.delete(slot,slotLease);}
 }
 root.addEventListener("change",e=>{
+ if(e.target.matches('[data-auto-template]')){
+  refreshHabitualAutomationPreview(e.target.closest('[data-habitual-automation]'));
+  return;
+ }
  if(e.target.id==='efgRecipeRegisterSlot'&&recipeSheet)updateLibraryRecipeSummary();
  if(e.target.id==='nccRecipeCategory'){state.fitFilter=e.target.value;render();return;}invalidateCoachDraft(e);
  if(e.target.id==="coachGuideWindow"){

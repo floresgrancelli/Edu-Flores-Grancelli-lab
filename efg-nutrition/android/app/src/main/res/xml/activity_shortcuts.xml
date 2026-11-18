@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut android:shortcutId="daily_activity" android:enabled="true" android:shortcutShortLabel="@string/activity_shortcut">
+        <intent android:action="android.intent.action.MAIN"
+            android:targetPackage="ar.com.nutricionconciencia.app"
+            android:targetClass="ar.com.nutricionconciencia.app.ActivityConnection" />
+    </shortcut>
+</shortcuts>

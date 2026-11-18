@@ -85,4 +85,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Type-check the HealthKit reader with the iOS SDK
-        run: xcrun --sdk iphoneos swiftc -typecheck -target arm64-apple-ios17.0 -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" efg-nutrition/ios/DailyHealthActivityReader.swift
+        run: xcrun --sdk iphoneos swiftc -typecheck -target arm64-apple-ios17.0 -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" efg-nutrition/ios/DailyHealthActivityReader.swift efg-nutrition/ios/ActivityConnectionView.swift

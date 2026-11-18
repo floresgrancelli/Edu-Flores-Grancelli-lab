@@ -1966,6 +1966,26 @@ function dayMealIcon(slot){
  };
  return '<svg class="ncc-meal-icon" data-meal-icon="'+escapeHTML(slot)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths[slot]+'</svg>';
 }
+function reminderMealIsCurrent(slot){
+ const reminder=state.openedMealReminder;
+ return !!reminder&&reminder.slot===slot&&reminder.owner===state.session?.user?.id&&reminder.day===today()&&
+  reminder.epoch===(state.authContextEpoch||0);
+}
+function openMealReminderFromUrl(){
+ if(!state.session?.user?.id||studentPlanPending()||
+    (state.profile.role==="student"&&studentRestrictedNavigation()))return;
+ const url=new URL(location.href),slot=url.searchParams.get('reminderMeal');
+ if(slot===null)return;
+ const template=url.searchParams.get('habitual');
+ url.searchParams.delete('reminderMeal');url.searchParams.delete('habitual');
+ history.replaceState(history.state,'',url);
+ if(!mealSlots.some(([key])=>key===slot))return;
+ state.openedMealReminder={slot,owner:state.session.user.id,day:today(),epoch:state.authContextEpoch||0};
+ const fav=getHabitualList(slot).find(item=>item.id&&String(item.id)===template);
+ if(fav)state.habitualSelection[slot]=String(fav.id);
+ state.lastEditedMeal=slot;
+ state.tab="home";
+}
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
  const motivation=motivationOfTheDay();
@@ -1993,11 +2013,12 @@ function homeView(){
    return '<div class="meal-food-line"><span class="ncc-food-thumb" aria-hidden="true">'+foodFamilyPhoto(i)+'</span><div class="meal-food-label"><strong>'+escapeHTML(i.name)+'</strong><span class="ncc-diary-quantity" title="'+portion+'">'+num(i.qty,1)+' '+escapeHTML(i.unit)+'</span></div>'+
    '<div class="ncc-food-actions"><button type="button" class="btn small ghost" data-editfood="'+key+':'+index+'" aria-label="Editar cantidad de '+escapeHTML(i.name)+'">Editar</button></div></div>';
   }).join("")+'</div>':'<small class="meal-food-empty">Todavía no hay alimentos registrados.</small>';
+  const quick=reminderMealIsCurrent(key)&&!items.length;
   const marks=guidedMealMarks(d.skipped,key),fat=guidedMealTotals(items).f;
   const omissions=[marks.protein?"Sin proteína adicional":null,marks.carb?"Sin hidrato adicional":null].filter(Boolean);
   const guidanceStatus=isGuidedMealSlot(key)?'<p class="efg-guided-meal-summary">Grasas calculadas: '+num(fat,1)+' g'+(omissions.length?' · '+omissions.join(" · "):"")+'. Los platos preparados cuentan todos sus macros.</p>':"";
   return '<section class="pilot-record meal-day-section student-meal-card ncc-day-meal-panel" id="ncc-day-meal-'+key+'" data-daymealpanel="'+key+'" aria-label="'+escapeHTML(title)+'" '+(selectedMeal===key?'':'hidden')+'><div class="student-meal-heading"><strong>✓ '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':items.length?num(values(items).k)+' kcal':'Sin cargar')+'</span></div><div class="student-meal-details">'+
-  detail+'<div class="meal-actions"><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button></div><details class="ncc-meal-more"><summary>Más opciones <span aria-hidden="true">⌄</span></summary>'+guidanceStatus+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+habitualPickerHTML(key)+'</details></div></section>';
+  detail+'<div class="meal-actions"><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button></div><details class="ncc-meal-more"><summary>Más opciones <span aria-hidden="true">⌄</span></summary>'+guidanceStatus+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+(quick?'':habitualPickerHTML(key))+'</details>'+(quick?habitualPickerHTML(key,true):'')+'</div></section>';
  }).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
  const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint">Tu coach asignado puede consultar registros de alimentación, peso, actividad y suplementos solo si elegís «Autorizar seguimiento del coach» en esta sección. Ingresar con un código no concede permiso. Podés revocarlo cuando quieras.</p><small style="display:block;margin:10px 0;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'No autorizado')+'</small>'+(cons?.accepted?'<button class="btn small ghost" data-act="revokeConsent">Revocar acceso del coach</button>':'<button class="btn small light" data-act="grantConsent">Autorizar seguimiento del coach</button>')+'</section>':'';
@@ -4336,9 +4357,10 @@ async function render(){
  if(state.welcomePending)return welcomeView();
  if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED&&PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.tab==="privateHealth")return renderPrivateHealthDeclaration();
  if(studentPlanPending()&&!studentPendingTabAllowed(state.tab))state.tab="intake";
- const viewKey=activeViewKey(),snapshot=captureViewContinuity(viewKey);
  await ensureCurrentDay();
  if((state.authContextEpoch||0)!==renderEpoch)return;
+ openMealReminderFromUrl();
+ const viewKey=activeViewKey(),snapshot=captureViewContinuity(viewKey);
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
  let page={intake:()=>COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"&&state.coachPilotIntake?
@@ -5392,7 +5414,7 @@ if(el.dataset.foodbulk){
  if(el.dataset.habitualsave){await habitualAction(el.dataset.habitualsave,"save");return;}
  if(el.dataset.habitualapply){
   const onlyEmpty=el.dataset.quickHabitual==="true";
-  if(onlyEmpty&&(state.tab!=="settings"||(state.profile.role==="student"&&studentRestrictedNavigation())))return;
+  if(onlyEmpty&&((state.tab!=="settings"&&!(state.tab==="home"&&reminderMealIsCurrent(el.dataset.habitualapply)))||(state.profile.role==="student"&&studentRestrictedNavigation())))return;
   const quantities=onlyEmpty?[...el.closest('.efg-habitual-picker').querySelectorAll('[data-habitual-quantity]')]
    .map(input=>[Number(input.dataset.habitualQuantity),input.value]):[];
   await applyChosenHabitual(el.dataset.habitualapply,{onlyEmpty,quantities});

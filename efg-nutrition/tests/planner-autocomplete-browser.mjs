@@ -79,6 +79,13 @@ try{
    assert.equal(saved[0].items[0].qty,40,'Adjusting the portion leaves the template intact');
    mkdirSync('quick-habitual-evidence',{recursive:true});
    await page.screenshot({path:'quick-habitual-evidence/'+engine.name()+'.png'});
+   await page.evaluate(()=>history.replaceState(history.state,'','?reminderMeal=desayuno'));
+   await page.locator('button.navitem[data-tab="home"]').click();
+   const meal=page.locator('[data-daymealpanel="desayuno"]');
+   await meal.getByRole('button',{name:'Registrar habitual'}).waitFor();
+   assert.ok(!new URL(page.url()).searchParams.has('reminderMeal'));
+   assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before,'Opening a reminder never writes the diary');
+   await page.screenshot({path:'quick-habitual-evidence/'+engine.name()+'-aviso.png'});
    await context.close();console.log('PASS '+engine.name()+' iPhone-sized planner food suggestions: protein, carbs, extras, no mutation');
   }finally{await browser.close();}
  }

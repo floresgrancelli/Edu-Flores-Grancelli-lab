@@ -1,5 +1,91 @@
 const headline = 'Para realizar actividades al aire libre se usan perfumes con un perfil fresco, cítrico, verde o acuático, porque suelen dar una sensación más liviana cuando hace calor o estás en movimiento.';
-const photoNotes = [['Cidra','citron'],['Jazmín','jasmine'],['Madera de teca','teak']];
+const catalogVersion = '468ef689';
+const catalogURL = new URL('../activity-perfume/catalog.seed.json?v=' + catalogVersion, import.meta.url);
+const rotationURL = new URL('../activity-perfume/rotation.mjs?v=' + catalogVersion, import.meta.url);
+const photoNotes = new Map([['Cidra','citron'],['Jazmín','jasmine'],['Madera de teca','teak']]);
+const noteImages = new Map([
+ ['Manzana','guide/apple-r1.webp'],
+ ['Lima','food-specific/identity-r3/lime_raw-r1.webp'],
+ ['Guayaba','food-specific/identity-r3/guava_raw-r1.webp'],
+]);
+const stages = [['salida','Salida'],['corazon','Corazón'],['fondo','Fondo'],['destacadas','Notas destacadas']];
+let catalogRequest;
+
+function loadPerfumeCatalog() {
+ catalogRequest ??= Promise.all([
+  import(rotationURL.href),
+  fetch(catalogURL).then(response => {
+   if (!response.ok) throw new Error('No se pudo cargar el catálogo.');
+   return response.json();
+  }),
+ ]).catch(error => {
+  catalogRequest = undefined;
+  throw error;
+ });
+ return catalogRequest;
+}
+
+function perfumeNote(note) {
+ const figure = document.createElement('figure');
+ const caption = document.createElement('figcaption');
+ caption.textContent = note;
+
+ if (photoNotes.has(note)) {
+  const photo = document.createElement('div');
+  photo.className = 'ncc-scent-photo';
+  photo.dataset.note = photoNotes.get(note);
+  photo.setAttribute('aria-hidden','true');
+  figure.append(photo);
+ } else if (noteImages.has(note)) {
+  const photo = document.createElement('img');
+  photo.className = 'ncc-scent-photo';
+  photo.src = new URL('./assets/' + noteImages.get(note),import.meta.url).href;
+  photo.alt = '';
+  photo.loading = 'lazy';
+  photo.addEventListener('error', () => photo.remove(), {once:true});
+  figure.append(photo);
+ }
+
+ figure.append(caption);
+ return figure;
+}
+
+function renderPerfume(panel, item) {
+ const title = document.createElement('h3');
+ title.textContent = item.name;
+ const notes = document.createElement('div');
+ notes.className = 'ncc-scent-notes';
+ notes.append(...item.highlights.map(perfumeNote));
+
+ const details = document.createElement('details');
+ const summary = document.createElement('summary');
+ summary.textContent = 'Ver todas las notas';
+ details.append(summary);
+ for (const [key,label] of stages) {
+  if (!item.notes[key]?.length) continue;
+  const row = document.createElement('p');
+  const heading = document.createElement('strong');
+  heading.textContent = label;
+  row.append(heading, ' · ' + item.notes[key].join(', '));
+  details.append(row);
+ }
+ panel.replaceChildren(title,notes,details);
+}
+
+async function mountPerfumes(section,isCurrent) {
+ const status = section.querySelector('[data-atlas-perfume-status]');
+ try {
+  const [{workoutPerfumesForDay},catalog] = await loadPerfumeCatalog();
+  if (!section.isConnected || !isCurrent()) return;
+  const perfumes = workoutPerfumesForDay(catalog);
+  if (!perfumes) throw new Error('Catálogo incompleto.');
+  renderPerfume(section.querySelector('.ncc-scent-male'),perfumes.hombre);
+  renderPerfume(section.querySelector('.ncc-scent-female'),perfumes.mujer);
+  status.hidden = true;
+ } catch {
+  if (section.isConnected && isCurrent()) status.textContent = 'El perfume del día no está disponible por el momento.';
+ }
+}
 
 export function activityAtlasHTML() {
  return '<section class="ncc-activity-atlas" aria-label="Mi Actividad">'+
@@ -12,17 +98,17 @@ export function activityAtlasHTML() {
   '<fieldset class="ncc-scent-switch"><legend class="sr-only">Opción de perfume</legend>'+
   '<label><input type="radio" name="activity-scent" value="hombre"><span>Hombre</span></label>'+
   '<label><input type="radio" name="activity-scent" value="mujer" checked><span>Mujer</span></label></fieldset>'+
-  '<div class="ncc-scent-male"><h3>Afnan Turathi Blue EDP</h3><p>Bergamota · Mandarina · Maderas</p></div>'+
-  '<div class="ncc-scent-female"><h3>Chanel Chance Eau Fraîche EDT</h3>'+
-  '<div class="ncc-scent-notes">'+photoNotes.map(([note,key])=>
-   '<figure><div class="ncc-scent-photo" data-note="'+key+'" aria-hidden="true"></div><figcaption>'+note+'</figcaption></figure>').join('')+'</div></div>'+
+  '<p data-atlas-perfume-status role="status">Cargando el perfume del día…</p>'+
   '<details><summary>Sobre el perfil para entrenar</summary><p>'+headline+'</p></details>'+
+  '<div class="ncc-scent-male"></div><div class="ncc-scent-female"></div>'+
   '</section></section>';
 }
 
 export async function mountActivityAtlas(root, { db, day, isCurrent, enabled }) {
  const section=root.querySelector('.ncc-activity-atlas');
- if(!section||!enabled)return;
+ if(!section)return;
+ void mountPerfumes(section,isCurrent);
+ if(!enabled)return;
  try{
   const {data,error}=await db.from('efg_daily_device_activity')
    .select('steps,active_kcal,source').eq('activity_day',day).maybeSingle();

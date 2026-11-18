@@ -1,5 +1,7 @@
 name: NCC Android build
 on:
+  push:
+    branches: [work/ncc-activity-device-qa-20261118]
   pull_request:
     paths:
       - 'efg-nutrition/android/**'
@@ -31,7 +33,7 @@ jobs:
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
       - name: Build test APK and unsigned AAB
         working-directory: efg-nutrition/android
-        run: gradle --no-daemon :app:assembleDebug :app:bundleRelease :app:lintDebug
+        run: gradle --no-daemon -PnccActivityOrigin=https://ncc-activity-device-qa.onrender.com :app:assembleDebug :app:bundleRelease :app:lintDebug
       - uses: actions/upload-artifact@v4
         with:
           name: ncc-android-test-not-for-production

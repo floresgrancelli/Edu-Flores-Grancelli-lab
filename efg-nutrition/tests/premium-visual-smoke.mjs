@@ -110,7 +110,10 @@ const sbStub=`export function createClient(){
   getSession:async()=>({data:{session:null},error:null}),
   getUser:async()=>({data:{user:state()?.session?.user||null},error:null}),
   onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})
- },from:name=>b(name),rpc:async()=>({data:null,error:null})};
+ },from:name=>b(name),rpc:async(name,args)=>name==='efg_save_diary_if_current'?{
+  data:{student_id:state()?.session?.user?.id,log_day:args.p_day,meals:args.p_meals,
+   sports:args.p_sports,skipped:args.p_skipped,totals:args.p_totals,updated_at:new Date().toISOString()},error:null
+ }:({data:null,error:null})};
 }`;
 try{
  for(const [role,width] of scenarios){

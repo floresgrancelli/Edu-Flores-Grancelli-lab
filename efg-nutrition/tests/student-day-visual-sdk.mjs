@@ -17,7 +17,18 @@ export function createClient(url){
    upsert(row){if(row.student_id!==app?.state.session?.user?.id)throw Error('Synthetic identity mismatch');payload=structuredClone(row);sessionStorage.setItem(key,JSON.stringify(payload));announce('Guardado ficticio confirmado · '+Object.values(payload.meals).flat().length+' alimentos');return q;},
    single:async()=>result(),maybeSingle:async()=>result(),then(resolve){const r=result();resolve({...r,data:r.data?[r.data]:[]});}};
   return q;
- };return sdk;
+ };
+ const rpc=sdk.rpc;
+ sdk.rpc=async(name,args)=>{
+  if(name!=='efg_save_diary_if_current')return rpc(name,args);
+  const owner=app?.state.session?.user?.id;
+  if(!owner||args.p_day!==app.today())throw Error('Synthetic diary scope mismatch');
+  return sdk.from('efg_daily_logs').upsert({
+   student_id:owner,log_day:args.p_day,meals:args.p_meals,sports:args.p_sports,
+   skipped:args.p_skipped,totals:args.p_totals,updated_at:new Date().toISOString(),
+  }).single();
+ };
+ return sdk;
 }
 const slots=['desayuno','media_manana','almuerzo','media_tarde','merienda','cena'];
 async function student(mode){

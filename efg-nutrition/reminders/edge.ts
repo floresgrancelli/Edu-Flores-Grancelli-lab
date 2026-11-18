@@ -11,14 +11,17 @@ function required(name) {
 const db = createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
  auth: { autoRefreshToken: false, persistSession: false },
 });
-const secret = required('NCC_REMINDER_CRON_SECRET');
-webpush.setVapidDetails(required('NCC_VAPID_SUBJECT'), required('NCC_VAPID_PUBLIC_KEY'), required('NCC_VAPID_PRIVATE_KEY'));
+const subject = 'https://efg-nutrition.onrender.com';
 
 Deno.serve(async (request) => {
  if (request.method !== 'POST') return new Response(null, { status: 405 });
- if (request.headers.get('authorization') !== 'Bearer ' + secret)
-  return new Response(null, { status: 401 });
+ const authorization=request.headers.get('authorization')??'';
+ if(!/^Bearer [a-f0-9]{64}$/.test(authorization))return new Response(null,{status:401});
  try {
+  const {data: config,error}=await db.rpc('efg_meal_reminder_config');
+  if(error||!config)throw Error('Reminder configuration unavailable');
+  if(authorization!=='Bearer '+config.ncc_reminder_job_secret)return new Response(null,{status:401});
+  webpush.setVapidDetails(subject,config.ncc_reminder_vapid_public,config.ncc_reminder_vapid_private);
   const result = await runMealReminderJob({
    db,
    send: ({ endpoint, p256dh, auth_key }, message) =>

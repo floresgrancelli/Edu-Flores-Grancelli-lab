@@ -1,0 +1,38 @@
+name: NCC meal reminders isolated database QA
+on:
+  pull_request:
+    paths:
+      - 'efg-nutrition/reminders/**'
+      - '.github/workflows/ncc-meal-reminders-qa.yml'
+permissions:
+  contents: read
+jobs:
+  reminders:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: local-qa-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: local-qa-only
+    defaults:
+      run:
+        working-directory: efg-nutrition/reminders
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test *.test.mjs
+      - run: psql -X -v ON_ERROR_STOP=1 -f test-fixture.sql -f schema.candidate.sql -f delivery-claim.candidate.sql -f test-claims.sql

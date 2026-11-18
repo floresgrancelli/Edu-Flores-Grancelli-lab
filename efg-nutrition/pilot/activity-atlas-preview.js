@@ -219,12 +219,14 @@ export function mountActivityAtlas(root,{db,owner,isCurrent,enabled}) {
  if (enabled) mountDeviceActivity(section,{db,owner,isCurrent});
 }
 
-let dismissedActivityNotice;
-export function mountActivityReleaseNotice(root,{owner,epoch}) {
+const activityNoticeSeen = new Set();
+export function mountActivityReleaseNotice(root,{owner}) {
  if (!owner) return;
- const sessionKey = JSON.stringify([owner,epoch]);
+ const key = "ncc-notice:mi-actividad-20261118:" + owner;
+ if (activityNoticeSeen.has(key)) return;
+ try { if (localStorage.getItem(key) === "1") return; } catch {}
  const main = root.querySelector('.pilot-main');
- if (!main || dismissedActivityNotice === sessionKey || main.querySelector('.ncc-activity-release')) return;
+ if (!main || main.querySelector('.ncc-activity-release')) return;
 
  const notice = document.createElement('section');
  notice.className = 'ncc-activity-release';
@@ -236,14 +238,8 @@ export function mountActivityReleaseNotice(root,{owner,epoch}) {
   '<div class="ncc-activity-release-actions">'+
   '<button type="button" class="btn btn-primary" data-tab="sport">Ir a Mi Actividad</button>'+
   '<button type="button" class="btn" data-activity-notice-dismiss>Cerrar</button></div>';
- function dismiss() {
-  dismissedActivityNotice = sessionKey;
-  notice.remove();
- }
- notice.querySelector('[data-activity-notice-dismiss]').addEventListener('click',dismiss);
- // Keep the navigation button attached until the app's delegated handler reads it.
- notice.querySelector('[data-tab="sport"]').addEventListener('click',() => {
-  dismissedActivityNotice = sessionKey;
- });
+ notice.querySelector('[data-activity-notice-dismiss]').addEventListener('click',() => notice.remove());
+ activityNoticeSeen.add(key);
+ try { localStorage.setItem(key,"1"); } catch {}
  main.prepend(notice);
 }

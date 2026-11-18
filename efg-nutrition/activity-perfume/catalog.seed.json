@@ -378,5 +378,337 @@
       "Té verde",
       "Menta piperita"
     ]
+  },
+  {
+    "id": "issey-pour-homme-edt",
+    "option": "hombre",
+    "category": "diseñador",
+    "name": "Issey Miyake L’Eau d’Issey Pour Homme EDT",
+    "profile": "Acuático amaderado",
+    "source": "https://www.isseymiyakeparfums.com/en/issey-miyake-l%E2%80%99eau-d%E2%80%99issey-pour-homme-eau-de-toilette-EIH_EDT.html",
+    "notes": {
+      "salida": [
+        "Yuzu",
+        "Limón",
+        "Mandarina"
+      ],
+      "corazon": [
+        "Nenúfar",
+        "Nuez moscada"
+      ],
+      "fondo": [
+        "Sándalo",
+        "Vetiver",
+        "Acorde ambarado"
+      ]
+    },
+    "highlights": [
+      "Yuzu",
+      "Nenúfar",
+      "Sándalo"
+    ]
+  },
+  {
+    "id": "montblanc-legend-spirit-edt",
+    "option": "hombre",
+    "category": "diseñador",
+    "name": "Montblanc Legend Spirit EDT",
+    "profile": "Aromático acuático",
+    "source": "https://www.montblanc.com/en-us/legend-spirit-eau-de-toilette-100-ml-MB115364VG.html",
+    "notes": {
+      "salida": [
+        "Pimienta rosa",
+        "Pomelo",
+        "Bergamota"
+      ],
+      "corazon": [
+        "Lavanda",
+        "Cardamomo",
+        "Acorde acuático"
+      ],
+      "fondo": [
+        "Maderas blancas",
+        "Musgo de roble",
+        "Almizcles blancos"
+      ]
+    },
+    "highlights": [
+      "Pomelo",
+      "Lavanda",
+      "Almizcles blancos"
+    ]
+  },
+  {
+    "id": "chanel-allure-homme-sport-edt",
+    "option": "hombre",
+    "category": "diseñador",
+    "name": "Chanel Allure Homme Sport EDT",
+    "profile": "Fresco amaderado",
+    "source": "https://www.chanel.com/ar/perfumes/p/123640/allure-homme-sport-eau-de-toilette-vaporizador/",
+    "notes": {
+      "destacadas": [
+        "Mandarina italiana",
+        "Acorde cristalino",
+        "Cedro",
+        "Haba tonka",
+        "Almizcles blancos"
+      ]
+    },
+    "highlights": [
+      "Mandarina italiana",
+      "Cedro",
+      "Almizcles blancos"
+    ]
+  },
+  {
+    "id": "nautica-voyage-edt",
+    "option": "hombre",
+    "category": "diseñador",
+    "name": "Nautica Voyage EDT",
+    "profile": "Verde frutal marino",
+    "source": "https://www.nautica.com/nautica-voyage-3-piece-fragrance-set/5702675.html",
+    "notes": {
+      "destacadas": [
+        "Hojas verdes",
+        "Manzana",
+        "Loto",
+        "Cedro",
+        "Notas marinas",
+        "Ámbar",
+        "Almizcle"
+      ]
+    },
+    "highlights": [
+      "Manzana",
+      "Loto",
+      "Cedro"
+    ]
+  },
+  {
+    "id": "lattafa-maahir-legacy",
+    "option": "hombre",
+    "category": "árabe",
+    "name": "Lattafa Maahir Legacy",
+    "profile": "Cítrico verde aromático",
+    "source": "https://lattafa.com/product/maahir-legacy/",
+    "notes": {
+      "salida": [
+        "Lima",
+        "Pomelo",
+        "Lavanda",
+        "Hierbabuena",
+        "Ananá"
+      ],
+      "corazon": [
+        "Bayas de enebro",
+        "Romero",
+        "Resinoide de olíbano",
+        "Geranio",
+        "Pimienta negra"
+      ],
+      "fondo": [
+        "Vetiver",
+        "Cashmeran",
+        "Ambrox",
+        "Musgo de roble",
+        "Haba tonka"
+      ]
+    },
+    "highlights": [
+      "Lima",
+      "Hierbabuena",
+      "Vetiver"
+    ]
+  },
+  {
+    "id": "rasasi-hawas-ice",
+    "option": "hombre",
+    "category": "árabe",
+    "name": "Rasasi Hawas Ice · unisex",
+    "profile": "Frutal acuático",
+    "source": "https://store.rasasi.com.sa/en/aeezlxd/p330366857",
+    "notes": {
+      "salida": [
+        "Manzana helada",
+        "Bergamota italiana",
+        "Limón italiano",
+        "Anís estrellado"
+      ],
+      "corazon": [
+        "Flor de azahar",
+        "Acorde marino helado",
+        "Ciruela",
+        "Cardamomo"
+      ],
+      "fondo": [
+        "Musgo cristalino",
+        "Madera flotante",
+        "Ámbar",
+        "Almizcle"
+      ]
+    },
+    "highlights": [
+      "Manzana helada",
+      "Ciruela",
+      "Madera flotante"
+    ]
+  },
+  {
+    "id": "dior-addict-eau-fraiche",
+    "option": "mujer",
+    "category": "diseñador",
+    "name": "Dior Addict Eau Fraîche",
+    "profile": "Cítrico floral",
+    "source": "https://www.dior.com/en_int/beauty/products/dior-addict-Y0062848.html",
+    "notes": {
+      "salida": [
+        "Pomelo",
+        "Bergamota de Calabria"
+      ],
+      "corazon": [
+        "Fresia",
+        "Muguet"
+      ],
+      "fondo": [
+        "Maderas",
+        "Almizcles blancos"
+      ]
+    },
+    "highlights": [
+      "Pomelo",
+      "Fresia",
+      "Muguet"
+    ]
+  },
+  {
+    "id": "issey-leau-dissey-edt",
+    "option": "mujer",
+    "category": "diseñador",
+    "name": "Issey Miyake L’Eau d’Issey EDT",
+    "profile": "Floral acuático",
+    "source": "https://www.isseymiyakeparfums.com/en/issey-miyake-l-eau-d-issey-eau-de-toilette-EI_EDT.html",
+    "notes": {
+      "salida": [
+        "Acorde de loto",
+        "Rosa"
+      ],
+      "corazon": [
+        "Lirios blancos",
+        "Peonías"
+      ],
+      "fondo": [
+        "Maderas exóticas",
+        "Ámbar",
+        "Sándalo",
+        "Almizcle",
+        "Cedro"
+      ]
+    },
+    "highlights": [
+      "Acorde de loto",
+      "Lirios blancos",
+      "Sándalo"
+    ]
+  },
+  {
+    "id": "chanel-chance-eau-tendre-edt",
+    "option": "mujer",
+    "category": "diseñador",
+    "name": "Chanel Chance Eau Tendre EDT",
+    "profile": "Floral frutal",
+    "source": "https://www.chanel.com/us/fragrance/p/126320/chance-eau-tendre-eau-de-toilette-spray/",
+    "notes": {
+      "destacadas": [
+        "Pomelo",
+        "Membrillo",
+        "Jazmín",
+        "Almizcle blanco"
+      ]
+    },
+    "highlights": [
+      "Pomelo",
+      "Membrillo",
+      "Jazmín"
+    ]
+  },
+  {
+    "id": "hermes-un-jardin-sur-le-nil-edt",
+    "option": "mujer",
+    "category": "diseñador",
+    "name": "Hermès Un Jardin sur le Nil EDT · unisex",
+    "profile": "Verde amaderado",
+    "source": "https://www.hermes.com/us/en/product/un-jardin-sur-le-nil-eau-de-toilette-V20396/",
+    "notes": {
+      "destacadas": [
+        "Mango verde",
+        "Loto",
+        "Sicómoro"
+      ]
+    },
+    "highlights": [
+      "Mango verde",
+      "Loto",
+      "Sicómoro"
+    ]
+  },
+  {
+    "id": "lattafa-qaed-al-fursan-unlimited",
+    "option": "mujer",
+    "category": "árabe",
+    "name": "Lattafa Qaed Al Fursan Unlimited",
+    "profile": "Frutal tropical",
+    "source": "https://lattafa.com/product/qaed-al-fursan-unlimited/",
+    "notes": {
+      "salida": [
+        "Ananá",
+        "Cítricos",
+        "Coco"
+      ],
+      "corazon": [
+        "Jazmín",
+        "Frangipani",
+        "Ylang-ylang"
+      ],
+      "fondo": [
+        "Vainilla",
+        "Almizcle blanco",
+        "Sándalo",
+        "Acorde dulce"
+      ]
+    },
+    "highlights": [
+      "Ananá",
+      "Coco",
+      "Frangipani"
+    ]
+  },
+  {
+    "id": "lattafa-badee-al-oud-sublime",
+    "option": "mujer",
+    "category": "árabe",
+    "name": "Lattafa Bade’e Al Oud Sublime · unisex",
+    "profile": "Frutal floral",
+    "source": "https://lattafa.com/product/badee-al-oud-sublime/",
+    "notes": {
+      "salida": [
+        "Manzana",
+        "Lichi",
+        "Rosa"
+      ],
+      "corazon": [
+        "Ciruela",
+        "Jazmín"
+      ],
+      "fondo": [
+        "Vainilla",
+        "Musgo",
+        "Pachulí"
+      ]
+    },
+    "highlights": [
+      "Lichi",
+      "Ciruela",
+      "Jazmín"
+    ]
   }
 ]

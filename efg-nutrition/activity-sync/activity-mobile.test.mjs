@@ -17,7 +17,7 @@ const fixture = `<!doctype html><html lang="es"><meta charset="utf-8">
 <main class="pilot-main"></main>
 <script type="module">
 import {activityAtlasHTML,mountActivityAtlas,mountActivityReleaseNotice} from '/pilot/activity-atlas-preview.js';
-let epoch = 1;
+let noticeOwner = 'fixture-a';
 let state = 'no_data_or_permission';
 const source = 'apple_health';
 const bridge = {postMessage:async ()=>state==='available'?
@@ -34,11 +34,11 @@ const db = {
 const main = document.querySelector('main');
 function render() {
  main.innerHTML = activityAtlasHTML();
- mountActivityReleaseNotice(document.body,{owner:'fixture-a',epoch});
+ mountActivityReleaseNotice(document.body,{owner:noticeOwner});
  mountActivityAtlas(document.body,{db,owner:'fixture-a',isCurrent:()=>true,enabled:true});
 }
 window.render = render;
-window.newSession = ()=>{epoch++;render();};
+window.switchNoticeAccount = ()=>{noticeOwner='fixture-b';render();};
 window.setBridgeStatus = next=>{state=next;};
 main.addEventListener('click',event=>{if(event.target.matches('[data-tab=sport]')) render();});
 render();
@@ -76,7 +76,10 @@ try {
     await page.getByRole('button',{name:'Cerrar',exact:true}).click();
     await page.evaluate(()=>window.render());
     assert.equal(await page.locator('.ncc-activity-release').count(),0);
-    await page.evaluate(()=>window.newSession());
+    await page.reload();
+    await page.getByRole('button',{name:'Conectar actividad del dispositivo'}).waitFor();
+    assert.equal(await page.locator('.ncc-activity-release').count(),0);
+    await page.evaluate(()=>window.switchNoticeAccount());
     await page.getByRole('button',{name:'Ir a Mi Actividad'}).click();
     assert.equal(await page.locator('.ncc-activity-release').count(),0);
     const connect = page.getByRole('button',{name:'Conectar actividad del dispositivo'});

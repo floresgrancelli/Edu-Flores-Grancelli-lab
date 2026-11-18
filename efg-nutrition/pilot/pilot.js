@@ -1,4 +1,4 @@
-import {activityAtlasHTML,mountActivityAtlas,mountActivityReleaseNotice} from './activity-atlas-preview.js?v=ncc-activity-screen-r3-20261118';
+import {activityAtlasHTML,mountActivityAtlas,mountActivityReleaseNotice} from './activity-atlas-preview.js?v=ncc-activity-notice-once-r1-20261118';
 import {subscribeMealReminderDevice,createMealReminderPreferencesClient} from './meal-reminder-preferences.js?v=ncc-meal-reminder-settings-r1-20261118';
 import {settingsButtonHTML} from './readable-text.js?v=ncc-settings-gear-only-r4-20261115';
 import {SUPPLEMENT_ROUTINE_KEY,readSupplementRoutine,snapshotSupplementRoutine,planUsualSupplements,newestSupplementRoutine} from './usual-supplements.js?v=ncc-supplement-routine-r1-20261114';
@@ -1430,7 +1430,7 @@ function frame(content){
  professionalReleaseFrame.mountFrame(root);
  pilotGuideLifecycle.mountStudent(root);
  if(activityAtlasPreview()&&(!studentPlanPending()||studentPendingTabAllowed('sport'))){
-  mountActivityReleaseNotice(root,{owner:state.session?.user?.id,epoch:state.authContextEpoch});
+  mountActivityReleaseNotice(root,{owner:state.session?.user?.id});
  }
  if(state.tab==='sport'&&activityAtlasPreview()){
   const owner=state.session?.user?.id,epoch=state.authContextEpoch;

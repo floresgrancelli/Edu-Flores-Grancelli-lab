@@ -29,3 +29,14 @@
 .ncc-scent-notes img.ncc-scent-photo{width:100%;object-fit:cover;background-image:none}
 .ncc-scent-notes figure>.ncc-scent-photo+figcaption{min-height:2.5em}
 .ncc-scent-notes figure>figcaption:only-child{height:100%;min-height:2.5em;padding:.35rem .2rem;border:1px solid #75835b;border-radius:.55rem;background:#182a1c}
+
+.ncc-scent-photo[data-workout-note]{aspect-ratio:1;background-image:url('./assets/activity-workout-notes.webp');background-size:300% 300%}
+.ncc-scent-photo[data-workout-note=grapefruit]{background-position:0% 0%}
+.ncc-scent-photo[data-workout-note=mint]{background-position:50% 0%}
+.ncc-scent-photo[data-workout-note=cedar]{background-position:100% 0%}
+.ncc-scent-photo[data-workout-note=bergamot]{background-position:0% 50%}
+.ncc-scent-photo[data-workout-note=bamboo]{background-position:50% 50%}
+.ncc-scent-photo[data-workout-note=leather]{background-position:100% 50%}
+.ncc-scent-photo[data-workout-note=lotus]{background-position:0% 100%}
+.ncc-scent-photo[data-workout-note=ginger]{background-position:50% 100%}
+.ncc-scent-photo[data-workout-note=verbena]{background-position:100% 100%}

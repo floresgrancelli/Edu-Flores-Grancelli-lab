@@ -3,6 +3,11 @@ const catalogVersion = '468ef689';
 const catalogURL = new URL('../activity-perfume/catalog.seed.json?v=' + catalogVersion, import.meta.url);
 const rotationURL = new URL('../activity-perfume/rotation.mjs?v=' + catalogVersion, import.meta.url);
 const photoNotes = new Map([['Cidra','citron'],['Jazmín','jasmine'],['Madera de teca','teak']]);
+const workoutPhotos = new Map([
+ ['Pomelo','grapefruit'],['Menta','mint'],['Cedro','cedar'],
+ ['Bergamota','bergamot'],['Bambú','bamboo'],['Cuero','leather'],
+ ['Loto','lotus'],['Jengibre','ginger'],['Verbena','verbena'],
+]);
 const noteImages = new Map([
  ['Manzana','guide/apple-r1.webp'],
  ['Lima','food-specific/identity-r3/lime_raw-r1.webp'],
@@ -30,10 +35,11 @@ function perfumeNote(note) {
  const caption = document.createElement('figcaption');
  caption.textContent = note;
 
- if (photoNotes.has(note)) {
+ if (photoNotes.has(note) || workoutPhotos.has(note)) {
   const photo = document.createElement('div');
   photo.className = 'ncc-scent-photo';
-  photo.dataset.note = photoNotes.get(note);
+  if (workoutPhotos.has(note)) photo.dataset.workoutNote = workoutPhotos.get(note);
+  else photo.dataset.note = photoNotes.get(note);
   photo.setAttribute('aria-hidden','true');
   figure.append(photo);
  } else if (noteImages.has(note)) {

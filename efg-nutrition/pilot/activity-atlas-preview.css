@@ -1,0 +1,26 @@
+.ncc-activity-atlas{max-width:44rem;margin:0 auto 1rem;color:#f0e7d0;font-family:Georgia,serif}
+.ncc-activity-trail{position:relative;aspect-ratio:1024/800;background:#152618 url('./assets/activity-atlas-reference.webp') center top/100% auto no-repeat}
+.ncc-activity-metrics{position:absolute;top:35%;left:9%;right:9%;display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.ncc-activity-metrics>div{display:grid;gap:.2rem;padding:.45rem .3rem;text-align:center;background:#111f15e8;border:1px solid #75835b;border-radius:.65rem}
+.ncc-activity-metrics strong{font:700 clamp(1rem,4vw,1.6rem) system-ui,sans-serif}
+.ncc-activity-source{position:absolute;top:56%;left:9%;right:9%;text-align:center;text-shadow:0 1px 5px #000;background:#101d15cc;border-radius:.4rem}
+.ncc-activity-perfume{position:relative;margin:-4% 2.3% 0;padding:clamp(.7rem,2.8vw,1.4rem);border:1px solid #7a8a54;border-radius:clamp(.9rem,4vw,1.7rem);background:linear-gradient(145deg,#17291b,#0d190f);text-align:center}
+.ncc-activity-perfume h2{margin:.2rem 0 .6rem;color:inherit;font-size:clamp(1rem,4.5vw,2rem);font-style:italic}
+.ncc-activity-perfume h2::after{content:"";display:block;width:14%;height:2px;background:#a5b774;margin:.55rem auto}
+.ncc-activity-perfume h3{margin:.65rem 0;color:inherit;font-size:clamp(1rem,4vw,1.8rem)}
+.ncc-scent-switch{display:flex;width:min(64%,22rem);padding:0;margin:auto;border:1px solid #77895c;border-radius:3rem}
+.ncc-scent-switch label{flex:1;display:grid;cursor:pointer;position:relative}
+.ncc-scent-switch input{position:absolute;opacity:0}
+.ncc-scent-switch span{padding:.45rem .2rem;border-radius:3rem}
+.ncc-scent-switch input:checked+span{background:#596a32;color:#fff8e4}
+.ncc-scent-switch input:focus-visible+span{outline:2px solid #dce89c}
+.ncc-scent-male,.ncc-scent-female{display:none}
+.ncc-activity-perfume:has([value=mujer]:checked) .ncc-scent-female,.ncc-activity-perfume:has([value=hombre]:checked) .ncc-scent-male{display:block}
+.ncc-scent-notes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.35rem}
+.ncc-scent-notes figure{margin:0;min-width:0}
+.ncc-scent-photo{aspect-ratio:300/312;border-radius:.55rem;background-image:url('./assets/activity-atlas-reference.webp');background-size:341.33% auto;background-repeat:no-repeat}
+.ncc-scent-photo[data-note=citron]{background-position:7.46% 89.7%}
+.ncc-scent-photo[data-note=jasmine]{background-position:50.55% 89.7%}
+.ncc-scent-photo[data-note=teak]{background-position:92.82% 89.7%}
+.ncc-scent-notes figcaption{margin-top:.25rem;font-size:clamp(.72rem,3vw,1.2rem)}
+.ncc-activity-perfume details{font-size:.8rem;margin-top:.9rem;text-align:left}

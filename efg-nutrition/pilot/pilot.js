@@ -1,3 +1,4 @@
+import {subscribeMealReminderDevice,createMealReminderPreferencesClient} from './meal-reminder-preferences.js?v=ncc-meal-reminder-settings-r1-20261118';
 import {settingsButtonHTML} from './readable-text.js?v=ncc-settings-gear-only-r4-20261115';
 import {SUPPLEMENT_ROUTINE_KEY,readSupplementRoutine,snapshotSupplementRoutine,planUsualSupplements,newestSupplementRoutine} from './usual-supplements.js?v=ncc-supplement-routine-r1-20261114';
 import {resolveIndependentEntry} from './self-management-entry.js?v=ncc-self-entry-r1-20261113';
@@ -1427,6 +1428,7 @@ function frame(content){
  dualWorkspaceFrame.mountFrame(root);
  professionalReleaseFrame.mountFrame(root);
  pilotGuideLifecycle.mountStudent(root);
+ if(state.tab==='settings')void loadMealReminderSettings();
 }
 // Bienvenida institucional, exclusivamente en el primer acceso del alumno nuevo.
 function welcomeView(){
@@ -1634,8 +1636,72 @@ function quickHabitualSettings(){
    (diary.meals?.[slot]?.length?'<p class="pilot-hint">Ya registraste alimentos en este horario.</p>':habitualPickerHTML(slot,true))+
    '</details>').join('')+'</section>';
 }
+const reminderPublicKey=()=>document.querySelector('meta[name="ncc-web-push-key"]')?.content.trim()||"";
+function mealReminderSettings(){
+ if(!reminderPublicKey()||(state.profile.role==="student"&&studentRestrictedNavigation()))return "";
+ return '<section class="card" data-meal-reminder-settings><h3>Recordatorios de comidas</h3>'+
+  '<p class="pilot-hint">Elegí los horarios que querés recordar y activá los avisos en este celular.</p>'+
+  '<p data-reminder-status role="status"></p><button type="button" class="btn small light" data-act="enableMealReminderDevice">Activar avisos en este celular</button>'+
+  '<fieldset disabled data-reminder-hours><legend>Horarios</legend>'+mealSlots.map(([meal,label])=>
+   '<div class="field" data-reminder-meal="'+meal+'"><label><input type="checkbox" data-reminder-enabled> '+escapeHTML(label)+'</label>'+
+   '<label>Hora<input type="time" step="60" data-reminder-time></label>'+
+   '<button type="button" class="btn small light" data-act="saveMealReminder">Guardar '+escapeHTML(label.toLowerCase())+'</button></div>').join('')+
+  '</fieldset></section>';
+}
+async function loadMealReminderSettings(){
+ const panel=root.querySelector('[data-meal-reminder-settings]');
+ if(!panel)return;
+ const owner=state.session?.user?.id;
+ const status=panel.querySelector('[data-reminder-status]');
+ try{
+  const rows=await createMealReminderPreferencesClient(sb).list();
+  if(!panel.isConnected||state.session?.user?.id!==owner)return;
+  for(const row of rows||[]){
+   const entry=[...panel.querySelectorAll('[data-reminder-meal]')].find(el=>el.dataset.reminderMeal===row.meal);
+   if(!entry)continue;
+   entry.querySelector('[data-reminder-enabled]').checked=row.enabled;
+   entry.querySelector('[data-reminder-time]').value=row.remind_at.slice(0,5);
+  }
+  panel.querySelector('[data-reminder-hours]').disabled=false;
+ }catch{
+  status.textContent="No pudimos cargar tus horarios. Volvé a abrir Configuración para reintentar.";
+ }
+}
+async function handleMealReminderSettings(button,action){
+ const panel=button.closest('[data-meal-reminder-settings]'),key=reminderPublicKey();
+ if(!panel||!key||state.tab!=="settings")return;
+ const owner=state.session?.user?.id,epoch=state.authContextEpoch;
+ const current=()=>panel.isConnected&&state.session?.user?.id===owner&&state.authContextEpoch===epoch;
+ const status=panel.querySelector('[data-reminder-status]');
+ const client=createMealReminderPreferencesClient(sb);
+ button.disabled=true;
+ try{
+  if(action==="enableMealReminderDevice"){
+   if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window))
+    throw Error("Este navegador no admite avisos. En iPhone abrí la app desde la pantalla de inicio.");
+   if(await Notification.requestPermission()!=="granted")throw Error("Los avisos necesitan permiso en este celular.");
+   if(!current())return;
+   await navigator.serviceWorker.register('./meal-reminder-worker.js');
+   const registration=await navigator.serviceWorker.ready;
+   if(!current())return;
+   const base64=key.replace(/-/g,'+').replace(/_/g,'/');
+   const device=await subscribeMealReminderDevice(registration,Uint8Array.from(atob(base64),c=>c.charCodeAt(0)));
+   if(!current())return;
+   await client.addDevice(device);
+   if(current())status.textContent="Avisos activados en este celular.";
+  }else{
+   const entry=button.closest('[data-reminder-meal]'),time=entry.querySelector('[data-reminder-time]').value;
+   if(!time)throw Error("Elegí una hora para esta comida.");
+   await client.save({meal:entry.dataset.reminderMeal,remindAt:time,
+    timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone,enabled:entry.querySelector('[data-reminder-enabled]').checked});
+   if(current())status.textContent="Horario guardado.";
+  }
+ }catch(error){
+  if(current())status.textContent=error instanceof Error?error.message:"No pudimos guardar el recordatorio. Volvé a intentar.";
+ }finally{button.disabled=false;}
+}
 function settingsView(){
- return rootText("Configuración","Actualizá la aplicación y administrá tu sesión.")+versionCheckCard()+quickHabitualSettings()+
+ return rootText("Configuración","Actualizá la aplicación y administrá tu sesión.")+versionCheckCard()+quickHabitualSettings()+mealReminderSettings()+
   '<section class="card"><h3>Tu cuenta</h3><p class="pilot-hint">Perfil: '+escapeHTML(roleLabel())+'. Tus datos y los permisos de cada función no cambian al actualizar la app.</p><button type="button" class="btn small light" data-act="logout">Cerrar sesión</button></section>';
 }
 function studentMoreView(){
@@ -6124,6 +6190,7 @@ if(el.dataset.foodbulk){
    if(!result.updated)notify(result.reason==='offline'?"No pudimos comprobar la actualización. Revisá tu conexión.":result.reason==='unsaved'?"Guardá tus cambios antes de actualizar.":"Ya tenés la última versión disponible.");
   }finally{el.disabled=false;}return;
  }
+ if(action==="enableMealReminderDevice"||action==="saveMealReminder")return handleMealReminderSettings(el,action);
  if(action==="checkAppVersion"){
   document.querySelectorAll('[data-version-status]').forEach(label=>{label.textContent="Comprobando la versión publicada…";});
   el.disabled=true;

@@ -118,6 +118,25 @@ try{
    assert.match(await page.locator('#plannerPendingDetail').textContent(),/calorías ya están cubiertas.*proteína/i);
    assert.match(await page.locator('#plannerProjectedNumbers').textContent(),/Total del día/);
    await page.screenshot({path:'report-catalog-speed-evidence/'+engine.name()+'-saldo-cena.png'});
+   await page.evaluate(()=>{
+    window.__nccGuideTabs=document.querySelector('.ncc-plan-tabs');
+    document.querySelector('.ncc-plan-notes').open=true;
+   });
+   const guideTab=page.locator('[data-studentguideslot="almuerzo"]');
+   await guideTab.click();
+   assert.equal(await guideTab.getAttribute('aria-pressed'),'true');
+   assert.match(await page.locator('#nccPlanMeal h3').textContent(),/Almuerzo/);
+   assert.ok(await page.evaluate(()=>window.__nccGuideTabs===document.querySelector('.ncc-plan-tabs')&&document.querySelector('.ncc-plan-notes').open));
+   await page.locator('[data-studentguideregister="almuerzo"]').click();
+   const qty=page.locator('[data-guideentryqty="0"]');
+   await qty.fill('123');
+   await page.getByRole('button',{name:'Cerrar revisión'}).click();
+   await page.locator('[data-studentguideslot="cena"]').click();
+   await guideTab.click();
+   await page.locator('[data-studentguideregister="almuerzo"]').click();
+   assert.equal(await qty.inputValue(),'123');
+   await page.getByRole('button',{name:'Cerrar revisión'}).click();
+   await page.screenshot({path:'report-catalog-speed-evidence/'+engine.name()+'-guia-horarios.png'});
    await context.close();console.log('PASS '+engine.name()+' iPhone-sized planner food suggestions: protein, carbs, extras, no mutation');
   }finally{await browser.close();}
  }

@@ -1925,6 +1925,26 @@ function currentStudentGuide(){
 }
 function studentGuideBrand(){return '<div class="ncc-plan-brand"><img src="./assets/serotonina-acuarela.avif" alt="" width="38" height="30"><strong>NUTRICIÓN<br>CON-CIENCIA</strong></div>';}
 function studentGuideKey(){return [state.session?.user?.id,state.authContextEpoch||0,state.foodPlan?.guided_goal_id].join('|');}
+function studentGuideMealHTML(meal,mt){
+ return meal?'<article id="nccPlanMeal" class="ncc-plan-meal"><h3>'+escapeHTML(meal.label)+' · '+num(mt.k)+' kcal</h3>'+meal.items.map(f=>'<div class="ncc-plan-food"><span class="ncc-plan-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><div><strong>'+escapeHTML(f.name)+'</strong><span>'+num(f.qty,2)+' '+escapeHTML(f.unit)+(guidePortion(f)?' · '+escapeHTML(guideQuantityLabel(f)):'')+'</span></div></div>').join('')+'<p class="ncc-plan-macros">P '+num(mt.p,1)+' g · HC '+num(mt.c,1)+' g · G '+num(mt.f,1)+' g</p></article><button type="button" class="ncc-plan-primary" data-studentguideregister="'+escapeHTML(meal.slot)+'" '+(!meal.items.length?'disabled':'')+'>Revisar y registrar</button>':'<p>No hay comidas en esta guía.</p>';
+}
+function selectStudentGuideMeal(button){
+ const current=currentStudentGuide(),slot=button.dataset.studentguideslot;
+ const meal=current?.plan.meals.find(item=>item.slot===slot);
+ const view=button.closest('.ncc-plan'),host=view?.querySelector('[data-student-guide-meal]');
+ if(!meal||!host||button.getAttribute('aria-pressed')==="true")return;
+ const totals=guideTotals(current.plan).perMeal.find(entry=>entry.slot===slot)?.totals;
+ if(!totals)return;
+ state.studentGuideSlots={...state.studentGuideSlots,[studentGuideKey()]:slot};
+ for(const tab of view.querySelectorAll('[data-studentguideslot]')){
+  const active=tab===button;
+  tab.setAttribute('aria-pressed',String(active));
+  tab.querySelector('i')?.remove();
+  if(active)tab.insertAdjacentHTML('beforeend','<i aria-hidden="true">✓</i>');
+ }
+ host.innerHTML=studentGuideMealHTML(meal,totals);
+ button.focus({preventScroll:true});
+}
 function studentGuideView(){
  const {plan,goal}=currentStudentGuide(),key=studentGuideKey();
  const slot=plan.meals.some(m=>m.slot===state.studentGuideSlots?.[key])?state.studentGuideSlots[key]:plan.meals[0]?.slot;
@@ -1934,7 +1954,8 @@ function studentGuideView(){
  '<div class="ncc-plan-target"><div><b>Objetivo diario</b><strong>'+num(goal.kcal)+' kcal</strong></div><span data-ncc-macro="p">P<b>'+num(goal.protein_g)+' g</b></span><span data-ncc-macro="c">HC<b>'+num(goal.carb_g)+' g</b></span><span data-ncc-macro="f">G<b>'+num(goal.fat_g)+' g</b></span></div>'+
  (stale?'<p role="status">Pedile al coach una guía actualizada. Conservamos este ejemplo como referencia.</p>':'')+
  '<h2>Tus comidas</h2><nav class="ncc-plan-tabs" aria-label="Horarios de mi Dieta Guía">'+plan.meals.map(m=>'<button type="button" data-studentguideslot="'+escapeHTML(m.slot)+'" aria-pressed="'+(m.slot===slot)+'" aria-controls="nccPlanMeal">'+dayMealIcon(m.slot)+'<span>'+escapeHTML(m.label)+'</span>'+(m.slot===slot?'<i aria-hidden="true">✓</i>':'')+'</button>').join('')+'</nav>'+
- (meal?'<article id="nccPlanMeal" class="ncc-plan-meal"><h3>'+escapeHTML(meal.label)+' · '+num(mt.k)+' kcal</h3>'+meal.items.map(f=>'<div class="ncc-plan-food"><span class="ncc-plan-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><div><strong>'+escapeHTML(f.name)+'</strong><span>'+num(f.qty,2)+' '+escapeHTML(f.unit)+(guidePortion(f)?' · '+escapeHTML(guideQuantityLabel(f)):'')+'</span></div></div>').join('')+'<p class="ncc-plan-macros">P '+num(mt.p,1)+' g · HC '+num(mt.c,1)+' g · G '+num(mt.f,1)+' g</p></article><button type="button" class="ncc-plan-primary" data-studentguideregister="'+escapeHTML(slot)+'" '+(!meal.items.length?'disabled':'')+'>Revisar y registrar</button>':'<p>No hay comidas en esta guía.</p>')+
+ '<div data-student-guide-meal>'+studentGuideMealHTML(meal,mt)+'</div>'+
+
  '<details class="ncc-plan-notes"><summary>Indicaciones del coach</summary><p>'+escapeHTML(plan.supplementNote||'No hay indicaciones de suplementos en esta guía.')+'</p>'+(plan.profileReviewNotes||[]).map(n=>'<p>'+escapeHTML(n)+'</p>').join('')+'<p>Guía orientativa, no ingesta registrada. Las imágenes son ilustrativas; las cantidades corresponden al plan.</p><details><summary>Ver explicación y resumen del plan</summary>'+guidedDayContents(plan,goal)+'</details></details>'+
  '<details class="ncc-plan-notes"><summary>Totales de mi Dieta Guía</summary><p>Valores del menú de referencia, sin registrar alimentos.</p><p>'+num(totals.totals.k)+' kcal · P '+num(totals.totals.p,1)+' g · HC '+num(totals.totals.c,1)+' g · G '+num(totals.totals.f,1)+' g</p></details><div id="mealDialogContainer"></div></section>';
 }
@@ -5376,10 +5397,7 @@ async function mainClick(event){
   selectDayMeal(slot);
   return;
  }
- if(el.dataset.studentguideslot){
-  const current=currentStudentGuide(),slot=el.dataset.studentguideslot;if(!current?.plan.meals.some(m=>m.slot===slot))return;
-  state.studentGuideSlots={...state.studentGuideSlots,[studentGuideKey()]:slot};await render();document.querySelector('[data-studentguideslot="'+CSS.escape(slot)+'"]')?.focus({preventScroll:true});return;
- }
+ if(el.dataset.studentguideslot){selectStudentGuideMeal(el);return;}
  if(el.dataset.studentguideregister){openStudentGuideSheet(el.dataset.studentguideregister);return;}
  if(el.dataset.guideclose){closeStudentGuideSheet();return;}
  if(el.dataset.guidesave){await saveStudentGuideSelection();return;}

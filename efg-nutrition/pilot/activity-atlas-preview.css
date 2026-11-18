@@ -76,3 +76,7 @@
 
 .ncc-activity-connect:has(button:not([hidden])){position:relative;text-align:center;padding:.35rem .75rem 1.35rem;background:#152618}
 .ncc-activity-connect [hidden]{display:none}
+
+.ncc-activity-manual{max-width:44rem;margin:0 auto 1rem}
+.ncc-activity-manual>summary{padding:.75rem 1rem;cursor:pointer}
+.ncc-activity-manual[open]>summary{margin-bottom:.75rem}

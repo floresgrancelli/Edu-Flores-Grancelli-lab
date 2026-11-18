@@ -207,8 +207,8 @@ export function activityAtlasHTML() {
   '<label><input type="radio" name="activity-scent" value="hombre"><span>Hombre</span></label>'+
   '<label><input type="radio" name="activity-scent" value="mujer" checked><span>Mujer</span></label></fieldset>'+
   '<p data-atlas-perfume-status role="status">Cargando el perfume del día…</p>'+
-  '<details><summary>Sobre el perfil para entrenar</summary><p>'+headline+'</p></details>'+
   '<div class="ncc-scent-male"></div><div class="ncc-scent-female"></div>'+
+  '<details><summary>Sobre el perfil para entrenar</summary><p>'+headline+'</p></details>'+
   '</section></section>';
 }
 

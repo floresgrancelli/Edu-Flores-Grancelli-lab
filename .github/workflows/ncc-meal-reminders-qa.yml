@@ -37,4 +37,4 @@ jobs:
       - run: npm install --no-save --no-package-lock --ignore-scripts web-push@3.6.7 http_ece@1.2.1
       - run: node --test *.test.mjs
       - run: psql -X -v ON_ERROR_STOP=1 -f test-fixture.sql -f schema.candidate.sql -f delivery-claim.candidate.sql -f test-claims.sql
-      - run: psql -X -v ON_ERROR_STOP=1 -f test-habitual-fixture.sql -f habitual-automation.candidate.sql -f habitual-automation-job.candidate.sql -f habitual-automation-guard.candidate.sql -f test-habitual-automation.sql
+      - run: psql -X -v ON_ERROR_STOP=1 -f test-habitual-fixture.sql -f habitual-automation.candidate.sql -f habitual-automation-job.candidate.sql -f habitual-automation-guard.candidate.sql -f habitual-automation-owner-context.sql -f test-habitual-automation.sql

@@ -51,6 +51,19 @@ begin
   or exists(select 1 from public.efg_habitual_automation_runs where user_id=other)
   then raise exception 'Ineligible student received an automated record'; end if;
  if public.efg_run_habitual_automation()<>0 then raise exception 'Duplicate automatic meal'; end if;
+ -- A rule already saved must respect later changes in participation.
+ insert into public.efg_habitual_meals values (goal,student,'almuerzo','[{"k":400,"p":30}]');
+ insert into public.efg_habitual_automation
+ values (student,'almuerzo',goal,array[1,2,3,4,5,6,7]::smallint[],date_trunc('minute',local_now)::time,true);
+ update public.efg_pilot_participation_receipts set sharing_accepted=false where student_id=student;
+ if public.efg_run_habitual_automation()<>0
+  or exists(select 1 from public.efg_habitual_automation_runs where user_id=student and meal='almuerzo')
+  then raise exception 'Cron ignored revoked sharing or consumed the invalid run'; end if;
+ update public.efg_pilot_participation_receipts set sharing_accepted=true where student_id=student;
+ if public.efg_run_habitual_automation()<>1 then raise exception 'Restored eligibility did not allow the pending meal'; end if;
+ select * into strict diary from public.efg_daily_logs where student_id=student and log_day=day;
+ if diary.meals->'desayuno' is distinct from expected or diary.totals->>'k' is distinct from '550'
+  or diary.totals->>'p' is distinct from '36' then raise exception 'Cron replaced an existing slot or changed its totals'; end if;
  if has_function_privilege('authenticated','efg_private.coach_pilot_entry_status_for(uuid)','execute')
   or has_function_privilege('anon','efg_private.legal_current_status_for(uuid)','execute')
   then raise exception 'Private eligibility function is exposed'; end if;

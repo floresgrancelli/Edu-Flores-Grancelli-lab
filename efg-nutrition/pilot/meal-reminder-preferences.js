@@ -25,6 +25,10 @@ export function createMealReminderPreferencesClient(supabase) {
   save: ({ meal, remindAt, timeZone, enabled }) => checked(preferences().upsert({
    meal, remind_at: remindAt, time_zone: timeZone, enabled,
   }, { onConflict: 'user_id,meal' })),
+  disable: ({ owner, meal }) => {
+   const request=preferences().update({ enabled:false }).eq('user_id',owner).eq('enabled',true);
+   return checked(meal===undefined?request:request.eq('meal',meal));
+  },
   addDevice: device => checked(devices().upsert(device, { onConflict: 'user_id,endpoint' })),
   removeDevice: endpoint => checked(devices().delete().eq('endpoint', endpoint)),
  };

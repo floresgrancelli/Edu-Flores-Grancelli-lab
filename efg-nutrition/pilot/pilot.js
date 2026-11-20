@@ -1,5 +1,5 @@
 import {activityAtlasHTML,mountActivityAtlas,mountActivityReleaseNotice} from './activity-atlas-preview.js?v=ncc-activity-notice-once-r1-20261118';
-import {subscribeMealReminderDevice,createMealReminderPreferencesClient} from './meal-reminder-preferences.js?v=ncc-meal-reminder-settings-r1-20261118';
+import {subscribeMealReminderDevice,createMealReminderPreferencesClient} from './meal-reminder-preferences.js?v=ncc-meal-reminder-off-r1-20261120';
 import {settingsButtonHTML} from './readable-text.js?v=ncc-settings-gear-only-r4-20261115';
 import {SUPPLEMENT_ROUTINE_KEY,readSupplementRoutine,snapshotSupplementRoutine,planUsualSupplements,newestSupplementRoutine} from './usual-supplements.js?v=ncc-supplement-routine-r1-20261114';
 import {resolveIndependentEntry} from './self-management-entry.js?v=ncc-self-entry-r1-20261113';
@@ -1730,12 +1730,13 @@ const reminderPublicKey=()=>document.querySelector('meta[name="ncc-web-push-key"
 function mealReminderSettings(){
  if(!reminderPublicKey()||(state.profile.role==="student"&&studentRestrictedNavigation()))return "";
  return '<section class="card" data-meal-reminder-settings><h3>Recordatorios de comidas</h3>'+
-  '<p class="pilot-hint">Elegí los horarios que querés recordar y activá los avisos en este celular.</p>'+
+  '<p class="pilot-hint">Para activar un aviso, elegí la hora y guardá el horario. Al desmarcar una comida, su aviso se desactiva en el momento.</p>'+
   '<p data-reminder-status role="status"></p><button type="button" class="btn small light" data-act="enableMealReminderDevice">Activar avisos en este celular</button>'+
   '<fieldset disabled data-reminder-hours><legend>Horarios</legend>'+mealSlots.map(([meal,label])=>
    '<div class="field" data-reminder-meal="'+meal+'"><label><input type="checkbox" data-reminder-enabled> '+escapeHTML(label)+'</label>'+
    '<label>Hora<input type="time" step="60" data-reminder-time></label>'+
    '<button type="button" class="btn small light" data-act="saveMealReminder">Guardar '+escapeHTML(label.toLowerCase())+'</button></div>').join('')+
+   '<button type="button" class="btn small light" data-act="disableAllMealReminders">Desactivar todos los avisos de comidas</button>'+
   '</fieldset></section>';
 }
 async function loadMealReminderSettings(){
@@ -1759,14 +1760,26 @@ async function loadMealReminderSettings(){
 }
 async function handleMealReminderSettings(button,action){
  const panel=button.closest('[data-meal-reminder-settings]'),key=reminderPublicKey();
- if(!panel||!key||state.tab!=="settings")return;
+ if(!panel||!key||state.tab!=="settings"||panel.dataset.reminderSaving)return;
  const owner=state.session?.user?.id,epoch=state.authContextEpoch;
  const current=()=>panel.isConnected&&state.session?.user?.id===owner&&state.authContextEpoch===epoch;
  const status=panel.querySelector('[data-reminder-status]');
  const client=createMealReminderPreferencesClient(sb);
+ const hours=panel.querySelector('[data-reminder-hours]');
+ if(!owner||(action!=="enableMealReminderDevice"&&hours.disabled))return;
+ const disabling=action==="disableMealReminder"||action==="disableAllMealReminders";
+ panel.dataset.reminderSaving="true";
+ const hoursWereDisabled=hours.disabled;
+ hours.disabled=true;
  button.disabled=true;
  try{
-  if(action==="enableMealReminderDevice"){
+  if(disabling){
+   const meal=action==="disableMealReminder"?button.closest('[data-reminder-meal]').dataset.reminderMeal:undefined;
+   await client.disable({owner,meal});
+   if(!current())return;
+   if(!meal)for(const checkbox of hours.querySelectorAll('[data-reminder-enabled]'))checkbox.checked=false;
+   status.textContent=meal?"Aviso desactivado.":"Todos los avisos de comidas están desactivados.";
+  }else if(action==="enableMealReminderDevice"){
    if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window))
     throw Error("Este navegador no admite avisos. En iPhone abrí la app desde la pantalla de inicio.");
    if(await Notification.requestPermission()!=="granted")throw Error("Los avisos necesitan permiso en este celular.");
@@ -1787,8 +1800,15 @@ async function handleMealReminderSettings(button,action){
    if(current())status.textContent="Horario guardado.";
   }
  }catch(error){
-  if(current())status.textContent=error instanceof Error?error.message:"No pudimos guardar el recordatorio. Volvé a intentar.";
- }finally{button.disabled=false;}
+  if(current()){
+   if(action==="disableMealReminder")button.checked=true;
+   status.textContent=disabling?"No pudimos desactivar los avisos. Volvé a intentar.":error instanceof Error?error.message:"No pudimos guardar el recordatorio. Volvé a intentar.";
+  }
+ }finally{
+  delete panel.dataset.reminderSaving;
+  hours.disabled=hoursWereDisabled;
+  button.disabled=false;
+ }
 }
 function settingsView(){
  return rootText("Configuración","Actualizá la aplicación y administrá tu sesión.")+versionCheckCard()+quickHabitualSettings()+mealReminderSettings()+
@@ -6339,7 +6359,7 @@ if(el.dataset.foodbulk){
   }finally{el.disabled=false;}return;
  }
  if(action==="saveHabitualAutomation")return saveHabitualAutomation(el);
- if(action==="enableMealReminderDevice"||action==="saveMealReminder")return handleMealReminderSettings(el,action);
+ if(action==="enableMealReminderDevice"||action==="saveMealReminder"||action==="disableAllMealReminders")return handleMealReminderSettings(el,action);
  if(action==="checkAppVersion"){
   document.querySelectorAll('[data-version-status]').forEach(label=>{label.textContent="Comprobando la versión publicada…";});
   el.disabled=true;
@@ -6400,6 +6420,10 @@ async function saveSkippedMealChoice(slot,checked,checkbox){
  }finally{pendingMealRegistrations.delete(slot,slotLease);}
 }
 root.addEventListener("change",e=>{
+ if(e.target.matches('[data-reminder-enabled]')){
+  if(!e.target.checked)void handleMealReminderSettings(e.target,"disableMealReminder");
+  return;
+ }
  if(e.target.matches('[data-auto-template]')){
   refreshHabitualAutomationPreview(e.target.closest('[data-habitual-automation]'));
   return;

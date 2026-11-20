@@ -56,6 +56,19 @@ try{
  assert.deepEqual(await call(a,{action:'generate',requestId}),generated);
  const restored=await call(a,{action:'context'});assert.deepEqual(restored.latestPlan,generated);
  assert.equal(restored.intake.data.weight_kg,80);
+ // GoTrue generates the code locally, then a fresh client verifies it the same way as the app.
+ const {data:otp,error:otpError}=await admin.auth.admin.generateLink({type:'magiclink',email:a.email});
+ assert.equal(otpError,null);
+ assert.ok(otp.properties.email_otp);
+ const secondClient=createClient(url,env.ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+ const {data:secondLogin,error:secondError}=await secondClient.auth.verifyOtp({
+  type:'email',email:a.email,token:otp.properties.email_otp
+ });
+ assert.equal(secondError,null);
+ assert.equal(secondLogin.user.id,a.id);
+ assert.notEqual(secondLogin.session.access_token,a.token);
+ const secondSession={...a,token:secondLogin.session.access_token};
+ assert.deepEqual((await call(secondSession,{action:'context'})).latestPlan,generated);
  await call(a,{action:'context',userId:b.id},400);await call({...a,token:'invalid'},{action:'context'},401);
  await call(student,{action:'status'},403);
  for(const table of ['ncc_self_accounts','ncc_self_intakes','ncc_self_results','ncc_self_legal_receipts']){

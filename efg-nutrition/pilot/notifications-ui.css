@@ -98,3 +98,25 @@ html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .ncc-notify-bulk b
 .ncc-notify-bulk button:disabled{opacity:.55;cursor:default}
 .ncc-notify-bulk small{color:#c3cec6;font-size:11px;text-align:center}
 }
+
+/* In the wide touch layout, reserve a column for the inbox in the Mi Día
+   header so the button cannot obscure calorie or macro values while scrolling. */
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day>.ncc-day-welcome:has(>#efgNotifications:not([hidden])){
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) 48px;overflow:visible;
+}
+.ncc-day-welcome>#efgNotifications{
+ position:relative;inset:auto;grid-column:2;grid-row:1 / span 2;
+ align-self:start;justify-self:end;max-width:none;
+}
+.ncc-day-welcome>#efgNotifications .efg-notify-bell{
+ width:48px;height:48px;padding:0;
+}
+html.ncc-lime-theme .ncc-day-welcome>#efgNotifications .efg-notify-bell-svg{
+ width:29px;height:29px;fill:var(--ncc-lime,#b1c579)!important;
+}
+.ncc-day-welcome>#efgNotifications .efg-notify-popup{
+ top:calc(100% + 7px);width:min(365px,calc(100vw - 48px));max-height:60dvh;
+}
+
+body:has(#mealDialogContainer .meal-backdrop) .ncc-day-welcome>#efgNotifications{visibility:hidden}

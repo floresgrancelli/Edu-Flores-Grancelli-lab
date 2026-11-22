@@ -5,6 +5,7 @@ on:
     paths:
       - 'efg-nutrition/pilot/notifications-ui.*'
       - 'efg-nutrition/tests/notification-read-all-browser.mjs'
+      - 'efg-nutrition/tests/tablet-notification-bell-browser.mjs'
       - '.github/workflows/ncc-notification-read-all-qa.yml'
 permissions:
   contents: read
@@ -24,8 +25,15 @@ jobs:
       - run: node efg-nutrition/tests/notification-read-all-browser.mjs
         env:
           NCC_BROWSER: ${{ matrix.browser }}
+      - name: Full app tablet inbox layout (synthetic)
+        if: matrix.browser == 'chromium'
+        run: |
+          mkdir -p /workspace/ncc-bell-ci
+          NCC_BROWSER_PREVIEW_DIR=/workspace/ncc-bell-ci node efg-nutrition/tests/tablet-notification-bell-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: notification-read-all-${{ matrix.browser }}
-          path: artifacts/notification-read-all/
+          path: |
+            artifacts/notification-read-all/
+            artifacts/tablet-notification-bell/

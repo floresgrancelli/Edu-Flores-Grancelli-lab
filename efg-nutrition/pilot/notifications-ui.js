@@ -28,6 +28,14 @@ export function createNotificationInbox({sb,getUserId,navigate,validate=()=>{}})
  host.id="efgNotifications";host.className="efg-notifications";
  host.setAttribute("aria-label","Notificaciones de Nutrición Con-Ciencia");
  document.body.append(host);
+ // Wide touch layouts (sidebar) leave room in the Mi Día header, unlike phone headers.
+ const tabletLayout=window.matchMedia?.("(min-width: 761px) and (pointer: coarse)");
+ const positionHost=()=>{
+  const header=tabletLayout?.matches&&document.querySelector("#app .pilot-layout[data-ncc-background=day] .ncc-direct-day>.ncc-day-welcome");
+  const destination=header||document.body;
+  if(host.parentElement!==destination)destination.append(host);
+ };
+ tabletLayout?.addEventListener("change",positionHost);
  function filtersMarkup(){
   const unread=records.filter(n=>!n.is_read).length;
   return '<nav class="ncc-notify-filters" aria-label="Filtrar notificaciones">'+[["all","Todos",records.length],["unread","Sin leer",unread],["read","Leídos",records.length-unread]].map(([id,label,count])=>'<button type="button" data-efg-filter="'+id+'" aria-pressed="'+(filter===id)+'">'+label+' <span>'+count+'</span></button>').join("")+'</nav>'+bulkMarkup();
@@ -138,5 +146,5 @@ export function createNotificationInbox({sb,getUserId,navigate,validate=()=>{}})
  window.addEventListener("focus",()=>refresh());
  setInterval(()=>{if(!document.hidden&&getUserId())refresh();},25000);
  paint();
- return {refresh,repaint:paint};
+ return {refresh,repaint:paint,positionHost};
 }

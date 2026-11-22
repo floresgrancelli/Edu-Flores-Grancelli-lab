@@ -80,7 +80,7 @@ import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validat
 import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-whey-prefill-r1-20261115";
 import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-whey-prefill-r1-20261115";
 import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {createNotificationInbox,notificationDestination} from "./notifications-ui.js?v=ncc-notify-read-all-r1-20261114";
+import {createNotificationInbox,notificationDestination} from "./notifications-ui.js?v=ncc-tablet-bell-r1-20261122";
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createMessagesCenter} from "./messages-ui.js?v=ncc-notifications-r1-20261112";
 import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-micro-restaurants-r1-20261114";
@@ -1428,6 +1428,7 @@ function frame(content){
  '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>Nutrición Con-Ciencia</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span>'+settingsButtonHTML()+'<button type="button" class="efg-mobile-logout" data-act="logout" aria-label="Cerrar sesión de Nutrición Con-Ciencia">Salir</button></div></header><main class="pilot-main">'+professionalReleaseFrame.wrap(dualWorkspaceFrame.wrap(content))+'<div class="pilot-bottom">Nutrición Con-Ciencia · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
  dualWorkspaceFrame.mountFrame(root);
  professionalReleaseFrame.mountFrame(root);
+ inbox.positionHost();
  pilotGuideLifecycle.mountStudent(root);
  if(activityAtlasPreview()&&(!studentPlanPending()||studentPendingTabAllowed('sport'))){
   mountActivityReleaseNotice(root,{owner:state.session?.user?.id});

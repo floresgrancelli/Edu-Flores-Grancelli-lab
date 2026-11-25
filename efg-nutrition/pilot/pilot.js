@@ -115,7 +115,7 @@ import {readOwnSelfManagedPlan,selfManagementLink} from "./self-management-own-p
 import {MICRONUTRIENTS_ENABLED} from "./micronutrients-config.js?v=ncc-self-live-r1-20261113";
 import {MICRONUTRIENT_CATALOG} from "./micronutrient-expanded-catalog.js?v=ncc-micro-bulk169-r1-20261114";
 import {estimateDailyMicronutrients,micronutrientPeriod} from "./micronutrient-engine.js?v=ncc-micro-custom-drinks-r1-20261115";
-import {renderMicronutrients,renderMicronutrientPeriod} from "./micronutrient-view.js?v=ncc-micro-enriched-20261114";
+import {renderMicronutrients,renderMicronutrientPeriod} from "./micronutrient-view.js?v=ncc-fibra-r1-20261125";
 if(MICRONUTRIENTS_ENABLED){const link=document.createElement("link");link.rel="stylesheet";link.href="./micronutrients.css?v=ncc-micro-enriched-20261114";document.head.append(link);}
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";

@@ -3694,8 +3694,6 @@ function prepareGuideCatalogSwap(event){
  const select=event.target.closest?.('select[data-guidecatalogcurrent]');
  if(select&&select.dataset.guidecatalogloaded!=="1")fillGuideCatalogSwap(select);
 }
-root.addEventListener("focusin",prepareGuideCatalogSwap);
-root.addEventListener("pointerdown",prepareGuideCatalogSwap);
 function guidedDayContents(plan,goal,editable=false){
  const flexible=plan.kind==="flexible_meal_guide";
  const viewKey=[state.session?.user?.id||'',state.selectedStudent||'',editable?'edit':'view',goal?.id||''].join('|');
@@ -6549,6 +6547,8 @@ root.addEventListener("change",e=>{
   openMealDialog(e.target.value);
   if(foodId){pickMealSearchSuggestion(foodId);if(document.getElementById("mealEditorFood")?.value===foodId){document.getElementById("mealEditorQty").value=quantity;document.getElementById("mealEntryMode").value=mode;updateMealEntryMode(false);}}
  }if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];syncPlannerSearchActions(key);updatePlannerPreview();}if(e.target.dataset.skipmeal){saveSkippedMealChoice(e.target.dataset.skipmeal,e.target.checked,e.target).catch(fail);}});
+root.addEventListener("focusin",prepareGuideCatalogSwap);
+root.addEventListener("pointerdown",prepareGuideCatalogSwap);
 // Prevent Gboard IME input before compositionend from rebuilding native selects.
 const composingFoodSearchTargets=new WeakSet();
 root.addEventListener("compositionstart",event=>{

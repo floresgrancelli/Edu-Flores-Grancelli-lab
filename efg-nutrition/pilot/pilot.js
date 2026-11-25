@@ -157,6 +157,14 @@ const foods=[
  {id:"banana",name:"Banana cruda sin cáscara",unit:"g",k:.89,p:.0109,c:.2284,f:.0033,fi:.026,sourceType:"usda_fdc",sourceId:"173944",validationStatus:"tabla_referenciada",source:"USDA FoodData Central SR Legacy FDC 173944: banana cruda parte comestible sin cáscara, 100 g: 89 kcal, 1,09 g proteínas, 22,84 g hidratos totales, 0,33 g grasas y 2,6 g fibra. El tamaño y maduración modifican cantidades."},
  {id:"mandarin",name:"Mandarina",unit:"g",k:.53,p:.008,c:.133,f:.003,fi:.018,source:"Tabla genérica"},
  {id:"pumpkin",name:"Calabaza cocida",unit:"g",k:.34,p:.01,c:.08,f:.001,fi:.01,source:"Tabla genérica"},
+ {
+ id:"mix_verduras_cocidas_3",name:"Mix de verduras cocidas (zanahoria, zapallito y cebolla)",
+ category:"vegetable",unit:"g",k:0.3133,p:0.010867,c:0.0702,f:0.002433,fi:0.018,
+ sourceType:"recipe_estimate",sourceId:"mix-verduras-cocidas-partes-iguales",
+ sourceUrl:"https://www.ars.usda.gov/ARSUserFiles/80400535/Data/SR/SR28/reports/sr28fg11.pdf",
+ validationStatus:"receta_estimado",
+ source:"Estimación por 100 g cocidos y escurridos: zanahoria, zapallito y cebolla en partes iguales por peso cocido, sin aceite ni sal agregados. Promedio de USDA SR28 NDB 11125 (zanahoria), 11478 (zucchini usado como aproximación del zapallito) y 11283 (cebolla). El aceite se registra por separado."
+},
  {id:"rocket",name:"Rúcula",unit:"g",k:.25,p:.026,c:.037,f:.007,fi:.016,source:"Tabla genérica"}
 ].concat(EXTRA_FOODS);
 // Solo cambia modelos nutricionales de 4 tartas en memoria; nunca muta diarios guardados.

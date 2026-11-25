@@ -15,7 +15,8 @@ assert.equal(RESTAURANT_OFFICIAL.length,43);assert.equal(RESTAURANT_MODELS.lengt
 const big=by('rest_mc_big_mac');assert.equal(big.k*214,505);assert.equal(big.p*214,26);assert.notEqual(big.k,big.p*4+big.c*4+big.f*9);
 for(const [id,query] of [['rest_mc_big_mac','mc donalds'],['rest_bk_whopper','burguer king'],['rest_starbucks_latte','sturbucks'],['rest_sushiclub_phila','sushi club'],['rest_fabric_fabric','fabric'],['rest_ishidan_milanga','ishidan']])assert.ok(foodSearchText(by(id)).toLowerCase().includes(query));
 assert.equal(FOOD_UNIT_PORTIONS.rest_ishidan_phila.grams,30);assert.equal(by('rest_fabric_feel').recipeParts.sushi_philadelphia,undefined,'No rice proxy in a no-rice roll');
-assert.equal(Object.keys(exportGuideCatalog().foods).length,618,'Prescribed backend catalog remains unchanged');
+const guideFoods=exportGuideCatalog().foods;
+for(const food of rows)assert.equal(Object.hasOwn(guideFoods,food.id),false,'Restaurant food stays diary-only: '+food.id);
 console.log('PASS: 161 restaurant records, 15 chains, 43 official facts, explicit estimates, units and search');
 
 assert.equal(rows.filter(f=>f.comboPieces).length,9);for(const f of rows.filter(f=>f.comboPieces)){assert.match(FOOD_UNIT_PORTIONS[f.id].label,/combo de/);assert.ok(f.comboPieces>=10);assert.ok(f.k*f.servingGrams>200);}

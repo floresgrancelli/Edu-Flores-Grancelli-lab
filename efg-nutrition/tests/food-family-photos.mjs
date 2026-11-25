@@ -8,7 +8,7 @@ const html=f=>foodPhotoHTML(f,escapeHTML);
 const catalog=Object.values(JSON.parse(readFileSync(new URL('../catalog/guide-catalog.json',import.meta.url))).foods);
 assert.ok(catalog.length>=560);
 const baseline=JSON.parse(readFileSync(new URL('../docs/food-thumbnails-20261113/baseline-photo-map.json',import.meta.url)));
-const pendingPhotos=new Set(['chinchulines_grilled','kidney_beef_grilled','sweetbreads_beef_grilled','morcilla_vasca_estimate']);
+const pendingPhotos=new Set(['chinchulines_grilled','kidney_beef_grilled','sweetbreads_beef_grilled','morcilla_vasca_estimate','mix_verduras_cocidas_3']);
 assert.deepEqual(Object.keys(FOOD_PHOTO_MAP).sort(),catalog.filter(f=>!pendingPhotos.has(f.id)).map(f=>f.id).sort());
 for(const [id,photo] of Object.entries(baseline))assert.deepEqual(FOOD_PHOTO_MAP[id],photo,'Preserved approved photo: '+id);
 const assets=new Set();

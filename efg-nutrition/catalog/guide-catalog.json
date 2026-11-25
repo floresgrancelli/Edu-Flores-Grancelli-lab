@@ -1,6 +1,6 @@
 {
-  "version": "ncc-catalog-34d306f35d40427f",
-  "sha256": "34d306f35d40427f33cfff7ceb1827d372640000d65d82bea56f7a03ed0eae5c",
+  "version": "ncc-catalog-391e0a02eb5e5420",
+  "sha256": "391e0a02eb5e5420fa6836290df26e48b31b7a8a6a185ea8cb0660e6b10cce63",
   "foods": {
     "abadejo_cocido": {
       "id": "abadejo_cocido",
@@ -5392,6 +5392,22 @@
       "sourceUrl": "",
       "validationStatus": "generico_pendiente",
       "source": "Infusión sin azúcar; café con leche y similares requieren personalizar cantidad y tipo de leche.",
+      "dataQuality": "estimated"
+    },
+    "mix_verduras_cocidas_3": {
+      "id": "mix_verduras_cocidas_3",
+      "name": "Mix de verduras cocidas (zanahoria, zapallito y cebolla)",
+      "unit": "g",
+      "k": 0.3133,
+      "p": 0.010867,
+      "c": 0.0702,
+      "f": 0.002433,
+      "fi": 0.018,
+      "sourceType": "recipe_estimate",
+      "sourceId": "mix-verduras-cocidas-partes-iguales",
+      "sourceUrl": "https://www.ars.usda.gov/ARSUserFiles/80400535/Data/SR/SR28/reports/sr28fg11.pdf",
+      "validationStatus": "receta_estimado",
+      "source": "Estimación por 100 g cocidos y escurridos: zanahoria, zapallito y cebolla en partes iguales por peso cocido, sin aceite ni sal agregados. Promedio de USDA SR28 NDB 11125 (zanahoria), 11478 (zucchini usado como aproximación del zapallito) y 11283 (cebolla). El aceite se registra por separado.",
       "dataQuality": "estimated"
     },
     "mixed_nuts": {

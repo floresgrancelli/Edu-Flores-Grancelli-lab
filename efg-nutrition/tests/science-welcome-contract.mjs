@@ -170,6 +170,8 @@ assert.match(pilot,/if\(state\.welcomePending\)return welcomeView\(\);/);
 console.log("PASS P26M: eight illustrated topics, Conclusions #8 and watercolor serotonin closing #9; nine shared panels, receipts and safe navigation. OFFLINE ONLY.");
 
 
-assert.equal((vertical.match(/class="ns-topic"/g)||[]).length,10);
+assert.equal((vertical.match(/class="ns-topic"/g)||[]).length,11);
 assert.doesNotMatch(vertical,/<details[^>]* open/);
 for(const panel of panels.slice(1))assert.ok(vertical.includes(panel),"Original scientific panel retained verbatim");
+
+assert.ok(vertical.includes('Fibra y microbiota') && vertical.includes('https://pubmed.ncbi.nlm.nih.gov/29757343/'));

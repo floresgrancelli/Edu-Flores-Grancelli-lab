@@ -36,13 +36,13 @@ try{for(const engine of ['chromium','webkit']){
  await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
  await page.evaluate(async role=>{const v=window.__NCC_R4_FULLAPP__;v.state.profile.role=role;v.state.tab='nutritionScience';await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;},role);
  const before=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
- const topics=page.locator('.ns-topic');assert.equal(await topics.count(),10);
+ const topics=page.locator('.ns-topic');assert.equal(await topics.count(),11);
  assert.equal(await page.locator('.ns-topic[open]').count(),0);
  await page.locator('.ns-topic>summary img').evaluateAll(imgs=>Promise.all(imgs.map(i=>i.decode())));
  assert.ok(await page.locator('.ns-topic>summary img').evaluateAll(imgs=>imgs.every(i=>i.naturalWidth>0)));
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-compact.png'),fullPage:true});
- for(let i=0;i<10;i++){
+ for(let i=0;i<11;i++){
  const summary=topics.nth(i).locator(':scope > summary');await summary.focus();await page.keyboard.press('Enter');
  assert.equal(await topics.nth(i).getAttribute('open')!==null,true,'Topic opens with keyboard');
  assert.equal(await page.locator('.ns-topic[open]').count(),1,'Only selected topic remains expanded');
@@ -54,7 +54,7 @@ try{for(const engine of ['chromium','webkit']){
  await topics.nth(8).locator(':scope > summary').click();
  const faq=page.locator('.ns-faq details').first();await faq.locator('summary').click();assert.equal(await faq.getAttribute('open')!==null,true);
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before);
- assert.deepEqual(errors,[]);evidence.push({engine,width,role,topics:10,photos:true,keyboard:true,exclusiveExpansion:true,faq:true,noOverflow:true,diaryUnchanged:true});await context.close();
+ assert.deepEqual(errors,[]);evidence.push({engine,width,role,topics:11,photos:true,keyboard:true,exclusiveExpansion:true,faq:true,noOverflow:true,diaryUnchanged:true});await context.close();
  }}finally{await browser.close();}
 }writeFileSync(resolve(out,'result.json'),JSON.stringify(evidence,null,2));console.log('PASS science library',evidence.length);
 }finally{server.close();}

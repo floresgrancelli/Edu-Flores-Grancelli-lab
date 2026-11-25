@@ -25,12 +25,21 @@ function dailyRows(model){
   (n.contributors.length?'<details class="ncc-micro-sources"><summary>Alimentos que aportaron</summary><ul>'+n.contributors.map(c=>'<li><span>'+esc(c.name)+'</span><strong>'+amount(n,c.value)+'</strong></li>').join('')+'</ul>'+n.contributors.filter(c=>c.mappingNote).map(c=>'<details><summary>Estimación de '+esc(c.name)+'</summary><p>'+esc(c.mappingNote)+'</p></details>').join('')+'</details>':'')+
   '<a class="ncc-micro-reference" href="'+esc(n.reference.sourceUrl||'https://ods.od.nih.gov/factsheets/'+encodeURIComponent(n.source)+'-HealthProfessional/')+'" target="_blank" rel="noopener noreferrer">Referencia '+esc(n.reference.sourceLabel||'NIH/ODS')+' ↗</a></article>').join('');
 }
-export function renderMicronutrients(model,{expanded=false}={}){
+function fiberRow(total,goal){
+ if(!Number.isFinite(total)||total<0)return '';
+ const target=Number.isFinite(goal)&&goal>0?goal:null;
+ const percent=target===null?null:100*total/target;
+ const track=bar({name:'Fibra',unit:'g',total,food:total,percent,reference:{value:target}});
+ return '<div class="ncc-micro-row" data-nutrient="fiber"><span class="ncc-micro-label">Fibra</span>'+track+
+  '<span class="ncc-micro-value">'+fmt(total,1)+(target===null?'':' / '+fmt(target,1))+' g</span>'+
+  '<span class="ncc-micro-progress">'+(target===null?'Sin meta diaria':fmt(percent)+' % de tu meta')+'</span></div>';
+}
+export function renderMicronutrients(model,{expanded=false,fiberTotal,fiberGoal}={}){
  if(!model?.nutrients)return '';
  const order=['magnesium','calcium','iron','zinc','b12','ala','epa_dha'];
  const preview=order.map(id=>model.nutrients.find(n=>n.id===id)).filter(Boolean);
  const summary='<div class="ncc-micro-rows">'+preview.map(n=>'<div class="ncc-micro-row" data-micronutrient="'+n.id+'" title="'+esc(n.name+(n.partial?' · estimación parcial':''))+'"><span class="ncc-micro-label">'+esc(n.id==='ala'?'Omega-3 ALA':n.id==='epa_dha'?'EPA + DHA':n.name)+'</span>'+bar(n)+'<span class="ncc-micro-value">'+
-  (n.total===null?'Sin datos':(n.partial?'≥ ':'')+fmt(n.total,digits(n.id)))+(n.reference.value!==null?' / '+fmt(n.reference.value,digits(n.id)):'')+' '+n.unit+'</span><span class="ncc-micro-progress">'+(Number.isFinite(n.percent)?(n.partial?'≥ ':'')+fmt(n.percent,0)+' %'+(n.partial?' · parcial':''):n.total===null?'Aporte sin datos':'Sin referencia')+'</span></div>').join('')+'</div>';
+  (n.total===null?'Sin datos':(n.partial?'≥ ':'')+fmt(n.total,digits(n.id)))+(n.reference.value!==null?' / '+fmt(n.reference.value,digits(n.id)):'')+' '+n.unit+'</span><span class="ncc-micro-progress">'+(Number.isFinite(n.percent)?(n.partial?'≥ ':'')+fmt(n.percent,0)+' %'+(n.partial?' · parcial':''):n.total===null?'Aporte sin datos':'Sin referencia')+'</span></div>').join('')+fiberRow(fiberTotal,fiberGoal)+'</div>';
  const detail=dailyRows(model);
  const referenceLabel=model.referenceMode==='general'?'Referencia diaria general':model.nutrients.some(n=>n.reference.value!==null)?'Estimados':'Estimados · sin referencia';
  return '<section class="ncc-micronutrients" aria-label="Micronutrientes estimados"><header><h2>Micronutrientes</h2><span class="ncc-micro-badge">'+referenceLabel+'</span></header>'+summary+

@@ -50,6 +50,18 @@ export function sciencePanels(){
   section(page,"ns-myth"),meals,conclusions,renderScienceWellbeingPanel()
  ];
 }
+const fiberTopic = `<section aria-label="Fibra y microbiota intestinal">
+ <h2>¿Qué pasa con la fibra en el intestino?</h2>
+ <p>Parte de la fibra llega al colon, donde las bacterias pueden fermentarla. Así producen ácidos grasos de cadena corta, como el butirato, que sirve de combustible a las células que recubren el colon.</p>
+ <p>En ensayos con adultos sanos, algunas fibras, especialmente los fructanos y los galactooligosacáridos, favorecieron el crecimiento de bifidobacterias. El efecto depende del tipo de fibra. En esos ensayos, aumentar la fibra no produjo un aumento uniforme de la diversidad bacteriana.</p>
+ <p><a href="https://pubmed.ncbi.nlm.nih.gov/29757343/" target="_blank" rel="noopener noreferrer">Leer la revisión de ensayos en humanos · So y cols., 2018</a></p>
+ <h3>¿Qué alimentos podés sumar?</h3>
+ <p>La OMS recomienda obtener la fibra de alimentos como legumbres, cereales integrales, verduras y frutas. Para adultos, su referencia general es de al menos 25 g diarios de fibra naturalmente presente en alimentos.</p>
+ <ul><li><strong>Desayuno o merienda.</strong> Sumá avena al yogur y acompañalo con una pera o una manzana entera.</li>
+ <li><strong>Almuerzo.</strong> Agregá lentejas, garbanzos o porotos a una ensalada o un guiso.</li>
+ <li><strong>Cena.</strong> Combiná arroz integral con verduras, como brócoli o zanahoria.</li></ul>
+ <p><a href="https://www.who.int/publications/i/item/9789240073593" target="_blank" rel="noopener noreferrer">Consultar la guía de la OMS sobre hidratos y fibra · 2023</a></p>
+ </section>`;
 const libraryTopics=[
  ["Energía y calorías","Entendé lo básico","guide/oats-r1.webp"],
  ["Los tres macronutrientes","Cada uno tiene su función","guide/eggs-r1.webp"],
@@ -60,13 +72,14 @@ const libraryTopics=[
  ["Lo esencial para recordar","Las ideas que te acompañan","guide/oats-r1.webp"],
  ["Nutrición y bienestar","Nuestra filosofía","serotonina-acuarela.avif"],
  ["Preguntas frecuentes","Respuestas cortas y claras","guide/eggs-r1.webp"],
- ["Fuentes científicas","Consultá la evidencia original","serotonina-acuarela.avif"]
+ ["Fuentes científicas","Consultá la evidencia original","serotonina-acuarela.avif"],
+ ["Fibra y microbiota","Cómo alimentar a tus bacterias intestinales","guide/oats-r1.webp"]
 ];
 export function renderScienceVerticalView(){
  const page=renderNutritionScienceView(),panels=sciencePanels();
- const contents=panels.slice(1).concat([section(page,"ns-faq"),section(page,"ns-sources")]);
+ const contents=panels.slice(1).concat([section(page,"ns-faq"),section(page,"ns-sources"),fiberTopic]);
  return '<div class="ns-science ns-science-library" aria-label="Nutrición Con-Ciencia · biblioteca por temas">'+
- '<div class="ns-library-panel ns-library-heading" data-science-step="1"><span class="ns-eyebrow">CONOCIMIENTO PARA TU DÍA</span><h1>Ciencia, a tu ritmo.</h1><p>Elegí un tema y desplegalo para leer. Pequeñas ideas para entender tu alimentación.</p><span class="ns-library-count">10 temas · Siempre a mano</span></div>'+
+ '<div class="ns-library-panel ns-library-heading" data-science-step="1"><span class="ns-eyebrow">CONOCIMIENTO PARA TU DÍA</span><h1>Ciencia, a tu ritmo.</h1><p>Elegí un tema y desplegalo para leer. Pequeñas ideas para entender tu alimentación.</p><span class="ns-library-count">'+libraryTopics.length+' temas · Siempre a mano</span></div>'+
  '<div class="ns-topic-list">'+contents.map((content,i)=>{
  const [title,subtitle,asset]=libraryTopics[i];
  return '<details class="ns-topic" name="ncc-science-topic"><summary><img src="./assets/'+asset+'" alt="" width="64" height="64" decoding="async"><span class="ns-topic-label"><strong>'+title+'</strong><small>'+subtitle+'</small></span><span class="ns-topic-toggle" aria-hidden="true"><span class="ns-topic-read">Leer</span><span class="ns-topic-close">Cerrar</span><b>⌄</b></span></summary><div class="ns-topic-content">'+

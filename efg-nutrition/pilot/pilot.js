@@ -5292,9 +5292,6 @@ async function showProof(path){
  if(r.error)throw r.error;
  window.open(r.data.signedUrl,"_blank","noopener,noreferrer");
 }
-function confirmStudentFollowupConsent(){
- return window.confirm("¿Autorizás expresamente que tu coach asignado consulte tus registros de alimentación, peso, actividad y suplementos para tu seguimiento? Podés retirar el permiso cuando quieras.");
-}
 async function writeStudentFollowupConsent(id,accepted){
  const {data,error}=await sb.from("efg_consents").update({
   accepted,email_report_opt_in:false,updated_at:new Date().toISOString()
@@ -6123,7 +6120,7 @@ if(el.dataset.foodbulk){
    state.profile?.role!=="student"||!["intake","private","review","ready"].includes(state.coachPilotEntry?.route))return;
   const id=state.session?.user?.id,epoch=state.authContextEpoch||0;
   const current=()=>id&&state.session?.user?.id===id&&(state.authContextEpoch||0)===epoch&&form.isConnected;
-  if(!current()||!confirmStudentFollowupConsent())return;
+  if(!current()||!window.confirm("¿Autorizás expresamente que tu coach asignado consulte tus registros de alimentación, peso, actividad y suplementos para tu seguimiento? Podés retirar el permiso cuando quieras."))return;
   el.disabled=true;
   try{
    const verified=await sb.auth.getUser();
@@ -6148,8 +6145,12 @@ if(el.dataset.foodbulk){
  if(action==="revokeConsent"||action==="grantConsent"){
  const accepted=action==="grantConsent";
  if(state.profile?.role!=="student"||!state.consent)throw Error("Permiso de seguimiento exclusivo del alumno.");
- if(accepted&&!confirmStudentFollowupConsent())return;
- state.consent=await writeStudentFollowupConsent(state.session.user.id,accepted);await render();
+ if(accepted&&!window.confirm("¿Autorizás expresamente que tu coach asignado consulte tus registros de alimentación, peso, actividad y suplementos para tu seguimiento? Podés retirar el permiso cuando quieras."))return;
+ const {data,error}=await sb.from("efg_consents").update({
+  accepted,email_report_opt_in:false,updated_at:new Date().toISOString()
+ }).eq("student_id",state.session.user.id).select().single();
+ if(error)throw error;
+ state.consent=data;await render();
  notify(!accepted?"Permisos revocados.":"Seguimiento autorizado dentro de Nutrición Con-Ciencia.");
  return;
 }

@@ -115,7 +115,7 @@ import {readOwnSelfManagedPlan,selfManagementLink} from "./self-management-own-p
 import {MICRONUTRIENTS_ENABLED} from "./micronutrients-config.js?v=ncc-self-live-r1-20261113";
 import {MICRONUTRIENT_CATALOG} from "./micronutrient-expanded-catalog.js?v=ncc-micro-bulk169-r1-20261114";
 import {estimateDailyMicronutrients,micronutrientPeriod} from "./micronutrient-engine.js?v=ncc-micro-custom-drinks-r1-20261115";
-import {renderMicronutrients,renderMicronutrientPeriod} from "./micronutrient-view.js?v=ncc-fibra-r1-20261125";
+import {renderMicronutrients,renderMicronutrientPeriod} from "./micronutrient-view.js?v=ncc-detalle-fibra-r1-20261125";
 if(MICRONUTRIENTS_ENABLED){const link=document.createElement("link");link.rel="stylesheet";link.href="./micronutrients.css?v=ncc-micro-enriched-20261114";document.head.append(link);}
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -743,7 +743,8 @@ async function refreshFoodCompatibilityEvidence(){
 const studentPlanPending=()=>coachIntakeFlow.pending();
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.",{kind:"error"});};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
-const dailyTotals=(diary)=>values([...(Object.entries(diary?.meals||{}).filter(([slot])=>!diary?.skipped?.[slot]).flatMap(([,items])=>items||[])),...(diary?.sports||[])]);
+const consumedEntries=(diary)=>[...(Object.entries(diary?.meals||{}).filter(([slot])=>!diary?.skipped?.[slot]).flatMap(([,items])=>items||[])),...(diary?.sports||[])];
+const dailyTotals=(diary)=>values(consumedEntries(diary));
 const blankDiary=()=>({student_id:state.session.user.id,log_day:today(),meals:structuredClone(mealDefault),sports:[],skipped:{},totals:{}});
 // Keep the first, not-yet-persisted day's diary as a stable draft. Previously
 // activeDiary() returned a NEW blank object on each call: the first food was
@@ -2144,7 +2145,7 @@ function openMealReminderFromUrl(){
  state.tab="home";
 }
 function homeView(){
- let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
+ const d=activeDiary(),entries=consumedEntries(d),tot=values(entries),goal=activeGoal();
  const motivation=motivationOfTheDay();
  // El coach/admin puede utilizar sus propios gráficos semanales con la meta
  // personal. Jamás se lee un alumno aquí ni se inventan metas históricas.
@@ -2198,7 +2199,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  toolPanel('nccDayBalance','Balance restante',balance)+
  '<button type="button" data-tab="supplements">Suplementos <span aria-hidden="true">›</span></button><button type="button" data-tab="recipes">Mis recetas <span aria-hidden="true">›</span></button><button type="button" data-tab="summaries">Informes <span aria-hidden="true">›</span></button>'+
  toolPanel('nccDayWeekly','Resumen semanal',weeklyPanel)+toolPanel('nccDayMessage','Mensaje del día',dayMessage)+toolPanel('nccDayGoals','Mis objetivos personales',goalForm)+'</div></details>';
-  return '<div class="ncc-direct-day"><header class="ncc-day-welcome"><h1>Mi Día</h1><time datetime="'+today()+'">Hoy, '+new Intl.DateTimeFormat('es-AR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(today()+'T12:00:00Z'))+'</time></header>'+compactDaySummary(tot,goal,d,mealSlots)+(MICRONUTRIENTS_ENABLED?renderMicronutrients(estimateDailyMicronutrients({diary:d,referenceMode:"general",catalog:MICRONUTRIENT_CATALOG}),{fiberTotal:tot.fi,fiberGoal:goal?.fi}):"")+(ownSelfManagement()?'<section class="ncc-self-day-link">'+(ownSelfManagement().error?'<p role="status">No pudimos verificar tu guía automática. Reintentá antes de usar sus metas.</p>':ownSelfManagement().pending?'<p role="status">Completá o revisá tu ficha y generá tu guía.</p>':'')+selfManagementLink()+'</section>':'')+
+  return '<div class="ncc-direct-day"><header class="ncc-day-welcome"><h1>Mi Día</h1><time datetime="'+today()+'">Hoy, '+new Intl.DateTimeFormat('es-AR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(today()+'T12:00:00Z'))+'</time></header>'+compactDaySummary(tot,goal,d,mealSlots)+(MICRONUTRIENTS_ENABLED?renderMicronutrients(estimateDailyMicronutrients({diary:d,referenceMode:"general",catalog:MICRONUTRIENT_CATALOG}),{fiberTotal:tot.fi,fiberGoal:goal?.fi,fiberEntries:entries}):"")+(ownSelfManagement()?'<section class="ncc-self-day-link">'+(ownSelfManagement().error?'<p role="status">No pudimos verificar tu guía automática. Reintentá antes de usar sus metas.</p>':ownSelfManagement().pending?'<p role="status">Completá o revisá tu ficha y generá tu guía.</p>':'')+selfManagementLink()+'</section>':'')+
  '<button type="button" class="btn small light ncc-day-plan-shortcut" data-tab="planner" data-plan-direct="true" style="width:100%;margin:0 0 12px;display:flex;align-items:center;justify-content:center;gap:8px"><span aria-hidden="true" style="display:inline-flex;gap:2px;flex:none">'+['merienda','almuerzo'].map(slot=>dayMealIcon(slot).replace('<svg ','<svg width="18" height="18" style="width:18px;height:18px;flex:none" ')).join('')+'</span><span>Planificar merienda / cena <span aria-hidden="true">→</span></span></button>'+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  (state.profile.role==="student"&&state.foodPlan?.guided_plan?'<details class="efg-pastel-guide" id="nccStudentDayGuide"><summary>📋 Ver mi Dieta Guía</summary>'+studentGuidedSection()+'</details>':'')+

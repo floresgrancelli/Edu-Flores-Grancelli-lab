@@ -148,3 +148,16 @@
 html.ncc-lime-theme #app .ns-science-library .ns-library-heading{max-width:none;background:linear-gradient(115deg,#172826e8,#25212cd9)!important;border:1px solid #415047!important;border-radius:20px;padding:20px;margin:0 0 16px}
 html.ncc-lime-theme #app .ns-library-heading .ns-eyebrow{background:transparent!important;color:#b1c579!important;font-size:11px;letter-spacing:.1em}
 }
+
+@layer ncc-palette {
+ html.ncc-lime-theme #app .ns-science-library a:is([href^="https://"],[href^="http://"]){
+  color:#8bd5ff!important;
+  text-decoration:underline!important;
+  text-underline-offset:.18em;
+  text-decoration-thickness:.1em;
+ }
+ html.ncc-lime-theme #app .ns-science-library a:focus-visible{
+  outline:2px solid currentColor;
+  outline-offset:3px;
+ }
+}

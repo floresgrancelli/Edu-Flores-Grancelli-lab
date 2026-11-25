@@ -46,7 +46,7 @@ try{for(const engine of ['chromium','webkit']){
   assert.equal(await block.locator('.ncc-micro-food').count(),0);assert.ok((await block.textContent()).includes('sin referencia'));
   const backgrounds=await block.locator('.ncc-micro-track').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).backgroundImage));assert.ok(backgrounds.every(x=>x.includes('gradient')));
   await block.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-barras-sin-referencia.png')});
-  await block.locator('.ncc-micro-expand > summary').click();assert.equal(await block.locator('[data-micro-detail]').count(),7);
+  await block.locator('.ncc-micro-expand > summary').click();assert.equal(await block.locator('[data-micro-detail]').count(),8);
   await block.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-detalle.png')});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),saved);
  }

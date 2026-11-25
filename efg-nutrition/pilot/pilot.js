@@ -49,7 +49,7 @@ import {studentDayWelcome,studentDayDashboard,compactDaySummary} from "./student
 import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-mix-verduras-cocidas-r1-20261125";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-micro-restaurants-r1-20261114";
 import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -135,6 +135,14 @@ const RAW_STATE_FOODS=[
 ];
 const sportTimes=[["pre","Preentrenamiento"],["during","Durante el entrenamiento"],["post","Postentrenamiento"],["morning","Media mañana"],["afternoon","Media tarde"],["other","Otro momento"]];
 const foods=[
+ {
+ id:"mix_verduras_cocidas_3",name:"Mix de verduras cocidas (zanahoria, zapallito y cebolla)",
+ category:"vegetable",unit:"g",k:0.3133,p:0.010867,c:0.0702,f:0.002433,fi:0.018,
+ sourceType:"recipe_estimate",sourceId:"mix-verduras-cocidas-partes-iguales",
+ sourceUrl:"https://www.ars.usda.gov/ARSUserFiles/80400535/Data/SR/SR28/reports/sr28fg11.pdf",
+ validationStatus:"receta_estimado",
+ source:"Estimación por 100 g cocidos y escurridos: zanahoria, zapallito y cebolla en partes iguales por peso cocido, sin aceite ni sal agregados. Promedio de USDA SR28 NDB 11125 (zanahoria), 11478 (zucchini usado como aproximación del zapallito) y 11283 (cebolla). El aceite se registra por separado."
+},
  {id:"egg",name:"Huevo entero sin cáscara (referencia crudo)",unit:"g",k:1.48,p:.124,c:.0096,f:.0996,fi:0,source:"USDA FoodData Central Foundation Foods (04/2026), FDC 748967: huevo entero grado A grande, sin cáscara, referencia sin cocción. Valores por 100 g: 148 kcal; proteínas 12,4 g; hidratos totales 0,96 g; grasas 9,96 g. No sumar aceite de cocción; registrarlo aparte.",sourceType:"usda_fdc",sourceId:"748967",validationStatus:"tabla_referenciada"},
  {id:"chicken",name:"Pollo cocido sin piel (estimación general)",unit:"g",k:1.65,p:.31,c:0,f:.036,fi:0,source:"Promedio genérico por 100 g, corte y método no especificados: usar la ficha de pechuga/muslo cuando se conozcan los detalles."},
  {id:"beef",name:"Carne vacuna magra cocida",unit:"g",k:2.10,p:.29,c:0,f:.09,fi:0,source:"Promedio"},

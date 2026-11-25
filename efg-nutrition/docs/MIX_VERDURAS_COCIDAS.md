@@ -1,0 +1,4 @@
+# Mix de verduras cocidas
+Entrada genérica por gramos de alimento cocido y escurrido. Fórmula: un tercio de zanahoria, un tercio de zapallito y un tercio de cebolla por peso cocido. Sin sal ni aceite agregado. Si se utiliza aceite, registrar aparte.
+
+La estimación de 100 g equivale a 31,33 kcal, 1,09 g de proteína, 7,02 g de hidratos totales, 0,24 g de grasas y 1,80 g de fibra. El zucchini con piel cocido sirve como aproximación del zapallito; no es un análisis de un cultivar argentino ni de un plato particular. Se usan las referencias 11125, 11478 y 11283 de [USDA SR28, Vegetables and Vegetable Products](https://www.ars.usda.gov/ARSUserFiles/80400535/Data/SR/SR28/reports/sr28fg11.pdf). El catálogo y snapshot de esta rama incluyen el registro. Esta rama no aplica cambios al catálogo servido por la base remota.

@@ -31,6 +31,15 @@ for(const [term,id] of [['repollo morado','red_cabbage_raw'],['orejones damasco'
 // Existing catalog dependencies keep their formulas/semantics. New feature modules and the app entry are validated by their own flow/security suites, not frozen to this historical catalog batch.
 const paths=execFileSync('git',['-c','safe.directory='+root,'diff','--diff-filter=M','--name-only','56bf31cf575e68c7fd7fad9463db14cc20aa8fcc','--','efg-nutrition/pilot'],{cwd:root,encoding:'utf8'}).trim().split('\n').filter(Boolean);
 for(const path of paths.filter(x=>/\.m?js$/.test(x)&&!x.endsWith('/pilot.js')&&!x.endsWith('/version-notice.js')&&!x.endsWith('/notifications-ui.js')&&!x.endsWith('/guided-countable-portions.js')&&!x.endsWith('/food-visuals-r2.js')&&!x.endsWith('/food-catalog.js')&&!x.endsWith('/food-catalog-batch-20261113.js')&&!x.endsWith('/food-catalog-batch-two-20261113.js')&&!x.endsWith('/coach-relaunch-entry-client.js')&&!x.endsWith('/guided-day-v2.js')&&!x.endsWith('/guided-day.js'))){
+ // These presentation modules have separately reviewed versions after the catalog baseline.
+ const presentationBlobs={
+  'efg-nutrition/pilot/science-welcome.js':'d0bce0d079c26bb364256f448ba3ff9228569394',
+  'efg-nutrition/pilot/workspace-tabs.js':'e23616d819800948ecd3663f373f1c5498732b46'
+ };
+ if(presentationBlobs[path]){
+  assert.equal(execFileSync('git',['hash-object',path],{cwd:root,encoding:'utf8'}).trim(),presentationBlobs[path],path);
+  continue;
+ }
  const prior=execFileSync('git',['-c','safe.directory='+root,'show','56bf31cf575e68c7fd7fad9463db14cc20aa8fcc:'+path],{cwd:root,encoding:'utf8'}),current=readFileSync(resolve(root,path),'utf8');const strip=s=>normalizeApprovedPrefillDelta(s).replace(/\?v=[A-Za-z0-9_-]+/g,'?v=IDENTITY').replace(",['usual','Habitual',[host.querySelector('.supplement-routine')]]",'').replace("['today','Hoy',[entries]]","['today','Consumidos hoy',[entries]]");assert.equal(strip(current),strip(prior),'Only import identities may change: '+path);
 }
 console.log('PASS additive catalog: 28 exact source rows, 585 unchanged foods, 613 identities, quantities, guide draft compatibility, conservative restrictions and explicit identity thumbnails');

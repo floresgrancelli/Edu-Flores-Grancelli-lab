@@ -41,7 +41,7 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
   v.coachDraftClient.save=async payload=>{window.trace.saves++;await new Promise(r=>setTimeout(r,50));if(window.trace.failSave)throw Error('Fallo sintético de guardado');window.saved={student_id:s.selectedStudent,status:'draft',draft_revision:window.trace.saves,source_intake_updated_at:'2026-11-04',source_intake_revision:1,goal_proposal:payload.goal,guide_proposal:payload.guide};return {revision:window.trace.saves};};
   v.coachDraftClient.load=async()=>structuredClone(window.saved);
   v.coachDraftClient.publish=async payload=>{window.trace.publishes++;window.trace.keys.push(payload.requestId);await new Promise(r=>setTimeout(r,60));throw Error('Guide foods are not independently reviewed and current');};
-  v.frame(v.coachGuidedSection()+v.coachAtomicDraftPanel());
+  v.frame('<section class="ncc-plan-journey"><nav class="ncc-plan-steps" aria-label="Pasos de prueba">Pasos</nav>'+v.coachGuidedSection()+'<div class="ncc-plan-step-actions">Acciones de prueba</div></section>'+v.coachAtomicDraftPanel());
  },role);
  const lunch=page.locator('[data-guidecard="almuerzo"]');
  await page.locator('[data-guidejump="almuerzo"]').click();
@@ -61,20 +61,31 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  assert.equal(await lunch.locator('summary').filter({hasText:/Editar|reemplazar/i}).count(),0);
  const swap=lunch.locator('[data-guideswap="almuerzo:0"]');
  const search=swap.locator('xpath=ancestor::*[@data-guidecatalogrow]').locator('[data-guidecatalogsearch]');
+ const matches=swap.locator('xpath=ancestor::*[@data-guidecatalogrow]').locator('[data-guidecatalogresults]');
+ const sticky=page.locator('.ncc-plan-journey .ncc-plan-steps');
+ assert.equal(await sticky.evaluate(el=>getComputedStyle(el).position),'sticky');
+ await search.focus();
+ assert.equal(await search.evaluate(el=>getComputedStyle(el).textAlign),'left');
+ assert.equal(await sticky.evaluate(el=>getComputedStyle(el).position),width<720?'static':'sticky');
  await search.fill('xyz-sin-coincidencias');assert.equal(await swap.locator('option').count(),1);
  assert.equal(await swap.locator('option').first().textContent(),'Sin coincidencias');
+ assert.match(await matches.textContent(),/No encontré alimentos/);
  await search.fill('póllo');assert.equal(await swap.locator('option[value="chicken"]').count(),1);
  assert.equal(await swap.locator('option[value="brownrice"]').count(),0);
  const review=()=>page.evaluate(()=>window.__GUIDE_QA__.state.coachGuidedDraft.meals.find(x=>x.slot==='almuerzo').items.map(f=>f.id));
  assert.deepEqual(await review(),['egg','brownrice','pumpkin']);
  await search.fill('');
+ assert.equal(await matches.isVisible(),false);
  const fieldSize=await swap.boundingBox();assert.ok(fieldSize&&fieldSize.width>=80&&fieldSize.height>=44);
  if(role==='coach'&&width===390){
   await swap.evaluate(el=>el.scrollIntoView({block:'center',behavior:'instant'}));
   await page.screenshot({path:resolve(out,`inline-${engine}-${role}-${width}.png`)});
  }
  page.on('dialog',d=>d.accept());
- await swap.selectOption('chicken');
+ await search.fill('Pollo');
+ const result=matches.locator('[data-guidecatalogpick="chicken"]');
+ assert.equal(await result.isVisible(),true,'Pollo is visible directly after typing, no native menu required');
+ await result.click();
  await page.waitForFunction(()=>window.__GUIDE_QA__.state.coachGuidedDraft.meals.find(m=>m.slot==='almuerzo').items[0].id==='chicken',null,{timeout:8000});
  assert.deepEqual(await review(),['chicken','brownrice','pumpkin']);
  assert.equal(await page.evaluate(()=>window.trace.publishes+window.trace.saves),0);

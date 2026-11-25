@@ -3697,6 +3697,18 @@ function fillGuideCatalogSwap(select,query=""){
   }).join("");
  select.value=[...select.options].some(x=>x.value===current)?current:"";
  select.dataset.guidecatalogloaded="1";
+ const results=select.closest("[data-guidecatalogrow]")?.querySelector("[data-guidecatalogresults]");
+ if(!results)return;
+ results.hidden=!words.length;
+ if(!words.length){results.replaceChildren();return;}
+ const matches=buckets.flatMap(([key])=>grouped.get(key)||[]);
+ // Promote options whose actual names start with the query, ahead of alias-only matches.
+ const prefix=words.join(" ");
+ matches.sort((a,b)=>Number(!plannerNormalizeQuery(a.name).startsWith(prefix))-Number(!plannerNormalizeQuery(b.name).startsWith(prefix)));
+ const hint=matches.length?(matches.length>8?'Primeras 8 de '+matches.length+' opciones. El desplegable muestra todas.':matches.length+' '+(matches.length===1?'opción':'opciones')+' encontradas.'):
+  "No encontré alimentos con esa búsqueda.";
+ results.innerHTML='<p class="pilot-hint" role="status">'+escapeHTML(hint)+'</p>'+
+  matches.slice(0,8).map(f=>'<button type="button" class="btn small light" data-act="pickGuideCatalogSwap" data-guidecatalogpick="'+escapeHTML(f.id)+'">'+escapeHTML(f.name)+'</button>').join("");
 }
 function prepareGuideCatalogSwap(event){
  const select=event.target.closest?.('select[data-guidecatalogcurrent]');
@@ -3726,6 +3738,7 @@ function guidedDayContents(plan,goal,editable=false){
     '<label class="ncc-guide-amount"><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+(min/factor)+'" max="'+(max/factor)+'" step="'+(countable?1:"any")+'" data-guideoriginal="'+f.qty+'" data-guidedisplay="'+displayQty+'" value="'+displayQty+'" aria-label="Cantidad de '+escapeHTML(f.name)+'"> <span>'+escapeHTML(portion?.label||f.unit)+'</span></label></div>'+
     (flexible?'<div class="ncc-guide-food-options" data-guidecatalogrow><div>'+
      '<label class="efg-guide-select-label">Buscar alimento <input type="search" autocomplete="off" data-guidecatalogsearch placeholder="Todo el catálogo…"></label>'+
+     '<div data-guidecatalogresults hidden></div>'+
      '<label class="efg-guide-select-label">Elegir alimento <select data-guidecatalogcurrent="'+escapeHTML(f.id)+'" data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Elegir alimento en '+escapeHTML(meal.label)+' para la fila de '+escapeHTML(f.name)+'">'+
      '<option value="'+escapeHTML(f.id)+'">'+escapeHTML(f.name)+'</option></select></label>'+
      (portion?'<small>1 '+escapeHTML(portion.label)+' ≈ '+num(portion.grams,2)+' g</small>':'')+
@@ -6286,6 +6299,16 @@ if(el.dataset.foodbulk){
   const [slot,index]=String(el.dataset.guideremovefood||"").split(":");
   state.coachGuidedDraft=removeFlexibleFood(draft,slot,Number(index),goal);
   showGuidedEditor();notify("Alimento quitado de la guía; recalculé las cantidades restantes.");return;
+ }
+ if(action==="pickGuideCatalogSwap"){
+  if(state.renderedDay&&state.renderedDay!==today()){await updateAtDayChange();return;}
+  const row=el.closest("[data-guidecatalogrow]");
+  const select=row?.querySelector("[data-guidecatalogcurrent]");
+  const id=el.dataset.guidecatalogpick;
+  if(!select||!id||![...select.options].some(option=>option.value===id))return;
+  select.value=id;
+  select.dispatchEvent(new Event("change",{bubbles:true}));
+  return;
  }
  if(action==="addGuidedFood"){
   const goal=activeCoachGuideGoal(),draft=readGuidedEditor(),slot=el.dataset.guideaddfood;

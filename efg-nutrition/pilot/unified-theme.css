@@ -632,3 +632,12 @@ html.ncc-lime-theme #app .ncc-direct-day .meal-popup>.between button{flex:0 0 au
 html.ncc-lime-theme #app .ncc-direct-day .ncc-day-meal-panel>.student-meal-heading::after{content:none!important}
 html.ncc-lime-theme #app .pilot-layout .ncc-direct-day #studentMeals .ncc-day-meal-panel .meal-actions [data-setmeal]{background:#91bf50!important;color:#101609!important;--ncc-text:#101609;border-color:#789b42!important;box-shadow:none!important}
 html.ncc-lime-theme #app .pilot-layout .ncc-direct-day .student-shortcuts button:first-child{background:#192210!important;color:#edf2e6!important;border:1px solid #789b42!important;box-shadow:none!important}
+
+/* Inline Guide matches stay readable with mobile typing and use the existing draft action. */
+html.ncc-lime-theme #app [data-guidecatalogsearch]{text-align:left}
+html.ncc-lime-theme #app [data-guidecatalogresults]:not([hidden]){display:grid;gap:6px;max-height:200px;overflow:auto;padding:2px}
+html.ncc-lime-theme #app [data-guidecatalogresults] .btn{margin:0;width:100%;min-width:0;text-align:left;white-space:normal;overflow-wrap:anywhere}
+html.ncc-lime-theme #app [data-guidecatalogresults][hidden]{display:none}
+@media(max-width:720px){
+ html.ncc-lime-theme #app .ncc-plan-journey:has([data-guidecatalogrow]:focus-within) :is(.ncc-plan-steps,.ncc-plan-step-actions){position:static}
+}

@@ -131,10 +131,15 @@ export async function assertCompactGuideEditor(page){
  const row=card.locator('.ncc-guide-food-compact').first();
  const input=row.locator('[data-guideqty]');const old=await input.inputValue();
  const before=await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.coachGuidedDraft));
- assert.equal(await row.locator('details').getAttribute('open'),null);
- await row.locator('summary').click();await row.locator('summary').click();
+ assert.equal(await row.locator('details').count(),0,'No per-food Edit disclosure');
+ const search=row.locator('[data-guidecatalogsearch]');
+ const select=row.locator('[data-guidecatalogcurrent]');
+ assert.equal(await search.isVisible(),true,'Catalog search is visible on the food row');
+ assert.equal(await select.isVisible(),true,'Catalog selection is visible on the food row');
+ await select.focus();
+ assert.ok(await select.locator('optgroup option').count()>1,'Direct selector loads the catalog');
  assert.equal(await input.inputValue(),old);assert.equal(await input.isVisible(),true);
- assert.equal(await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.coachGuidedDraft)),before,'Disclosure changes do not change the plan');
+ assert.equal(await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.coachGuidedDraft)),before,'Looking at the catalog does not change the plan');
  const sizes=await row.evaluate(el=>{const name=el.querySelector('.efg-guide-food-name').getBoundingClientRect(),qty=el.querySelector('input').getBoundingClientRect();return {name,qty};});
  assert.ok(sizes.qty.x>=sizes.name.right&&sizes.qty.height>=44,'Food and quantity share a row');
 }

@@ -61,6 +61,13 @@ const fiberTopic = `<section aria-label="Fibra y microbiota intestinal">
  <li><strong>Almuerzo.</strong> Agregá lentejas, garbanzos o porotos a una ensalada o un guiso.</li>
  <li><strong>Cena.</strong> Combiná arroz integral con verduras, como brócoli o zanahoria.</li></ul>
  <p><a href="https://www.who.int/publications/i/item/9789240073593" target="_blank" rel="noopener noreferrer">Consultar la guía de la OMS sobre hidratos y fibra · 2023</a></p>
+ <h3>Arroz y papa: cociná, enfriá y, si querés, recalentá</h3>
+ <p>Cuando enfriás arroz o papa ya cocidos en la heladera, parte del almidón se reorganiza. Este cambio se llama <strong>retrogradación</strong> y forma almidón resistente. Esa parte llega al colon, donde algunas bacterias de la microbiota pueden fermentarla. No hace falta comerlos fríos: después de recalentarlos puede quedar parte del almidón resistente.</p>
+ <p><strong>Arroz blanco:</strong> en un estudio, pasó de 0,64 a 1,65 g de almidón resistente por cada 100 g de arroz cocido tras refrigerarlo y recalentarlo. En 15 adultos, el arroz recalentado también produjo una menor subida de glucosa después de comer. <strong>Papa:</strong> en otro estudio, la papa fría tuvo más almidón resistente que la recién cocida, y la recalentada quedó en un punto intermedio. Son resultados de preparaciones concretas: no hace falta ajustar las porciones ni el registro en la app.</p>
+ <p><strong>Enfriá de forma segura.</strong> Repartí el arroz en recipientes bajos y pasalo pronto a la heladera, idealmente dentro de una hora. Consumilo dentro de 24 horas. Si lo recalentás, hacelo una sola vez y dejalo bien caliente en todo el plato. No lo dejes horas en la mesada.</p>
+ <p><a href="https://pubmed.ncbi.nlm.nih.gov/26693746/" target="_blank" rel="noopener noreferrer">Estudio en arroz · Sonia y cols., 2015</a><br>
+ <a href="https://pubmed.ncbi.nlm.nih.gov/27132853/" target="_blank" rel="noopener noreferrer">Estudio en papa · Raatz y cols., 2016</a><br>
+ <a href="https://www.food.gov.uk/print/pdf/node/4286" target="_blank" rel="noopener noreferrer">Guía de seguridad alimentaria para el arroz · Food Standards Agency</a></p>
  </section>`;
 const libraryTopics=[
  ["Energía y calorías","Entendé lo básico","guide/oats-r1.webp"],

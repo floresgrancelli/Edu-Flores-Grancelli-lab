@@ -33,7 +33,7 @@ const paths=execFileSync('git',['-c','safe.directory='+root,'diff','--diff-filte
 for(const path of paths.filter(x=>/\.m?js$/.test(x)&&!x.endsWith('/pilot.js')&&!x.endsWith('/version-notice.js')&&!x.endsWith('/notifications-ui.js')&&!x.endsWith('/guided-countable-portions.js')&&!x.endsWith('/food-visuals-r2.js')&&!x.endsWith('/food-catalog.js')&&!x.endsWith('/food-catalog-batch-20261113.js')&&!x.endsWith('/food-catalog-batch-two-20261113.js')&&!x.endsWith('/coach-relaunch-entry-client.js')&&!x.endsWith('/guided-day-v2.js')&&!x.endsWith('/guided-day.js'))){
  // These modules have separately verified versions after the catalog baseline.
  const reviewedBlobs={
-  'efg-nutrition/pilot/science-welcome.js':'d0bce0d079c26bb364256f448ba3ff9228569394',
+  'efg-nutrition/pilot/science-welcome.js':'fbb4a1f28758eaec1f63b4f3429c294ab8b639fd',
   'efg-nutrition/pilot/workspace-tabs.js':'e23616d819800948ecd3663f373f1c5498732b46',
   'efg-nutrition/pilot/coach-pilot-intake-client.js':'8be5aad592125d81ab871140ab59519a7d2c4570'
  };

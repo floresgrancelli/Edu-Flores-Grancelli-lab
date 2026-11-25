@@ -52,6 +52,7 @@ const sb={from(table){
 ${sourceLine('const escapeHTML=')}
 ${sourceLine('const mealSlots=')}
 ${sourceLine('const values=')}
+${sourceLine('const consumedEntries=')}
 ${sourceLine('const dailyTotals=')}
 ${between('function createCoachPublicationRequestId(', 'function coachPublicationFailureMessage(')}
 ${between('function periodReportContext(){','function coachReportsView(){')}

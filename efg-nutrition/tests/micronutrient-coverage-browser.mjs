@@ -64,7 +64,7 @@ try{for(const engine of (process.env.NCC_TEST_ENGINES||'chromium,webkit').split(
   assert.ok(await block.locator('.ncc-micro-food').count()>0);assert.ok((await block.textContent()).includes('Referencia diaria general'));assert.match(await block.locator('[data-micronutrient=magnesium] .ncc-micro-value').textContent(),/\/ 420 mg/);assert.match(await block.locator('[data-micronutrient=magnesium] .ncc-micro-progress').textContent(),/%/);
   assert.equal(await block.locator('.ncc-micro-rows [data-scale=unscaled]').count(),0);
   await block.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-referencia-general.png')});
-  await block.locator('.ncc-micro-expand > summary').click();assert.equal(await block.locator('[data-micro-detail]').count(),7);
+  await block.locator('.ncc-micro-expand > summary').click();assert.equal(await block.locator('[data-micro-detail]').count(),8);
   assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Lomo vacuno cocido/);assert.match(await block.locator('[data-micro-detail=epa_dha]').textContent(),/Sashimi de salmón/);
   assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Riñón/);assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Merluza cocida/);assert.match(await block.locator('[data-micronutrient=epa_dha] .ncc-micro-value').textContent(),/250 mg/);
   await block.locator('[data-micro-detail=iron] .ncc-micro-sources > summary').click();

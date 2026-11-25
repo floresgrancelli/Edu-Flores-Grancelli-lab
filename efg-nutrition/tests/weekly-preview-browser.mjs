@@ -39,6 +39,7 @@ const sb={from(table){if(table!=='efg_weekly_reports')throw Error('Unexpected ta
 ${line('const escapeHTML=')}
 ${line('const mealSlots=')}
 ${line('const values=')}
+${line('const consumedEntries=')}
 ${line('const dailyTotals=')}
 ${between('function weeklyStudentPanel(){','const luxuryWeeklyEditor=createLuxuryWeeklyEditor();')}
 ${between('function buildCurrentLuxuryModel(){','function periodReportContext(){')}

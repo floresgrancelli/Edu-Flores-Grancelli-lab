@@ -18,6 +18,10 @@ copyFileSync(resolve(root,'efg-nutrition/tests/food-entry-sdk.mjs'),resolve(prev
 // Restore this editorial module's public photo URLs only; the generic adapter
 // replaces every external URL with a placeholder. Auth/SDK isolation stays intact.
 copyFileSync(resolve(root,'efg-nutrition/pilot/nutrition-daily-tip.js'),resolve(preview,'dist/efg-nutrition/pilot/nutrition-daily-tip.js'));
+// Keep the real hrefs when checking external link styles. The page route blocks external requests.
+for(const module of ['nutrition-science.js','science-welcome.js']){
+ copyFileSync(resolve(root,'efg-nutrition/pilot',module),resolve(preview,'dist/efg-nutrition/pilot',module));
+}
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.avif':'image/avif','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml'};
 const server=createServer((req,res)=>{try{const path=decodeURIComponent(new URL(req.url,'http://localhost').pathname);let file=resolve(preview,'dist','.'+path+(path.endsWith('/')?'index.html':''));if(!file.startsWith(preview+'/dist/'))throw Error();res.setHeader('content-type',mime[extname(file)]||'application/octet-stream');res.end(readFileSync(file));}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -34,6 +38,20 @@ try{for(const engine of ['chromium','webkit']){
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(origin+'/efg-nutrition/pilot/');
  await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
+ await page.evaluate(async()=>{
+  const v=window.__NCC_R4_FULLAPP__,day=v.state.diary;
+  day.meals.desayuno=[{name:'Avena',fi:2.5},{name:'Huevo',fi:0}];
+  day.meals.merienda=[{name:'Avena',fi:1.25},{name:'Pera',fi:2}];
+  day.meals.cena=[{name:'Comida omitida',fi:9}];day.skipped={cena:true};
+  day.sports=[{name:'Psyllium',fi:1,kind:'supplement'}];
+  await v.render();
+ });
+ await page.locator('.ncc-micro-expand > summary').click();
+ const fiber=page.locator('[data-micro-detail="fiber"]');
+ assert.equal(await fiber.locator('li').count(),3);
+ assert.deepEqual(await fiber.locator('li span').allTextContents(),['Avena','Pera','Psyllium (suplemento)']);
+ assert.deepEqual(await fiber.locator('li strong').allTextContents(),['3,75 g','2 g','1 g']);
+ assert.match(await fiber.locator('.ncc-micro-amount').textContent(),/6,8 g/);
  await page.evaluate(async role=>{const v=window.__NCC_R4_FULLAPP__;v.state.profile.role=role;v.state.tab='nutritionScience';await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;},role);
  const before=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
  const topics=page.locator('.ns-topic');assert.equal(await topics.count(),11);
@@ -49,6 +67,12 @@ try{for(const engine of ['chromium','webkit']){
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Expanded content fits');
  if(i===1||i===8)await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-topic-'+i+'.png'),fullPage:true});
  }
+ const externalLinks=page.locator('.ns-science-library a[href^="https://"]');
+ assert.equal(await externalLinks.count(),9);
+ assert.ok(await externalLinks.evaluateAll(links=>links.every(link=>{
+  const style=getComputedStyle(link);
+  return style.color==='rgb(139, 213, 255)'&&style.textDecorationLine.includes('underline');
+ })));
  assert.equal(await page.locator('.ns-sources a').count(),7);
  await topics.nth(9).locator(':scope > summary').click();
  await topics.nth(8).locator(':scope > summary').click();

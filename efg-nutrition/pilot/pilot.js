@@ -3664,6 +3664,36 @@ function guideQuantityLabel(food){
  const portion=guidePortion(food);
  return portion?num(food.qty/portion.grams,2)+' × '+portion.label:num(food.qty,2)+' '+food.unit;
 }
+// The category controls ordering only. Every guide-eligible catalog food remains selectable.
+const guideCatalogFoodGroup=food=>food?guidedMealGroupFor(food,groupIdFor(food)):"other";
+const guideCatalogFoods=()=>[...new Map(foods.filter(food=>!food.diaryOnly)
+ .map(food=>[food.id,food])).values()];
+function fillGuideCatalogSwap(select,query=""){
+ const words=plannerNormalizeQuery(query).split(/\s+/).filter(Boolean);
+ const grouped=new Map();
+ const current=select.dataset.guidecatalogcurrent;
+ const preferred=guideCatalogFoodGroup(foods.find(food=>food.id===current));
+ const buckets=[[preferred,GUIDED_MEAL_GROUPS.find(g=>g.id===preferred)?.title],
+  ...GUIDED_MEAL_GROUPS.filter(g=>g.id!==preferred).map(g=>[g.id,g.title])];
+ for(const food of guideCatalogFoods()){
+  if(!words.every(word=>plannerNormalizeQuery(foodSearchText(food)).includes(word)))continue;
+  const key=guideCatalogFoodGroup(food);
+  if(!grouped.has(key))grouped.set(key,[]);
+  grouped.get(key).push(food);
+ }
+ select.innerHTML='<option value="">'+(grouped.size?'Elegí un alimento':'Sin coincidencias')+'</option>'+
+  buckets.map(([key,title])=>{
+   const list=grouped.get(key);if(!list?.length)return "";
+   list.sort((a,b)=>a.name.localeCompare(b.name,"es-AR"));
+   return '<optgroup label="'+escapeHTML(title)+'">'+option(list)+'</optgroup>';
+  }).join("");
+ select.value=[...select.options].some(x=>x.value===current)?current:"";
+ select.dataset.guidecatalogloaded="1";
+}
+function prepareGuideCatalogSwap(event){
+ const select=event.target.closest?.('select[data-guidecatalogcurrent]');
+ if(select&&select.dataset.guidecatalogloaded!=="1")fillGuideCatalogSwap(select);
+}
 function guidedDayContents(plan,goal,editable=false){
  const flexible=plan.kind==="flexible_meal_guide";
  const viewKey=[state.session?.user?.id||'',state.selectedStudent||'',editable?'edit':'view',goal?.id||''].join('|');
@@ -3676,7 +3706,7 @@ function guidedDayContents(plan,goal,editable=false){
   // Mantener índice ORIGINAL aunque se presenten los alimentos por grupos.
   // Nunca duplicar un plato preparado ni alterar la cuenta de nutrientes.
   const foodRow=(f,i)=>{
-   const alt=editable?guidedFoodAlternatives(f.id,foods):[];
+   const alt=editable&&!flexible?guidedFoodAlternatives(f.id,foods):[];
    const [min,max]=recipeIngredientLimits(f)||guidedPortionBounds(f.id,flexible&&goal?.kcal<=1800);
    const countable=f.recipeComponent?null:guidedCountablePortion(f.id);
    const portion=guidePortion(f),factor=portion?.grams||1,displayQty=portion?Number((f.qty/factor).toFixed(2)):f.qty;
@@ -3686,10 +3716,14 @@ function guidedDayContents(plan,goal,editable=false){
     (f.recipeComponent?'<small>'+escapeHTML(f.recipeLabel||'Ingrediente de receta')+'</small>':'');
    if(editable)return '<div class="efg-guide-food ncc-guide-food-compact"><div class="ncc-guide-food-line"><div class="efg-guide-food-name">'+identity+'</div>'+
     '<label class="ncc-guide-amount"><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+(min/factor)+'" max="'+(max/factor)+'" step="'+(countable?1:"any")+'" data-guideoriginal="'+f.qty+'" data-guidedisplay="'+displayQty+'" value="'+displayQty+'" aria-label="Cantidad de '+escapeHTML(f.name)+'"> <span>'+escapeHTML(portion?.label||f.unit)+'</span></label></div>'+
-    '<details class="ncc-guide-food-options"><summary>Editar<span class="sr-only"> '+escapeHTML(f.name)+'</span></summary><div>'+
-    (alt.length>1?select:'<p class="pilot-hint">Usá «Agregar o reemplazar alimento» para elegir del catálogo.</p>')+
-    (portion?'<small>1 '+escapeHTML(portion.label)+' ≈ '+num(portion.grams,2)+' g</small>':'')+
-    (flexible&&meal.items.length>1?'<button type="button" class="btn small ghost" data-act="removeGuidedFood" data-guideremovefood="'+escapeHTML(meal.slot)+':'+i+'">Quitar alimento</button>':'')+'</div></details></div>';
+    (flexible?'<div class="ncc-guide-food-options" data-guidecatalogrow><div>'+
+     '<label class="efg-guide-select-label">Buscar alimento <input type="search" autocomplete="off" data-guidecatalogsearch placeholder="Todo el catálogo…"></label>'+
+     '<label class="efg-guide-select-label">Elegir alimento <select data-guidecatalogcurrent="'+escapeHTML(f.id)+'" data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Elegir alimento en '+escapeHTML(meal.label)+' para la fila de '+escapeHTML(f.name)+'">'+
+     '<option value="'+escapeHTML(f.id)+'">'+escapeHTML(f.name)+'</option></select></label>'+
+     (portion?'<small>1 '+escapeHTML(portion.label)+' ≈ '+num(portion.grams,2)+' g</small>':'')+
+     (meal.items.length>1?'<button type="button" class="btn small ghost" data-act="removeGuidedFood" data-guideremovefood="'+escapeHTML(meal.slot)+':'+i+'">Quitar alimento</button>':'')+'</div></div>':
+     '<details class="ncc-guide-food-options"><summary>Editar<span class="sr-only"> '+escapeHTML(f.name)+'</span></summary><div>'+select+
+     (portion?'<small>1 '+escapeHTML(portion.label)+' ≈ '+num(portion.grams,2)+' g</small>':'')+'</div></details>')+'</div>';
    return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+identity+
     (portion?'<small class="efg-guide-equivalence">1 '+escapeHTML(portion.label)+' ≈ '+num(portion.grams,2)+' g</small>':'')+'</div><b class="ncc-guide-quantity">'+escapeHTML(guideQuantityLabel(f))+'</b></div>';
   };
@@ -3709,18 +3743,17 @@ function guidedDayContents(plan,goal,editable=false){
    (editable&&flexible&&plan.meals.length>2?'<button type="button" class="btn small ghost" data-act="removeGuidedMeal" data-guideremovemeal="'+escapeHTML(meal.slot)+'">Quitar horario</button>':'')+'</div>'+
    guideIngredientPhoto(meal)+'<p class="efg-guide-description">'+escapeHTML(describeGuidedMeal(meal))+'</p>'+
    contents+
-   (editable&&flexible?'<details class="ncc-guide-add-options"><summary>Agregar o reemplazar alimento</summary><div class="efg-guide-add-food"><label>Buscar para agregar alimento a '+escapeHTML(meal.label)+
+   (editable&&flexible?'<details class="ncc-guide-add-options"><summary>Agregar alimento o receta</summary><div class="efg-guide-add-food"><label>Buscar para agregar alimento a '+escapeHTML(meal.label)+
     '<input type="search" autocomplete="off" data-guidefoodsearch="'+escapeHTML(meal.slot)+'" placeholder="Alimento o receta Fit…"></label>'+
     '<select aria-label="Seleccionar alimento para agregar" data-guidefoodpick="'+escapeHTML(meal.slot)+'">'+
      '<option value="">Elegí alimento o receta Fit</option>'+option(coachGuidePickerFoods())+'</select>'+
-    // Reuse this one full-catalog picker for both add and replace. No 500-option
-    // dropdown for every ingredient and no restriction of the common catalog.
-    '<label>Acción sobre la comida <select data-guidereplaceindex="'+escapeHTML(meal.slot)+'" aria-label="Agregar o reemplazar alimento en '+escapeHTML(meal.label)+'">'+
-     '<option value="">Agregar sin reemplazar</option>'+
-     meal.items.map((item,index)=>'<option value="'+index+'">Reemplazar '+escapeHTML(item.name||item.id)+'</option>').join('')+
-     '</select></label>'+
+    // Normal food substitution now happens on the row; a recipe can still go in its place.
+    '<div data-guiderecipeplacement hidden><label>Ubicación de la receta <select data-guidereplaceindex="'+escapeHTML(meal.slot)+'" aria-label="Ubicación de la receta en '+escapeHTML(meal.label)+'">'+
+     '<option value="">Agregar a la comida</option>'+
+     meal.items.map((item,index)=>'<option value="'+index+'">En lugar de '+escapeHTML(item.name||item.id)+'</option>').join('')+
+     '</select></label></div>'+
     '<label>Porciones de receta <input data-guiderecipeserving="'+escapeHTML(meal.slot)+'" type="number" min="0.5" max="4" step="0.5" value="1"></label>'+
-    '<button type="button" class="btn small light" data-act="addGuidedFood" data-guideaddfood="'+escapeHTML(meal.slot)+'">Agregar o reemplazar</button></div></details>':'')+
+    '<button type="button" class="btn small light" data-act="addGuidedFood" data-guideaddfood="'+escapeHTML(meal.slot)+'">Agregar</button></div></details>':'')+
    '<small class="ncc-guide-nutrients" data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small>'+
    (!editable&&state.profile?.role==='student'&&mealSlots.some(([slot])=>slot===meal.slot)?'<button type="button" class="btn ncc-guide-register" data-setmeal="'+escapeHTML(meal.slot)+'">Registrar lo que comí</button><small class="ncc-guide-register-hint">Elegís y confirmás lo que comiste.</small>':'')+'</article>';
  }).join("");
@@ -6460,7 +6493,16 @@ root.addEventListener("change",e=>{
   if(status)status.textContent='Selección pendiente: usá Generar o Regenerar para aplicarla. La guía actual y sus ediciones se conservan hasta entonces.';
   return;
  }
-  if(e.target.id==="efgIntakeShare"){
+  if(e.target.hasAttribute("data-guidefoodpick")){
+  const panel=e.target.closest(".ncc-guide-add-options");
+  const placement=panel?.querySelector("[data-guiderecipeplacement]");
+  const selected=coachGuidePickerFoods().find(x=>x.id===e.target.value);
+  if(placement){
+   placement.hidden=!Array.isArray(selected?.recipeIngredients);
+   if(placement.hidden)placement.querySelector("select").value="";
+  }
+ }
+ if(e.target.id==="efgIntakeShare"){
    const btn=document.getElementById("efgIntakeSubmitButton");
    if(btn)btn.textContent=intakeSaveButtonLabel({
     wasShared:!!state.studentIntake?.shared_at,willShare:!!e.target.checked
@@ -6476,9 +6518,12 @@ root.addEventListener("change",e=>{
  if(e.target.dataset.habitualchoice){updateHabitualPreview(e.target.dataset.habitualchoice);return;}if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
  const targetGoal=activeCoachGuideGoal();if(!targetGoal)return;
  const draft=readGuidedEditor(),[slot,index]=e.target.dataset.guideswap.split(":");
+ const previous=draft.meals.find(meal=>meal.slot===slot)?.items?.[Number(index)];
+ if(!e.target.value||e.target.value===previous?.id)return;
+
  if(draft.kind==="flexible_meal_guide"){
   const candidate=foods.find(x=>x.id===e.target.value);
-  if(!candidate)throw Error("La alternativa ya no está en el catálogo.");
+  if(!candidate||candidate.diaryOnly)throw Error("La alternativa ya no está disponible en la Dieta Guía.");
   const signal=reviewCoachGuideFoodChange(candidate,currentCoachGuideProfile());
   if(signal.needsReview&&!window.confirm(signal.message)){
    showGuidedEditor();return;
@@ -6502,11 +6547,13 @@ root.addEventListener("change",e=>{
   openMealDialog(e.target.value);
   if(foodId){pickMealSearchSuggestion(foodId);if(document.getElementById("mealEditorFood")?.value===foodId){document.getElementById("mealEditorQty").value=quantity;document.getElementById("mealEntryMode").value=mode;updateMealEntryMode(false);}}
  }if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];syncPlannerSearchActions(key);updatePlannerPreview();}if(e.target.dataset.skipmeal){saveSkippedMealChoice(e.target.dataset.skipmeal,e.target.checked,e.target).catch(fail);}});
+root.addEventListener("focusin",prepareGuideCatalogSwap);
+root.addEventListener("pointerdown",prepareGuideCatalogSwap);
 // Prevent Gboard IME input before compositionend from rebuilding native selects.
 const composingFoodSearchTargets=new WeakSet();
 root.addEventListener("compositionstart",event=>{
  const target=event.target;
- if(target?.id==="mealFoodSearch"||target?.dataset?.plansearch)composingFoodSearchTargets.add(target);
+ if(target?.id==="mealFoodSearch"||target?.dataset?.plansearch||target?.hasAttribute?.("data-guidecatalogsearch"))composingFoodSearchTargets.add(target);
 });
 root.addEventListener("compositionend",event=>{
  const target=event.target;
@@ -6514,6 +6561,10 @@ root.addEventListener("compositionend",event=>{
  composingFoodSearchTargets.delete(target);
  if(target.id==="mealFoodSearch")filterMealFoods();
  else if(target.dataset?.plansearch)filterPlannerFoods(target);
+ else if(target.hasAttribute?.("data-guidecatalogsearch")){
+  const select=target.closest("[data-guidecatalogrow]")?.querySelector("[data-guidecatalogcurrent]");
+  if(select)fillGuideCatalogSwap(select,target.value);
+ }
 });
 function foodSearchReadyForInput(event){
  return !event.isComposing&&!composingFoodSearchTargets.has(event.target);
@@ -6554,6 +6605,10 @@ root.addEventListener("input",e=>{
   const countable=food?.recipeComponent?null:guidedCountablePortion(food?.id);
   if(countable&&Math.abs(qty/countable.grams-Math.round(qty/countable.grams))>1e-8)return; // Normalize on change, before locking.
   if(food&&e.target.value.trim()&&Number.isFinite(qty)&&qty>0){food.qty=qty;food.locked=true;updateGuidedTotalsUI();}
+ }
+ if(e.target.hasAttribute("data-guidecatalogsearch")&&foodSearchReadyForInput(e)){
+  const select=e.target.closest("[data-guidecatalogrow]")?.querySelector("[data-guidecatalogcurrent]");
+  if(select)fillGuideCatalogSwap(select,e.target.value);
  }
  if(e.target.dataset.guidefoodsearch&&foodSearchReadyForInput(e)){
   const slot=e.target.dataset.guidefoodsearch,select=[...root.querySelectorAll("[data-guidefoodpick]")].find(x=>x.dataset.guidefoodpick===slot);

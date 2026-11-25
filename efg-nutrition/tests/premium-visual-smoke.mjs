@@ -268,9 +268,12 @@ try{
    assert.ok((await editor.locator('[data-guidefoodpick="almuerzo"] option').count())>=catalogSize,
     'Coach retains every prescribed food; diary-only restaurant/alcohol references stay outside prescriptions');
    assert.equal(await editor.locator('[data-guidefoodpick="almuerzo"] option[value="tofu_firm"]').count(),1);
-   await editor.locator('[data-guidereplaceindex="almuerzo"]').selectOption('0');
-   await editor.locator('[data-guidefoodpick="almuerzo"]').selectOption('tofu_firm');
-   await editor.locator('[data-guideaddfood="almuerzo"]').click();
+   assert.equal(await editor.locator('[data-guidereplaceindex="almuerzo"]').isVisible(),false,
+    'Ordinary foods are chosen inline rather than through a separate replacement action');
+   const swap=editor.locator('[data-guideswap="almuerzo:0"]');
+   await swap.focus();
+   assert.equal(await swap.locator('option[value="tofu_firm"]').count(),1);
+   await swap.selectOption('tofu_firm');
    await page.waitForFunction(()=>window.__EFG_VISUAL_QA__.state.coachGuidedDraft
     ?.meals.find(m=>m.slot==='almuerzo')?.items[0]?.id==='tofu_firm');
    await editor.locator('[data-guidejump="media_tarde"]').click();

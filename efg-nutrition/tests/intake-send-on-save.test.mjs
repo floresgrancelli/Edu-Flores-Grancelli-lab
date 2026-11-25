@@ -38,6 +38,16 @@ test('one-step coach send has no extra sharing checkbox and explicit notice',()=
  assert.match(html,/data-intakereview/);
  assert.match(html,/data-intakepanel="3"/);
 });
+test('pending follow-up is available in review without sharing or submitting',()=>{
+ const options={editing:true,guided:true,sendOnSave:true};
+ const pending=renderCoachRelaunchEntry(intake,{...options,followupAccepted:false});
+ assert.match(pending,/data-intake-followup>/);
+ assert.match(pending,/type="button" class="btn light" data-act="grantIntakeFollowup"/);
+ assert.match(pending,/Podés revocar este permiso desde Privacidad/);
+ assert.doesNotMatch(pending,/id="coachRelaunch_share"/);
+ const accepted=renderCoachRelaunchEntry(intake,{...options,followupAccepted:true});
+ assert.match(accepted,/data-intake-followup hidden>/);
+});
 test('explicit final send sets sharing intent, never reading an old checkbox',()=>{
  const payload=readCoachRelaunchForm(mockDoc(),{sendOnSave:true});
  assert.equal(payload.shareWithCoach,true);

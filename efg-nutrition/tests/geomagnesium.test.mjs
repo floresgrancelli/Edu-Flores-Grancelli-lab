@@ -46,3 +46,15 @@ test('Gentech records actual capsules and counts EPA+DHA separately from total o
  }
  for(const qty of ['',0,-1,'no-numero'])await assert.rejects(record(qty,'omega3_gentech_epa_dha'));
 });
+
+test('Natural Whey glycine records grams actually consumed, not servings or complete protein',async()=>{
+ const id='glycine_natural_whey',product=vm.runInNewContext(list+';SUPPLEMENTS.find(x=>x.id==="'+id+'")');
+ assert.match(product.source,/3 g de glicina/);
+ assert.equal(product.sourceType,'user_provided_label');
+ for(const qty of [1.5,3]){
+  const d=await record(qty,id);assert.equal(d.sports.length,1);const entry=d.sports[0];
+  assert.equal(entry.id,id);assert.equal(entry.kind,'supplement');assert.equal(entry.qty,qty);assert.equal(entry.unit,'g');
+  assert.equal(entry.p,0);assert.equal(entry.k,0);
+ }
+ for(const qty of ['',0,-1])await assert.rejects(record(qty,id));
+});

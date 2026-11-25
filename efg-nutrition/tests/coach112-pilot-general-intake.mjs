@@ -79,7 +79,7 @@ assert.equal(sharedLater.shared,true);
 
 const beforeFollowupDenied=nRPC;
 await assert.rejects(submitCoachPilotGeneralIntake(fake({followup:false}),{
- profile,payload,expectedRevision:0,shareWithCoach:true,explicitSubmit:true}),/seguimiento en Privacidad/);
+ profile,payload,expectedRevision:0,shareWithCoach:true,explicitSubmit:true}),{code:"FOLLOWUP_REQUIRED"});
 assert.equal(nRPC,beforeFollowupDenied,'Missing follow-up consent cannot share intake');
 const s=await submitCoachPilotGeneralIntake(sb,{profile,payload,expectedRevision:0,shareWithCoach:true,explicitSubmit:true});
 assert.equal(s.intake.revision,1);

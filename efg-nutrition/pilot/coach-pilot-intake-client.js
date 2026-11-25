@@ -105,9 +105,9 @@ export async function submitCoachPilotGeneralIntake(sb,{profile,payload,shareWit
   const followup=await sb.from('efg_consents').select('student_id,accepted')
    .eq('student_id',userId).maybeSingle();
   await requireSameSession(sb,userId);
-  if(followup.error)throw Error('No se pudo verificar el seguimiento. Guardá la ficha privada y revisá Privacidad.');
+  if(followup.error)throw Error('No se pudo verificar el seguimiento. Intentá nuevamente; tu ficha sigue en esta pantalla.');
   if(followup.data?.student_id!==userId||followup.data?.accepted!==true)
-   throw Error('Antes de compartir tu ficha, autorizá el seguimiento en Privacidad. Podés guardarla privada sin compartir.');
+   throw Object.assign(Error('Antes de enviar la ficha, autorizá el seguimiento en esta pantalla.'),{code:'FOLLOWUP_REQUIRED'});
  }
  const res=await sb.rpc('efg_submit_coach_relaunch_intake',{
   p_completed_version:COACH_RELEASE_INTAKE_VERSION,p_payload:general,

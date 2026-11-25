@@ -102,12 +102,12 @@ import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-stud
 import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=ncc-ficha-seguimiento-r1-20261125";
 import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {showCoachIntakeStep,validateCoachIntakeSteps,loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-intake-meal-hours-r1-20261115";
+import {showCoachIntakeStep,validateCoachIntakeSteps,loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-ficha-seguimiento-r1-20261125";
 import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 
@@ -4511,7 +4511,7 @@ async function render(){
     const saved=state.coachPilotIntake;
     root.innerHTML=renderCoachRelaunchEntry(
      saved?{route:"ready",status:saved}:{route:"intake",status:null},
-     {editing:!!saved,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,guided:true,sendOnSave:true});
+     {editing:!!saved,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,guided:true,sendOnSave:true,followupAccepted:state.consent?.accepted===true});
    }else if(pilot?.route==="review"||pilot?.route==="private"){
     // Reading nutrition education must not allow diary writes before plan.
     if(state.tab==="nutritionScience")frame(renderScienceVerticalView());
@@ -4519,7 +4519,7 @@ async function render(){
     else if(state.tab==="privacy")frame(studentPrivacyView());
     else if(state.tab==="studentMore")frame(studentMoreView());
     else if(state.tab==="settings")frame(settingsView());
-    else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,guided:true,sendOnSave:true}));
+    else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,guided:true,sendOnSave:true,followupAccepted:state.consent?.accepted===true}));
     else if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.tab==="privateHealth")
      await renderPrivateHealthDeclaration();
     else if(pilot.route==="private")
@@ -5103,6 +5103,10 @@ async function refresh(){
    state.coachPilotEntry=await contextRead(fetchCoachPilotEntry(sb,{profile:state.profile}));
    if(state.coachPilotEntry.route==="legal")
     state.coachPilotLegal=await contextRead(loadCoachPilotLegal(sb,{profile:state.profile}));
+   if(state.coachPilotEntry.route==="intake"){
+    const consent=await contextRead(sb.from("efg_consents").select("student_id,accepted").eq("student_id",id).maybeSingle());
+    state.consent=!consent.error&&consent.data?.student_id===id?consent.data:null;
+   }
    if(["intake","private","review","ready"].includes(state.coachPilotEntry.route))
     state.coachPilotIntake=(await contextRead(loadCoachPilotGeneralIntake(sb,{profile:state.profile}))).intake;
    if(["review","private"].includes(state.coachPilotEntry.route)){
@@ -5178,6 +5182,10 @@ async function refreshVisibleWorkspace(){
    state.coachPilotLegal=null;state.coachPilotIntake=null;
    if(state.coachPilotEntry.route==="legal")
     state.coachPilotLegal=await contextRead(loadCoachPilotLegal(sb,{profile:state.profile}));
+   if(state.coachPilotEntry.route==="intake"){
+    const consent=await contextRead(sb.from("efg_consents").select("student_id,accepted").eq("student_id",id).maybeSingle());
+    state.consent=!consent.error&&consent.data?.student_id===id?consent.data:null;
+   }
    if(["intake","private","review","ready"].includes(state.coachPilotEntry.route))
     state.coachPilotIntake=(await contextRead(loadCoachPilotGeneralIntake(sb,{profile:state.profile}))).intake;
    if(!["ready","review","private"].includes(state.coachPilotEntry.route)){await contextRead(render());return;}
@@ -5283,6 +5291,17 @@ async function showProof(path){
  let r=await sb.storage.from("efg-receipts").createSignedUrl(path,60);
  if(r.error)throw r.error;
  window.open(r.data.signedUrl,"_blank","noopener,noreferrer");
+}
+function confirmStudentFollowupConsent(){
+ return window.confirm("¿Autorizás expresamente que tu coach asignado consulte tus registros de alimentación, peso, actividad y suplementos para tu seguimiento? Podés retirar el permiso cuando quieras.");
+}
+async function writeStudentFollowupConsent(id,accepted){
+ const {data,error}=await sb.from("efg_consents").update({
+  accepted,email_report_opt_in:false,updated_at:new Date().toISOString()
+ }).eq("student_id",id).select().single();
+ if(error)throw error;
+ if(data?.student_id!==id||data.accepted!==accepted)throw Error("No se pudo verificar el permiso.");
+ return data;
 }
 async function mainClick(event){
  if(state.dualCandidateCoach&&!event.target?.closest?.('[data-act="logout"],[data-act="retry"]')&&!isDualWorkspaceField(event.target))return;
@@ -6097,15 +6116,40 @@ if(el.dataset.foodbulk){
   await mutateSportDiary(d=>d.sports.push(normItem(product,qty,when)),"Consumo registrado.");
   return;
  }
+ if(action==="grantIntakeFollowup"){
+  const form=el.closest("#efgCoachRelaunchForm,#efgCoachRelaunchManageForm");
+  const panel=el.closest("[data-intake-followup]"),status=form?.querySelector("[data-intake-followup-status]");
+  if(!form||!panel||panel.hidden||el.disabled||!COACH_STUDENT_JOURNEY_ENABLED||
+   state.profile?.role!=="student"||!["intake","private","review","ready"].includes(state.coachPilotEntry?.route))return;
+  const id=state.session?.user?.id,epoch=state.authContextEpoch||0;
+  const current=()=>id&&state.session?.user?.id===id&&(state.authContextEpoch||0)===epoch&&form.isConnected;
+  if(!current()||!confirmStudentFollowupConsent())return;
+  el.disabled=true;
+  try{
+   const verified=await sb.auth.getUser();
+   if(!current())return;
+   if(verified.error||verified.data?.user?.id!==id)throw Error("No se pudo verificar tu sesión.");
+   const prior=await sb.from("efg_consents").select("student_id,accepted").eq("student_id",id).maybeSingle();
+   if(!current())return;
+   if(prior.error||prior.data?.student_id!==id)throw Error("No se pudo verificar tu permiso.");
+   const saved=prior.data.accepted===true?prior.data:await writeStudentFollowupConsent(id,true);
+   if(!current())return;
+   state.consent=saved;
+   const error=form.querySelector("#efgCoachIntakeSaveError");
+   if(error){error.hidden=true;error.textContent="";}
+   panel.hidden=true;
+   if(status)status.textContent="Seguimiento autorizado. Ya podés guardar y enviar la ficha.";
+   form.querySelector('button[type="submit"]')?.focus();
+  }catch{
+   if(current()&&status)status.textContent="No pudimos confirmar el permiso. Volvé a intentarlo. Tu ficha sigue en esta pantalla.";
+  }finally{if(current())el.disabled=false;}
+  return;
+ }
  if(action==="revokeConsent"||action==="grantConsent"){
  const accepted=action==="grantConsent";
  if(state.profile?.role!=="student"||!state.consent)throw Error("Permiso de seguimiento exclusivo del alumno.");
- if(accepted&&!window.confirm("¿Autorizás expresamente que tu coach asignado consulte tus registros de alimentación, peso, actividad y suplementos para tu seguimiento? Podés retirar el permiso cuando quieras."))return;
- const {data,error}=await sb.from("efg_consents").update({
-  accepted,email_report_opt_in:false,updated_at:new Date().toISOString()
- }).eq("student_id",state.session.user.id).select().single();
- if(error)throw error;
- state.consent=data;await render();
+ if(accepted&&!confirmStudentFollowupConsent())return;
+ state.consent=await writeStudentFollowupConsent(state.session.user.id,accepted);await render();
  notify(!accepted?"Permisos revocados.":"Seguimiento autorizado dentro de Nutrición Con-Ciencia.");
  return;
 }
@@ -6620,6 +6664,10 @@ root.addEventListener("submit",e=>{
    })().catch(error=>{
     const notice=e.target.querySelector('#efgCoachIntakeSaveError');
     if(notice){notice.textContent=error.message;notice.hidden=false;}
+    if(error.code==="FOLLOWUP_REQUIRED"){
+     const panel=e.target.querySelector("[data-intake-followup]");
+     if(panel){panel.hidden=false;panel.querySelector("button")?.focus();}
+    }
     fail(error);
    });
    return;

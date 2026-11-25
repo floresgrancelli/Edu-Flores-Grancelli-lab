@@ -6,7 +6,7 @@ import {readFileSync,writeFileSync,mkdirSync,copyFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {resolve,extname} from 'node:path';
 const root=fileURLToPath(new URL('../../',import.meta.url));
-const preview='/workspace/ncc-food-entry-preview-'+process.pid,out=resolve(root,'artifacts/science-library');
+const preview=process.env.NCC_SCIENCE_PREVIEW_DIR||'/workspace/ncc-food-entry-preview-'+process.pid,out=resolve(root,'artifacts/science-library');
 mkdirSync(out,{recursive:true});
 const prepare=spawnSync(process.execPath,['efg-nutrition/tests/prepare-student-day-visual.mjs',preview],{cwd:root,encoding:'utf8'});
 assert.equal(prepare.status,0,prepare.stderr);
@@ -68,7 +68,12 @@ try{for(const engine of ['chromium','webkit']){
  if(i===1||i===8)await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-topic-'+i+'.png'),fullPage:true});
  }
  const externalLinks=page.locator('.ns-science-library a[href^="https://"]');
- assert.equal(await externalLinks.count(),9);
+ assert.equal(await externalLinks.count(),12);
+ const fiberTopic=topics.filter({hasText:'Fibra y microbiota'});
+ await fiberTopic.getByRole('heading',{name:'Arroz y papa: cociná, enfriá y, si querés, recalentá'}).waitFor();
+ assert.equal(await fiberTopic.getByRole('link',{name:/Estudio en arroz/}).getAttribute('href'),'https://pubmed.ncbi.nlm.nih.gov/26693746/');
+ assert.equal(await fiberTopic.getByRole('link',{name:/Estudio en papa/}).getAttribute('href'),'https://pubmed.ncbi.nlm.nih.gov/27132853/');
+ assert.equal(await fiberTopic.getByRole('link',{name:/Guía de seguridad/}).getAttribute('href'),'https://www.food.gov.uk/print/pdf/node/4286');
  assert.ok(await externalLinks.evaluateAll(links=>links.every(link=>{
   const style=getComputedStyle(link);
   return style.color==='rgb(139, 213, 255)'&&style.textDecorationLine.includes('underline');

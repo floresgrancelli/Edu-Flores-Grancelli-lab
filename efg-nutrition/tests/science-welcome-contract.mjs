@@ -175,3 +175,12 @@ assert.doesNotMatch(vertical,/<details[^>]* open/);
 for(const panel of panels.slice(1))assert.ok(vertical.includes(panel),"Original scientific panel retained verbatim");
 
 assert.ok(vertical.includes('Fibra y microbiota') && vertical.includes('https://pubmed.ncbi.nlm.nih.gov/29757343/'));
+
+const fiber=vertical.match(/<section aria-label="Fibra y microbiota intestinal">[\s\S]*?<\/section>/)?.[0];
+assert.ok(fiber);
+assert.match(fiber,/Arroz y papa: cociná, enfriá y, si querés, recalentá/);
+assert.match(fiber,/0,64 a 1,65 g de almidón resistente por cada 100 g/);
+assert.match(fiber,/idealmente dentro de una hora.*24 horas.*una sola vez/);
+for(const url of ["https://pubmed.ncbi.nlm.nih.gov/26693746/","https://pubmed.ncbi.nlm.nih.gov/27132853/","https://www.food.gov.uk/print/pdf/node/4286"]){
+ assert.ok(fiber.includes('href="'+url+'" target="_blank" rel="noopener noreferrer"'));
+}
